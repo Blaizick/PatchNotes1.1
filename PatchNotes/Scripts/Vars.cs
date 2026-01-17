@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Vars : MonoBehaviour
 {
@@ -13,6 +17,9 @@ public class Vars : MonoBehaviour
     public GameStateSystem state;
     public TimeSystem time;
     public ResearchSystem researches;
+    public BuildingsSystem buildingsSystem;
+    public SpeedSystem speedSystem;
+    public UnlockedDetailsSystem unlockedDetails;
 
     private void Start()
     {
@@ -40,11 +47,17 @@ public class Vars : MonoBehaviour
         detailsSystem = new();
         detailsSystem.Init();
 
-        orders = new();
-        orders.Init();
-
         researches = new();
         researches.Init();
+
+        speedSystem = new();
+        speedSystem.Init();
+
+        unlockedDetails = new();
+        unlockedDetails.Init();
+
+        orders = new();
+        orders.Init();
 
         foreach (var i in Resources.FindObjectsOfTypeAll<Complex>())
         {
@@ -55,17 +68,21 @@ public class Vars : MonoBehaviour
             i.Init();
         }
 
+        buildingsSystem.Init();
         ui.Init();
     }
 
     public void Restart()
     {
+        unlockedDetails.Restart();
         state.Restart();
         moneySystem.Restart();
         detailsSystem.Restart();
         orders.Restart();
         time.Restart();
         researches.Restart();
+        buildingsSystem.Restart();
+        speedSystem.Restart();
     }
 
     public void Win()
@@ -82,6 +99,8 @@ public class Vars : MonoBehaviour
         time.Update();
         orders.Update();
         researches.Update();
+        speedSystem.Update();
+        unlockedDetails.Update();
     }
 }
 
@@ -98,7 +117,7 @@ public class MoneySystem
         money = 1000;
     }
 
-    public void TakeMoney(float count)
+    public void Take(float count)
     {
         money -= count;
     }
@@ -120,32 +139,36 @@ public static class Orders
     public static OrderType order2;
     public static OrderType order3;
 
-    public static List<OrderType> orderedOrdersList;
+    public static List<OrderType> requiredOrders;
     
     public static void Init()
     {
-        order0 = new()
+        order0 = new MoneyOrderType()
         {
-            money = 200,
-            time = 20
+            requiredMoney = 200,
+            time = 20,
+            name = "Required Order",
         };
-        order1 = new()
+        order1 = new MoneyOrderType()
         {
-            money = 105,
-            time = 10
+            requiredMoney = 200,
+            time = 20,
+            name = "Required Order",
         };
-        order2 = new()
+        order2 = new MoneyOrderType()
         {
-            money = 105,
-            time = 10
+            requiredMoney = 200,
+            time = 20,
+            name = "Required Order",
         };
-        order3 = new()
+        order3 = new MoneyOrderType()
         {
-            money = 105,
-            time = 10
+            requiredMoney = 200,
+            time = 20,
+            name = "Required Order",
         };
 
-        orderedOrdersList = new()
+        requiredOrders = new()
         {
             order0, order1, order2, order3
         };
@@ -154,42 +177,128 @@ public static class Orders
 
 public class OrderType
 {
-    public float money;
     public float time;
+    public Type type;
+    public string name;
+
+    public Order AsOrder()
+    {
+        var order = (Order)Activator.CreateInstance(type);
+        order.type = this;
+        return order;
+    }
+}
+
+public class MoneyOrderType : OrderType
+{
+    public float requiredMoney;
+
+    public MoneyOrderType() : base()
+    {
+        type = typeof(MoneyOrder);
+    }
+}
+public class DetailsOrderType : OrderType
+{
+    public List<DetailStack> requiredDetails;
+    public float moneyReward;
+
+    public DetailsOrderType() : base()
+    {
+        type = typeof(DetailsOrder);
+    }
+}
+
+public class Order
+{
+    public float startTime;
+
+    public Order()
+    {
+        startTime = Vars.Instance.time.day;
+    }
+
+    public OrderType type;
+
+    public virtual bool CanComplete => false;
+    public virtual void Complete() {}
+}
+public class MoneyOrder : Order
+{
+    public MoneyOrderType MoneyOrderType => (MoneyOrderType)type;
+
+    public override bool CanComplete => Vars.Instance.moneySystem.money >= MoneyOrderType.requiredMoney;
+    public override void Complete()
+    {
+        Vars.Instance.moneySystem.Take(MoneyOrderType.requiredMoney);
+    }
+}
+public class DetailsOrder : Order
+{
+    public DetailsOrderType DetailsOrderType => (DetailsOrderType)type;
+
+    public override bool CanComplete
+    {
+        get
+        {
+            foreach (var i in DetailsOrderType.requiredDetails)
+            {
+                if (!Vars.Instance.detailsSystem.HasEnought(i))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public override void Complete()
+    {
+        Vars.Instance.moneySystem.Add(DetailsOrderType.moneyReward);
+
+        foreach (var i in DetailsOrderType.requiredDetails)
+        {
+            Vars.Instance.detailsSystem.Remove(i);
+        }
+    }
 }
 
 public class OrderSystem
 {
-    public OrderType curOrder;
+    public List<OrderType> awailableOrders;
+    public List<Order> optionalOrders;
+    
+    public Order curOrder;
     public int curOrderId;
 
-    public float orderStartTime;
-    
+    public UnityEvent onChange = new();
+
+    public float lastUpdateTime;
+
     public void Init()
     {
-        curOrderId = 0;
-        orderStartTime = Time.time;
-        curOrder = Orders.orderedOrdersList[curOrderId];
+        Restart();
     }
-
     public void Restart()
     {
-        curOrderId = 0;
-        orderStartTime = Time.time;
-        curOrder = Orders.orderedOrdersList[curOrderId];
+        awailableOrders = new();
+        UpdateAwailableOrders();
+        SetRequiredOrder(0);
+        lastUpdateTime = 0.0f;
+        optionalOrders = new();
+        onChange?.Invoke();
     }
 
     public void Update()
     {
-        if (Time.time - orderStartTime > curOrder.time)
+        if (Vars.Instance.time.day - curOrder.startTime > curOrder.type.time)
         {
-            if (Vars.Instance.moneySystem.HaveEnoughtMoney(curOrder.money))
+            if (curOrder.CanComplete)
             {
-                if (curOrderId + 1 < Orders.orderedOrdersList.Count)
+                if (curOrderId + 1 < Orders.requiredOrders.Count)
                 {
-                    Vars.Instance.moneySystem.TakeMoney(curOrder.money);
-                    orderStartTime = Time.time;
-                    curOrder = Orders.orderedOrdersList[++curOrderId];
+                    curOrder.Complete();
+                    SetRequiredOrder(curOrderId + 1);
                 }
                 else
                 {
@@ -201,9 +310,76 @@ public class OrderSystem
                 Vars.Instance.Lose();
             }
         }
+        if (Vars.Instance.time.day - lastUpdateTime > 20.0f)
+        {
+            UpdateAwailableOrders();
+            lastUpdateTime = Vars.Instance.time.day;
+        }
+
+        HashSet<Order> remove = new(); 
+        for (int i = 0; i < optionalOrders.Count; i++)
+        {
+            var order = optionalOrders[i];
+            if (Vars.Instance.time.day - order.startTime > order.type.time)
+            {
+                if (order.CanComplete)
+                {
+                    order.Complete();
+                }
+                remove.Add(order);
+            }
+        }
+        if (remove.Count > 0)
+        {
+            optionalOrders.RemoveAll(i => remove.Contains(i));
+            onChange?.Invoke();
+        }
     }
 
-    public float TimeLeft => curOrder.time - (Time.time - orderStartTime);
+    public void SetRequiredOrder(int id)
+    {
+        curOrderId = id;
+        curOrder = Orders.requiredOrders[id].AsOrder();
+        onChange?.Invoke();
+    }
+
+    public void UpdateAwailableOrders()
+    {
+        awailableOrders.Clear();
+
+        List<DetailType> details = new(Vars.Instance.unlockedDetails.unlocked);
+        details.Shuffle();
+
+        for (int i = 0; i < 3 && details.Count > 0; i++)
+        {
+            var count = (int)UnityEngine.Random.Range(5f, 100f);
+            var detail = details.Last();
+            details.RemoveAt(details.Count - 1);
+
+            awailableOrders.Add(new DetailsOrderType()
+            {
+                requiredDetails = new()
+                {
+                    new(detail, count)
+                },
+                moneyReward = detail.price * count * 1.5f,
+                name = $"Optional Order {i}",
+                time = 30.0f,
+            });
+        }
+
+        onChange?.Invoke();
+    }
+
+    public void TakeOptionalOrder(OrderType type)
+    {
+        awailableOrders.Remove(type);
+        var order = type.AsOrder();
+        optionalOrders.Add(order);
+        onChange?.Invoke();
+    }
+
+    public float TimeLeft => curOrder.type.time - (Vars.Instance.time.day - curOrder.startTime);
 }
 
 public class DetailType
@@ -272,6 +448,19 @@ public class DetailsSystem
 
         Vars.Instance.moneySystem.Add(details[detail] * detail.price);
         details[detail] = 0;
+    }
+
+    public void Remove(DetailStack stack)
+    {
+        if (!details.ContainsKey(stack.detail))
+            return;
+
+        details[stack.detail] = Mathf.Clamp(details[stack.detail] - stack.count, 0, float.MaxValue);
+    }
+
+    public bool HasEnought(DetailStack stack)
+    {
+        return GetCount(stack.detail) >= stack.count;
     }
 }
 
@@ -461,20 +650,124 @@ public class TimeSystem
     public float sec;
     public const float SecsPerDay = 1.0f;
 
+    public float timeScale;
+    public float delta;
+
     public void Init()
     {
          
     } 
 
     public void Restart()
-    {
+    {        
         sec = 0.0f;
         day = 0;
     }
 
     public void Update()
     {
-        sec += Time.deltaTime;
-        day = sec / SecsPerDay; 
+        delta = Time.deltaTime * timeScale;
+        sec += delta;
+        day = sec / SecsPerDay;
+    }
+}
+
+
+public class SpeedSystem
+{
+    public List<float> speeds;
+
+    public bool pause;
+    public int speedId;
+
+    public bool tick;
+
+    public void Init()
+    {
+        tick = true;
+
+        speeds = new()
+        {
+            1.0f,
+            2.0f,
+            3.0f,
+            5.0f,
+            7.5f            
+        };
+
+        Restart();
+    }
+
+    public void Restart()
+    {
+        pause = true;
+        speedId = 0;
+    }
+
+    public void Update()
+    {
+        if (pause)
+        {
+            Vars.Instance.time.timeScale = 0.0f;
+        }
+        else
+        {
+            Vars.Instance.time.timeScale = speeds[speedId];
+        }
+    }
+
+    public void NextSpeed()
+    {
+        speedId = Mathf.Clamp(speedId + 1, 0, speeds.Count - 1);
+    }
+    public void PrevSpeed()
+    {
+        speedId = Mathf.Clamp(speedId - 1, 0, speeds.Count - 1);
+    }
+    public void SetSpeed(int spd)
+    {
+        speedId = Mathf.Clamp(spd, 0, speeds.Count - 1);
+    }
+
+    public void Pause()
+    {
+        pause = true;        
+    }
+    public void Run()
+    {
+        pause = false;
+    }
+    public void ChangePauseState()
+    {
+        pause = !pause;
+    }
+}
+
+public class UnlockedDetailsSystem
+{
+    public List<DetailType> unlocked;
+    public HashSet<DetailType> unlockedSet;
+    
+    public void Init()
+    {
+        Restart();
+    }
+
+    public void Restart()
+    {
+        unlocked = new();
+        unlockedSet = new();
+    }
+
+    public void Update()
+    {
+        foreach (var (k, v) in Vars.Instance.detailsSystem.details)
+        {
+            if (!unlockedSet.Contains(k))
+            {
+                unlockedSet.Add(k);
+                unlocked.Add(k);
+            }
+        }
     }
 }

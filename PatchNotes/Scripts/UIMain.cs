@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem.OnScreen;
 using UnityEngine.UI;
 
 public class UIMAin : MonoBehaviour
@@ -14,9 +12,9 @@ public class UIMAin : MonoBehaviour
     public TMP_Text orderMoneyText;
     public TMP_Text orderTimeText;
 
-    public TMP_Text detailsText;
-
-    public RectTransform detailsRootTransform;
+    public Button resourcesBtn;
+    public GameObject resourcesRoot;
+    public RectTransform detailsContentRootTransform;
     public DetailUIContainerPrefab detailUIContainerPrefab;
 
     public GameObject winScreenRoot;
@@ -33,12 +31,20 @@ public class UIMAin : MonoBehaviour
     public ResearchUI researchUI;
 
     public TMP_Text timeText;
+    public GameObject speedRunStateRoot;
+    public GameObject speedPauseStateRoot;
+    public Image speedFiller;
+    public Button nextSpeedBtn;
+    public Button prevSpeedBtn;
+    public Button pauseBtn;
+
+    public OrdersUI ordersUI;
 
     public void Init()
     {
         foreach (var d in Details.all)
         {
-            var script = Instantiate(detailUIContainerPrefab, detailsRootTransform);
+            var script = Instantiate(detailUIContainerPrefab, detailsContentRootTransform);
             script.nameText.text = d.name;
             script.sellAllBtn.onClick.AddListener(() =>
             {
@@ -52,27 +58,41 @@ public class UIMAin : MonoBehaviour
         buildComplexDialogRoot.SetActive(false);
 
         researchUI.Init();
+
+        nextSpeedBtn.onClick.AddListener(() => Vars.Instance.speedSystem.NextSpeed());
+        prevSpeedBtn.onClick.AddListener(() => Vars.Instance.speedSystem.PrevSpeed());
+
+        pauseBtn.onClick.AddListener(() => Vars.Instance.speedSystem.ChangePauseState());
+
+        resourcesBtn.onClick.AddListener(() => SetMenuActive(resourcesRoot, !resourcesRoot.activeInHierarchy));
+        ordersUI.ordersBtn.onClick.AddListener(() => 
+            SetMenuActive(ordersUI.ordersMenuRoot, !ordersUI.ordersMenuRoot.activeInHierarchy));
+        researchUI.openResearchMenuBtn.onClick.AddListener(() => 
+            SetMenuActive(researchUI.researchMenuRoot, !researchUI.researchMenuRoot.activeInHierarchy));
+
+        ordersUI.Init();
     }
 
     public void Update()
     {
-        moneyText.text = ((int)Vars.Instance.moneySystem.money).ToString();
+        var money = Vars.Instance.moneySystem.money;
+        moneyText.text = ((int)money).ToString();
     
-        orderMoneyText.text = $"{Mathf.Clamp(Vars.Instance.moneySystem.money, 0, Vars.Instance.orders.curOrder.money)}/{Vars.Instance.orders.curOrder.money}";
+        var targetMoney = ((MoneyOrderType)Vars.Instance.orders.curOrder.type).requiredMoney;
+        orderMoneyText.text = $"{Mathf.Clamp(money, 0, targetMoney)}/{targetMoney}";
         orderTimeText.text = $"{(int)(Vars.Instance.orders.TimeLeft)} sec";
-    
-        StringBuilder sb = new();
-        foreach (var (k, v) in Vars.Instance.detailsSystem.details)
-        {
-            sb.Append($"{k.name}: {(int)v}\n");
-        }
-        detailsText.text = sb.ToString();
     
         winScreenRoot.SetActive(Vars.Instance.state.IsWin);
         loseScreenRoot.SetActive(Vars.Instance.state.IsLose);
     
         researchUI.Update();
 
+        speedRunStateRoot.SetActive(!Vars.Instance.speedSystem.pause);            
+        speedPauseStateRoot.SetActive(Vars.Instance.speedSystem.pause);            
+        if (!Vars.Instance.speedSystem.pause)
+        {
+            speedFiller.fillAmount = (Vars.Instance.speedSystem.speedId + 1) / (float)Vars.Instance.speedSystem.speeds.Count;            
+        }
         timeText.text = ((int)Vars.Instance.time.day).ToString();
     }
 
@@ -94,11 +114,19 @@ public class UIMAin : MonoBehaviour
             script.buildBtn.onClick.AddListener(() =>
             {
                 onSuccess(i);
-                // buildComplexDialogRoot.SetActive(false);
-                // Instantiate(i.prefab);
             });
 
             complexInstances.Add(script);
         }
+    }
+
+
+
+    public void SetMenuActive(GameObject menu, bool v)
+    {
+        resourcesRoot.SetActive(false);
+        researchUI.researchMenuRoot.SetActive(false);
+        ordersUI.ordersMenuRoot.SetActive(false);
+        menu.SetActive(v);
     }
 }

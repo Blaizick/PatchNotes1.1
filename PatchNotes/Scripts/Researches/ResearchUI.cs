@@ -27,7 +27,6 @@ public class ResearchUI : MonoBehaviour
     {
         researchMenuRoot.SetActive(false);
 
-        openResearchMenuBtn.onClick.AddListener(() => researchMenuRoot.SetActive(!researchMenuRoot.activeInHierarchy));
         researchSlot0Btn.onClick.AddListener(() =>
         {
             researchesScreenRoot.SetActive(!researchesScreenRoot.activeInHierarchy);
@@ -55,7 +54,10 @@ public class ResearchUI : MonoBehaviour
         cnt.nameText.text = tech.name;
         cnt.btn.onClick.AddListener(() =>
         {
-            Vars.Instance.researches.StartResearch(tech);
+            if (Vars.Instance.researches.research != tech)
+            {
+                Vars.Instance.researches.StartResearch(tech);
+            }
             researchesScreenRoot.SetActive(false);
         });
         cnt.tech = tech;

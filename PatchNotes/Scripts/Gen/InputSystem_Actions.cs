@@ -100,6 +100,114 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Ctrl"",
+                    ""type"": ""Button"",
+                    ""id"": ""a54ea7f5-0d54-4d8a-9021-aed02e761c2a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""U"",
+                    ""type"": ""Button"",
+                    ""id"": ""e6264a3e-c88c-45c7-a1c3-62fb76b1f6ab"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RightAlt"",
+                    ""type"": ""Button"",
+                    ""id"": ""48ff11d8-a918-4074-ba64-27d7e78380d7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LeftArrow"",
+                    ""type"": ""Button"",
+                    ""id"": ""bec96024-0141-4abc-bb7d-08435eefcafd"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UpArrow"",
+                    ""type"": ""Button"",
+                    ""id"": ""65975bfd-b2a7-4b46-bcf8-e28dcad32adc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RightArrow"",
+                    ""type"": ""Button"",
+                    ""id"": ""944f338a-a7c6-412c-bb09-e1b08607741b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed0"",
+                    ""type"": ""Button"",
+                    ""id"": ""6aff36aa-c3c7-4fe7-80fa-cd84a27b0e23"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed1"",
+                    ""type"": ""Button"",
+                    ""id"": ""fde602ec-0ed2-4e46-9769-25d40e496484"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed2"",
+                    ""type"": ""Button"",
+                    ""id"": ""9fa2df31-6f8a-4efe-bf6e-f0e209e2c022"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed3"",
+                    ""type"": ""Button"",
+                    ""id"": ""69f7eaf8-578a-4540-921d-5318f060873d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed4"",
+                    ""type"": ""Button"",
+                    ""id"": ""a57a68db-9e3e-49e3-93a0-8e4bb7480df8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""7c34ce26-220c-4eda-b29e-49de787ae6ea"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -111,6 +219,138 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""MousePosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8ac240ed-4b9b-40e3-aba5-190497289fd3"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ctrl"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c4aa93ad-460e-44b2-a25c-3a486d832d68"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""U"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a985dd3f-479f-4842-acc4-ffce914fbdf4"",
+                    ""path"": ""<Keyboard>/rightAlt"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightAlt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5ba21902-a16c-43d7-99df-b39573173312"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LeftArrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7487205d-afd2-4cb6-a90c-aec088762519"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UpArrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""67a36ab3-aa71-4456-8e36-a9760abb3662"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RightArrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""852a0169-db62-4ac5-a31c-088cdb9c17ba"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed0"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""465a8787-b9d4-4289-bd57-393e9dc9520b"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e5289446-99d9-454a-b7a1-4a6fe7d7e33d"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""09dda52f-19e3-4ee1-8b68-8cb6b11783f3"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""431e501a-bf24-4a36-8fd0-8e714d50d78e"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""362a6984-2084-441d-8a5d-9d1bbf9fb951"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -699,6 +939,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_MousePosition = m_Player.FindAction("MousePosition", throwIfNotFound: true);
+        m_Player_Ctrl = m_Player.FindAction("Ctrl", throwIfNotFound: true);
+        m_Player_U = m_Player.FindAction("U", throwIfNotFound: true);
+        m_Player_RightAlt = m_Player.FindAction("RightAlt", throwIfNotFound: true);
+        m_Player_LeftArrow = m_Player.FindAction("LeftArrow", throwIfNotFound: true);
+        m_Player_UpArrow = m_Player.FindAction("UpArrow", throwIfNotFound: true);
+        m_Player_RightArrow = m_Player.FindAction("RightArrow", throwIfNotFound: true);
+        m_Player_Speed0 = m_Player.FindAction("Speed0", throwIfNotFound: true);
+        m_Player_Speed1 = m_Player.FindAction("Speed1", throwIfNotFound: true);
+        m_Player_Speed2 = m_Player.FindAction("Speed2", throwIfNotFound: true);
+        m_Player_Speed3 = m_Player.FindAction("Speed3", throwIfNotFound: true);
+        m_Player_Speed4 = m_Player.FindAction("Speed4", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -793,6 +1045,18 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_MousePosition;
+    private readonly InputAction m_Player_Ctrl;
+    private readonly InputAction m_Player_U;
+    private readonly InputAction m_Player_RightAlt;
+    private readonly InputAction m_Player_LeftArrow;
+    private readonly InputAction m_Player_UpArrow;
+    private readonly InputAction m_Player_RightArrow;
+    private readonly InputAction m_Player_Speed0;
+    private readonly InputAction m_Player_Speed1;
+    private readonly InputAction m_Player_Speed2;
+    private readonly InputAction m_Player_Speed3;
+    private readonly InputAction m_Player_Speed4;
+    private readonly InputAction m_Player_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -808,6 +1072,54 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/MousePosition".
         /// </summary>
         public InputAction @MousePosition => m_Wrapper.m_Player_MousePosition;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Ctrl".
+        /// </summary>
+        public InputAction @Ctrl => m_Wrapper.m_Player_Ctrl;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/U".
+        /// </summary>
+        public InputAction @U => m_Wrapper.m_Player_U;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RightAlt".
+        /// </summary>
+        public InputAction @RightAlt => m_Wrapper.m_Player_RightAlt;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LeftArrow".
+        /// </summary>
+        public InputAction @LeftArrow => m_Wrapper.m_Player_LeftArrow;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/UpArrow".
+        /// </summary>
+        public InputAction @UpArrow => m_Wrapper.m_Player_UpArrow;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/RightArrow".
+        /// </summary>
+        public InputAction @RightArrow => m_Wrapper.m_Player_RightArrow;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Speed0".
+        /// </summary>
+        public InputAction @Speed0 => m_Wrapper.m_Player_Speed0;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Speed1".
+        /// </summary>
+        public InputAction @Speed1 => m_Wrapper.m_Player_Speed1;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Speed2".
+        /// </summary>
+        public InputAction @Speed2 => m_Wrapper.m_Player_Speed2;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Speed3".
+        /// </summary>
+        public InputAction @Speed3 => m_Wrapper.m_Player_Speed3;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Speed4".
+        /// </summary>
+        public InputAction @Speed4 => m_Wrapper.m_Player_Speed4;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -837,6 +1149,42 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started += instance.OnMousePosition;
             @MousePosition.performed += instance.OnMousePosition;
             @MousePosition.canceled += instance.OnMousePosition;
+            @Ctrl.started += instance.OnCtrl;
+            @Ctrl.performed += instance.OnCtrl;
+            @Ctrl.canceled += instance.OnCtrl;
+            @U.started += instance.OnU;
+            @U.performed += instance.OnU;
+            @U.canceled += instance.OnU;
+            @RightAlt.started += instance.OnRightAlt;
+            @RightAlt.performed += instance.OnRightAlt;
+            @RightAlt.canceled += instance.OnRightAlt;
+            @LeftArrow.started += instance.OnLeftArrow;
+            @LeftArrow.performed += instance.OnLeftArrow;
+            @LeftArrow.canceled += instance.OnLeftArrow;
+            @UpArrow.started += instance.OnUpArrow;
+            @UpArrow.performed += instance.OnUpArrow;
+            @UpArrow.canceled += instance.OnUpArrow;
+            @RightArrow.started += instance.OnRightArrow;
+            @RightArrow.performed += instance.OnRightArrow;
+            @RightArrow.canceled += instance.OnRightArrow;
+            @Speed0.started += instance.OnSpeed0;
+            @Speed0.performed += instance.OnSpeed0;
+            @Speed0.canceled += instance.OnSpeed0;
+            @Speed1.started += instance.OnSpeed1;
+            @Speed1.performed += instance.OnSpeed1;
+            @Speed1.canceled += instance.OnSpeed1;
+            @Speed2.started += instance.OnSpeed2;
+            @Speed2.performed += instance.OnSpeed2;
+            @Speed2.canceled += instance.OnSpeed2;
+            @Speed3.started += instance.OnSpeed3;
+            @Speed3.performed += instance.OnSpeed3;
+            @Speed3.canceled += instance.OnSpeed3;
+            @Speed4.started += instance.OnSpeed4;
+            @Speed4.performed += instance.OnSpeed4;
+            @Speed4.canceled += instance.OnSpeed4;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -851,6 +1199,42 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started -= instance.OnMousePosition;
             @MousePosition.performed -= instance.OnMousePosition;
             @MousePosition.canceled -= instance.OnMousePosition;
+            @Ctrl.started -= instance.OnCtrl;
+            @Ctrl.performed -= instance.OnCtrl;
+            @Ctrl.canceled -= instance.OnCtrl;
+            @U.started -= instance.OnU;
+            @U.performed -= instance.OnU;
+            @U.canceled -= instance.OnU;
+            @RightAlt.started -= instance.OnRightAlt;
+            @RightAlt.performed -= instance.OnRightAlt;
+            @RightAlt.canceled -= instance.OnRightAlt;
+            @LeftArrow.started -= instance.OnLeftArrow;
+            @LeftArrow.performed -= instance.OnLeftArrow;
+            @LeftArrow.canceled -= instance.OnLeftArrow;
+            @UpArrow.started -= instance.OnUpArrow;
+            @UpArrow.performed -= instance.OnUpArrow;
+            @UpArrow.canceled -= instance.OnUpArrow;
+            @RightArrow.started -= instance.OnRightArrow;
+            @RightArrow.performed -= instance.OnRightArrow;
+            @RightArrow.canceled -= instance.OnRightArrow;
+            @Speed0.started -= instance.OnSpeed0;
+            @Speed0.performed -= instance.OnSpeed0;
+            @Speed0.canceled -= instance.OnSpeed0;
+            @Speed1.started -= instance.OnSpeed1;
+            @Speed1.performed -= instance.OnSpeed1;
+            @Speed1.canceled -= instance.OnSpeed1;
+            @Speed2.started -= instance.OnSpeed2;
+            @Speed2.performed -= instance.OnSpeed2;
+            @Speed2.canceled -= instance.OnSpeed2;
+            @Speed3.started -= instance.OnSpeed3;
+            @Speed3.performed -= instance.OnSpeed3;
+            @Speed3.canceled -= instance.OnSpeed3;
+            @Speed4.started -= instance.OnSpeed4;
+            @Speed4.performed -= instance.OnSpeed4;
+            @Speed4.canceled -= instance.OnSpeed4;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -1158,6 +1542,90 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMousePosition(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Ctrl" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCtrl(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "U" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnU(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RightAlt" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRightAlt(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LeftArrow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLeftArrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UpArrow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUpArrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RightArrow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRightArrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Speed0" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpeed0(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Speed1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpeed1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Speed2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpeed2(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Speed3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpeed3(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Speed4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSpeed4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
