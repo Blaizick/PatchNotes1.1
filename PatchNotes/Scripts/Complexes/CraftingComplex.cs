@@ -1,7 +1,7 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CraftRecipe
 {
@@ -11,47 +11,17 @@ public class CraftRecipe
     public List<DetailStack> outputStacks;
 }
 
-public static class Recipes
-{
-    public static CraftRecipe smeltRecipe;
-
-    public static List<CraftRecipe> all;
-
-    public static void Init()
-    {
-        smeltRecipe = new()
-        {
-            craftTime = 1.0f,
-            inputStacks = new()
-            {
-                new(Details.ironOre, 1.0f)
-            },
-            outputStacks = new()
-            {
-                new(Details.ironIngot, 1.0f)
-            },
-        };
-    
-        all = new()
-        {
-            smeltRecipe
-        };
-    }
-}
-
 public class CraftingComplex : Complex
 {
-    public CraftRecipe recipe;
+    public CraftingComplexType CraftingComplexType => (CraftingComplexType)type;
 
     [NonSerialized] public bool crafting;
-    [NonSerialized] public float craftStartDay;
+    [NonSerialized] public float craftProgress;
     [NonSerialized] public Dictionary<DetailType, float> detailsDic = new();
 
     public override void Init()
     {
-        recipe = Recipes.smeltRecipe;
-
-        foreach (var i in recipe.inputStacks)
+        foreach (var i in CraftingComplexType.recipe.inputStacks)
         {
             detailsDic[i.detail] = 0;
         }
@@ -63,16 +33,12 @@ public class CraftingComplex : Complex
     {
         if (crafting)
         {
-            if (Vars.Instance.time.day - craftStartDay >= recipe.craftTime)
+            craftProgress += Vars.Instance.time.deltaDay * effeciencySystem.effeciency;
+            if (craftProgress > 1)
             {
-                foreach (var i in recipe.inputStacks)
-                {
-                    detailsDic[i.detail] -= i.count;
-                    detailsDic[i.detail] = Mathf.Clamp(detailsDic[i.detail], 0, float.MaxValue);
-                }
                 if (nextComplex)
                 {
-                    foreach (var i in recipe.outputStacks)
+                    foreach (var i in CraftingComplexType.recipe.outputStacks)
                     {
                         nextComplex.Receive(i);
                     }
@@ -83,7 +49,7 @@ public class CraftingComplex : Complex
         else
         {
             bool canStart = true;
-            foreach (var i in recipe.inputStacks)
+            foreach (var i in CraftingComplexType.recipe.inputStacks)
             {
                 if (detailsDic[i.detail] < i.count)
                 {
@@ -93,8 +59,13 @@ public class CraftingComplex : Complex
             }
             if (canStart)
             {
+                foreach (var i in CraftingComplexType.recipe.inputStacks)
+                {
+                    detailsDic[i.detail] -= i.count;
+                    detailsDic[i.detail] = Mathf.Clamp(detailsDic[i.detail], 0, float.MaxValue);
+                }
                 crafting = true;
-                craftStartDay = Vars.Instance.time.day;
+                craftProgress = 0.0f;
             }
         }
 

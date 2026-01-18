@@ -17,9 +17,13 @@ public class Vars : MonoBehaviour
     public GameStateSystem state;
     public TimeSystem time;
     public ResearchSystem researches;
-    public BuildingsSystem buildingsSystem;
+    public BuildingsSystem buildSystem;
     public SpeedSystem speedSystem;
     public UnlockedDetailsSystem unlockedDetails;
+    public BuildSpotPriceSystem buildSpotPriceSystem;
+    public ProductionLineColorSystem productionLineColorSystem;
+    public ChefsSystem chefs;
+    public BuffsSystem buffs;
 
     private void Start()
     {
@@ -27,11 +31,14 @@ public class Vars : MonoBehaviour
 
         Details.Init();
         Orders.Init();
+        Recipes.Init();
         Complexes.Init();
         BuildSpots.Init();
         Researches.Init();
         Complexes.PostInit();
-        Recipes.Init();
+        
+        productionLineColorSystem = new();
+        productionLineColorSystem.Init();
 
         time = new();
         time.Init();
@@ -43,6 +50,12 @@ public class Vars : MonoBehaviour
 
         moneySystem = new();
         moneySystem.Init();
+
+        buffs = new();
+        buffs.Init();
+
+        chefs = new();
+        chefs.Init();
 
         detailsSystem = new();
         detailsSystem.Init();
@@ -59,30 +72,37 @@ public class Vars : MonoBehaviour
         orders = new();
         orders.Init();
 
-        foreach (var i in Resources.FindObjectsOfTypeAll<Complex>())
+        buildSpotPriceSystem = new();
+        buildSpotPriceSystem.Init();
+
+        foreach (var i in FindObjectsByType<Complex>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
         }
-        foreach (var i in Resources.FindObjectsOfTypeAll<BuildSpot>())
+        foreach (var i in FindObjectsByType<BuildSpot>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
         }
 
-        buildingsSystem.Init();
+        buildSystem.Init();
         ui.Init();
     }
 
     public void Restart()
     {
+        time.Restart();
         unlockedDetails.Restart();
         state.Restart();
         moneySystem.Restart();
         detailsSystem.Restart();
         orders.Restart();
-        time.Restart();
         researches.Restart();
-        buildingsSystem.Restart();
+        buildSystem.Restart();
         speedSystem.Restart();
+        buildSpotPriceSystem.Restart();
+        productionLineColorSystem.Restart();
+        chefs.Restart();
+        buffs.Restart();
     }
 
     public void Win()
@@ -101,6 +121,8 @@ public class Vars : MonoBehaviour
         researches.Update();
         speedSystem.Update();
         unlockedDetails.Update();
+        chefs.Update();
+        buffs.Update();
     }
 }
 
@@ -126,52 +148,9 @@ public class MoneySystem
         money+= count;
     }
 
-    public bool HaveEnoughtMoney(float count)
+    public bool HasEnoughtMoney(float count)
     {
         return count <= money;
-    }
-}
-
-public static class Orders
-{
-    public static OrderType order0;
-    public static OrderType order1;
-    public static OrderType order2;
-    public static OrderType order3;
-
-    public static List<OrderType> requiredOrders;
-    
-    public static void Init()
-    {
-        order0 = new MoneyOrderType()
-        {
-            requiredMoney = 200,
-            time = 20,
-            name = "Required Order",
-        };
-        order1 = new MoneyOrderType()
-        {
-            requiredMoney = 200,
-            time = 20,
-            name = "Required Order",
-        };
-        order2 = new MoneyOrderType()
-        {
-            requiredMoney = 200,
-            time = 20,
-            name = "Required Order",
-        };
-        order3 = new MoneyOrderType()
-        {
-            requiredMoney = 200,
-            time = 20,
-            name = "Required Order",
-        };
-
-        requiredOrders = new()
-        {
-            order0, order1, order2, order3
-        };
     }
 }
 
@@ -388,33 +367,6 @@ public class DetailType
     public float price;
 }
 
-public static class Details
-{
-    public static DetailType ironOre;
-    public static DetailType ironIngot;
-
-    public static List<DetailType> all;
-
-    public static void Init()
-    {
-        ironOre = new()
-        {
-            name = "Iron Ore",
-            price = 10.0f            
-        };
-        ironIngot = new()
-        {
-            name = "Iron Ingot",
-            price = 25.0f
-        };
-
-        all = new()
-        {
-            ironOre,
-            ironIngot,
-        };
-    }
-}
 public class DetailsSystem
 {
     public Dictionary<DetailType, float> details;
@@ -496,56 +448,13 @@ public class ComplexType
     public ComplexResearchTech research;
 }
 
+public class CraftingComplexType : ComplexType
+{
+    public CraftRecipe recipe;
+}
+
 public class BuildSpotType
 {
-    public List<ComplexType> buildComplexes;
-}
-
-public static class Complexes
-{
-    public static ComplexType supplier;
-    public static ComplexType smelter;
-
-    public static List<ComplexType> all;
-
-    public static void Init()
-    {
-        supplier = new()
-        {
-            name = "Supplier",
-            prefab = Resources.Load<Complex>("Prefabs/Supplier")  
-        };
-        smelter = new()
-        {
-            name = "Smelter",
-            prefab = Resources.Load<Complex>("Prefabs/Smelter")
-        };
-
-        all = new()
-        {
-            supplier,
-            smelter
-        };
-    } 
-
-    public static void PostInit()
-    {
-        supplier.research = Researches.supplierTech;
-        smelter.research = Researches.smelterTech;
-    }
-}
-
-public static class BuildSpots
-{
-    public static BuildSpotType spot0;
-
-    public static void Init()
-    {
-        spot0 = new()
-        {
-            buildComplexes = Complexes.all
-        };
-    }
 }
 
 
@@ -556,6 +465,10 @@ public class ResearchTech
     /// </summary>
     public float researchTime;
     public string name;
+    public List<ResearchTech> requiredTechs;
+    public List<ResearchTech> exclusive;
+
+    public virtual void Research() {}
 }
 
 public class ComplexResearchTech : ResearchTech
@@ -563,38 +476,46 @@ public class ComplexResearchTech : ResearchTech
     public ComplexType type;
 }
 
-public static class Researches
+public class BuffsResearchTech : ResearchTech
 {
-    public static ComplexResearchTech supplierTech;
-    public static ComplexResearchTech smelterTech;
+    public float maxEffeciencyBonus;
+    public float effeciencyGrowBonus;
+    public float maxEffeciencyMultiplier;
+    public float effeciencyGrowMultiplier;
 
-    public static List<ComplexResearchTech> complexTechs;
-    public static List<ResearchTech> all;
-
-    public static void Init()
+    public override void Research()
     {
-        supplierTech = new()
-        {
-            researchTime = 10.0f,
-            name = "Supplier",
-        };
-        smelterTech = new()
-        {
-            researchTime = 20.0f,
-            name = "Smelter",
-        };
+        Vars.Instance.buffs.maxEffeciencyBonus += maxEffeciencyBonus;
+        Vars.Instance.buffs.maxEffeciencyMultiplier += maxEffeciencyMultiplier;
+        Vars.Instance.buffs.effeciencyGrowBonus += effeciencyGrowBonus;
+        Vars.Instance.buffs.effeciencyGrowMultiplier += effeciencyGrowMultiplier;
+    }
+}
 
-        complexTechs = new()
-        {
-            supplierTech,
-            smelterTech
-        };
-        all = new()
-        {
-            supplierTech,
-            smelterTech
-        };
-    }    
+public class BuffsSystem
+{
+    public float maxEffeciencyBonus;
+    public float maxEffeciencyMultiplier;
+    public float effeciencyGrowBonus;
+    public float effeciencyGrowMultiplier;
+
+    public void Init()
+    {
+        Restart();
+    }
+
+    public void Restart()
+    {
+        maxEffeciencyBonus = 0.0f;
+        maxEffeciencyMultiplier = 0.0f;
+        effeciencyGrowBonus = 0.0f;
+        effeciencyGrowMultiplier = 0.0f;
+    }
+
+    public void Update()
+    {
+        
+    }
 }
 
 public class ResearchSystem
@@ -602,6 +523,7 @@ public class ResearchSystem
     public ResearchTech research;
     public float researchStart;
 
+    public List<ResearchTech> awailableTechs = new();
     public List<ResearchTech> researched;
 
     public void Init()
@@ -614,8 +536,9 @@ public class ResearchSystem
         research = null;
         researched = new()
         {
-            Researches.supplierTech
+            Researches.supplier
         };    
+        UpdateAwailableResearches();
     }
 
     public void Update()
@@ -624,10 +547,61 @@ public class ResearchSystem
         {
             if (Vars.Instance.time.day - researchStart >= research.researchTime)
             {
+                research.Research();
                 researched.Add(research);
                 research = null;
+                UpdateAwailableResearches();
             }
         }
+    }
+
+    public void UpdateAwailableResearches()
+    {
+        awailableTechs.Clear();
+        foreach (var tech in Researches.all)
+        {
+            if (!researched.Contains(tech))
+            {
+                if (tech.requiredTechs != null)
+                {
+                    bool can = true;
+                    foreach (var req in tech.requiredTechs)
+                    {
+                        if (!researched.Contains(req))
+                        {
+                            can = false;
+                            break;
+                        }
+                    }
+                    if (!can)
+                    {
+                        continue;
+                    }
+                }
+                if (tech.exclusive != null)
+                {
+                    bool can = true;
+                    foreach (var exc in tech.exclusive)
+                    {
+                        if (researched.Contains(exc))
+                        {
+                            can = false;
+                            break;
+                        }
+                    }
+                    if (!can)
+                    {
+                        continue;
+                    }
+                }
+                awailableTechs.Add(tech);
+            }
+        }
+    }
+
+    public bool IsResearched(ResearchTech tech)
+    {
+        return researched.Contains(tech);
     }
 
     public void StartResearch(ResearchTech tech)
@@ -636,9 +610,9 @@ public class ResearchSystem
         research = tech;
     }
 
-    public bool IsResearched(ResearchTech tech)
+    public bool CanStartResearch(ResearchTech tech)
     {
-        return researched.Contains(tech);
+        return awailableTechs.Contains(tech);
     }
 
     public float ResearchProgress => (Vars.Instance.time.day - researchStart) / research.researchTime; 
@@ -652,6 +626,10 @@ public class TimeSystem
 
     public float timeScale;
     public float delta;
+    public float deltaDay;
+
+    public const float DaysPerMonth = 30.0f;
+    public float month;
 
     public void Init()
     {
@@ -662,13 +640,16 @@ public class TimeSystem
     {        
         sec = 0.0f;
         day = 0;
+        month = 0.0f;
     }
 
     public void Update()
     {
         delta = Time.deltaTime * timeScale;
+        deltaDay = delta / SecsPerDay;
         sec += delta;
         day = sec / SecsPerDay;
+        month = day / DaysPerMonth;
     }
 }
 

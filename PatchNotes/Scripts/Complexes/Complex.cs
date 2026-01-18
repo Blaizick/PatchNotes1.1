@@ -1,6 +1,5 @@
 using System;
-using System.Diagnostics;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,22 +16,47 @@ public class DetailStack
     }
 }
 
-public class Complex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class Complex : MonoBehaviour
 {
+    public ComplexType type;   
     public LineRenderer outputLineRenderer;
 
     public Complex nextComplex;
 
     [NonSerialized] public bool pointerStay;
     [NonSerialized] public Vector2 pointerDownPos;
+    
+    public EffeciencySystem effeciencySystem;
+    public UnityEngine.UI.Image effeciencyFiller;
+    
+    public GameObject selectionFrameRoot;
 
     public virtual void Init()
     {
+        if (selectionFrameRoot)
+        {
+            selectionFrameRoot.SetActive(false);
+        }
         
+        effeciencySystem = new();
+        effeciencySystem.Init();
+
+        if (outputLineRenderer)
+        {
+            var col = Vars.Instance.productionLineColorSystem.GetNextColor();
+            outputLineRenderer.startColor = col;
+            outputLineRenderer.endColor = col;
+        }
     }
 
     public virtual void Update()
     {
+        effeciencySystem.Update();
+        if (effeciencyFiller)
+        {
+            effeciencyFiller.fillAmount = effeciencySystem.RelativeEffeciency;   
+        }
+
         if (outputLineRenderer)
         {
             if (pointerStay)
@@ -57,29 +81,109 @@ public class Complex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         }
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnPointerDown()
     {
         pointerStay = true;
-        pointerDownPos = Camera.main.ScreenToWorldPoint(eventData.position);
+        pointerDownPos = Vars.Instance.input.mouseWorldPos;
     }
-    public void OnPointerUp(PointerEventData eventData)
+    public void OnPointerUp(Complex c)
     {
         pointerStay = false;
-
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
-        Collider2D[] hits = Physics2D.OverlapPointAll(worldPos);
-
         nextComplex = null;
-        foreach (var hit in hits)
+        if (c != this)
         {
-            if (hit.TryGetComponent<Complex>(out var c) && c != this)
-            {
-                nextComplex = c;
-                break;
-            }
+            nextComplex = c;
         }
     }
 
     public virtual void Receive(DetailStack stack){}
 
+    public void OnPointerClick()
+    {
+        Vars.Instance.ui.ShowConfirmDialog($"Destroy {type.name}?", () =>
+        {
+            Vars.Instance.buildSystem.DestroyBuild(this);
+        }, null);
+    }
+}
+
+public class ProductionLineColorSystem
+{
+    public List<Color> awailableColors;
+    
+    public int id;
+    public List<Color> dynamicColorList;
+
+    public void Init()
+    {
+        awailableColors = new()
+        {
+            Utils.FromHexadecimal("#9e271e"),
+            Utils.FromHexadecimal("#9e5a1e"),
+            Utils.FromHexadecimal("#bfae0f"),
+            Utils.FromHexadecimal("#49b00e"),
+            Utils.FromHexadecimal("#0eb07f"),
+            Utils.FromHexadecimal("#0e75b0"),
+            Utils.FromHexadecimal("#240eb0"),
+            Utils.FromHexadecimal("#5c0eb0"),
+            Utils.FromHexadecimal("#b00e5c"),
+            Utils.FromHexadecimal("#FFFFFF"),
+        };
+        Restart();
+    }
+
+    public void Restart()
+    {
+        dynamicColorList = new(awailableColors);
+        dynamicColorList.Shuffle();
+        id = 0;
+    }
+
+    public Color GetNextColor()
+    {
+        if (id >= dynamicColorList.Count)
+        {
+            dynamicColorList.Shuffle();
+            id = 0;
+        }    
+        return dynamicColorList[id++];
+    }
+}
+
+public class EffeciencySystem
+{
+    public float maxEffeciencyMultiplier;
+    public float effeciencyGrowMultiplier;
+
+    public float effeciency;
+    public float maxEffeciency;
+    public float effeciencyGrow;
+
+    public float effeciencyGrowBonus;
+    public float maxEffeciencyBonus;
+
+    public float RelativeEffeciency => effeciency / MaxEffeciency;
+    public float Effeciency => effeciency;
+    public float MaxEffeciency => (maxEffeciency + maxEffeciencyBonus + Vars.Instance.buffs.maxEffeciencyBonus) * 
+        (1.0f + maxEffeciencyMultiplier + Vars.Instance.buffs.maxEffeciencyMultiplier);
+
+    public void Init()
+    {
+        effeciency = 0.5f;
+        maxEffeciency = 1.25f;
+        effeciencyGrow = 0.01f;
+    }
+
+    public void Update()
+    {
+        effeciency += (effeciencyGrow + effeciencyGrowBonus + Vars.Instance.buffs.effeciencyGrowBonus) * Vars.Instance.time.deltaDay * 
+            (1.0f + effeciencyGrowMultiplier + Vars.Instance.buffs.effeciencyGrowMultiplier);
+        effeciency = Mathf.Clamp(effeciency, 0, MaxEffeciency);
+    
+        maxEffeciencyMultiplier = 0.0f;
+        effeciencyGrowMultiplier = 0.0f;
+
+        maxEffeciencyBonus = 0.0f;
+        effeciencyGrowBonus = 0.0f;
+    }
 }

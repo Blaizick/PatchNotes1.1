@@ -12,6 +12,14 @@ public class DesktopInput : MonoBehaviour
 
     public List<InputAction> speedActions;
 
+    [NonSerialized] public float dragStartTime;
+    [NonSerialized] public bool dragging;
+    private Complex m_Complex0;
+    private Complex m_Complex1;
+
+    [NonSerialized] public bool selectingComplexesForChef;
+    [NonSerialized] public Chef selectedChef;
+
     public void Init()
     {
         actions = new();
@@ -34,17 +42,9 @@ public class DesktopInput : MonoBehaviour
     
         if (actions.Player.Ctrl.IsPressed() && actions.Player.U.IsPressed() && actions.Player.RightAlt.IsPressed())
         {
-            if (actions.Player.LeftArrow.IsPressed())
-            {
-                Time.timeScale = 20f;
-            }
             if (actions.Player.UpArrow.IsPressed())
             {
                 Vars.Instance.Restart();
-            }
-            if (actions.Player.RightArrow.IsPressed())
-            {
-                Time.timeScale = 1f;
             }
         }
 
@@ -59,5 +59,100 @@ public class DesktopInput : MonoBehaviour
         {
             Vars.Instance.speedSystem.ChangePauseState();
         }
+        
+        if (selectedChef != null && selectedChef.dead)
+        {
+            selectingComplexesForChef = false;
+            selectedChef = null;
+        }
+
+        if (actions.Player.LMB.WasPressedThisFrame())
+        {
+            if (selectingComplexesForChef)
+            {
+                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
+
+                foreach (var hit in hits)
+                {
+                    if (hit.TryGetComponent<Complex>(out var c))
+                    {
+                        selectedChef?.SwitchComplex(c);
+                        break;
+                    }
+                }
+            }
+            else if (!dragging)
+            {
+                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
+
+                m_Complex0 = null;
+                foreach (var hit in hits)
+                {
+                    if (hit.TryGetComponent<Complex>(out var c))
+                    {
+                        m_Complex0 = c;
+                        dragging = true;
+                        dragStartTime = Time.time;
+                        break;
+                    }
+                }
+            }
+        }
+        if (actions.Player.LMB.IsPressed())
+        {
+            if (dragging && Time.time - dragStartTime > 0.2f && m_Complex0)
+            {
+                m_Complex0.OnPointerDown();
+            }
+        }
+        if (actions.Player.LMB.WasReleasedThisFrame())
+        {
+            if (dragging)
+            {
+                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
+
+                m_Complex1 = null;
+                foreach (var hit in hits)
+                {
+                    if (hit.TryGetComponent<Complex>(out var c))
+                    {
+                        if (Time.time - dragStartTime < 0.2f)
+                        {
+                            m_Complex0.OnPointerClick();
+                        }
+                        m_Complex1 = c;
+                        break;
+                    }
+                }
+                
+                dragging = false;
+                m_Complex0?.OnPointerUp(m_Complex1);
+            }
+        }
+
+        foreach (var i in Vars.Instance.buildSystem.complexes)
+        {
+            i.selectionFrameRoot.SetActive(false);
+        }
+        if (selectedChef != null && selectingComplexesForChef)
+        {
+            foreach (var i in selectedChef.complexes)
+            {
+                i.selectionFrameRoot.SetActive(true);
+            }
+        }
+    }
+
+    public void SwitchSelectingComplexesForChefState(Chef chef)
+    {
+        if (selectedChef == chef)
+        {
+            selectingComplexesForChef = !selectingComplexesForChef;
+        }
+        else
+        {
+            selectingComplexesForChef = true;
+        }
+        selectedChef = selectingComplexesForChef ? chef : null;
     }
 }

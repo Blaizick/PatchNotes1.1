@@ -4,8 +4,10 @@ using UnityEngine;
 public class BuildingsSystem : MonoBehaviour
 {
     public BuildSpot buildSpotPfb;
+    public BuyBuildSpotComplex buyBuildSpotComplexPfb; 
 
     public List<GameObject> buildings = new();
+    public List<Complex> complexes = new();
 
     public Vector2 anchor;
     public int buildingsInRow;
@@ -29,6 +31,8 @@ public class BuildingsSystem : MonoBehaviour
 
         AddBuildSpot();
         AddBuildSpot();
+        AddBuildSpot();
+        buildings.Add(SpawnBuyBuildSpot().gameObject);
     }
 
     public void Update()
@@ -41,22 +45,59 @@ public class BuildingsSystem : MonoBehaviour
             var go = buildings[i];
             if (go)
             {
-                go.transform.position = new Vector2(anchor.x + column * spacing.x, anchor.y + row * spacing.y);
+                go.transform.position = new Vector2(anchor.x + column * spacing.x, anchor.y - row * spacing.y);
             }
         }       
     } 
     public void AddBuildSpot()
     {
+        buildings.Add(SpawnBuildSpot().gameObject);
+    }
+
+    public void DestroyBuild(Complex complex)
+    {
+        var id = buildings.IndexOf(complex.gameObject);
+        if (id >= 0)
+        {
+            complexes.Remove(complex);
+            Destroy(buildings[id]);
+            buildings[id] = SpawnBuildSpot().gameObject;
+        }
+    }
+
+    public BuildSpot SpawnBuildSpot()
+    {
         var script = Instantiate(buildSpotPfb);
         script.onConvert.AddListener(complex =>
         {
+            complexes.Add(complex);
             var id = buildings.IndexOf(script.gameObject);
             if (id >= 0)
             {
                 buildings[id] = complex.gameObject;
             }
         });
-        buildings.Add(script.gameObject);
         script.Init();
+        return script;
+    }
+
+    public void BuySpot(GameObject go)
+    {
+        var id = buildings.IndexOf(go);
+        if (id >= 0)
+        {
+            Destroy(go);
+            buildings[id] = SpawnBuildSpot().gameObject;
+            buildings.Add(SpawnBuyBuildSpot().gameObject);
+        }
+    }
+
+    public BuyBuildSpotComplex SpawnBuyBuildSpot()
+    {
+        var script = Instantiate(buyBuildSpotComplexPfb);
+        script.Init();
+        script.price = Vars.Instance.buildSpotPriceSystem.GetPrice();
+        Vars.Instance.buildSpotPriceSystem.OnBuy();
+        return script;
     }
 }

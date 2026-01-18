@@ -8,7 +8,7 @@ public class BuildSpot : MonoBehaviour, IPointerClickHandler
 {
     public BuildSpotType type;
 
-    public UnityEvent<Complex> onConvert;
+    public UnityEvent<Complex> onConvert = new();
 
     public void Init()
     {
@@ -23,7 +23,7 @@ public class BuildSpot : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         List<ComplexType> complexes = new();
-        foreach (var c in type.buildComplexes)
+        foreach (var c in Complexes.all)
         {
             if (Vars.Instance.researches.IsResearched(c.research))
             {
@@ -33,8 +33,9 @@ public class BuildSpot : MonoBehaviour, IPointerClickHandler
         Vars.Instance.ui.RebuildBuildComplexDialog(complexes, c =>
         {
             var script = Instantiate(c.prefab);
+            script.type = c;
             script.transform.position = transform.position;
-            script.GetComponent<Complex>().Init();
+            script.Init();
 
             onConvert?.Invoke(script);
             

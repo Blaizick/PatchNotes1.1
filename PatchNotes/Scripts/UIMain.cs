@@ -40,6 +40,19 @@ public class UIMAin : MonoBehaviour
 
     public OrdersUI ordersUI;
 
+    public Button buildComplexDialogBackButton;
+
+    public GameObject confirmDialogRoot;
+    public TMP_Text confirmDialogText;
+    public Button confirmDialogConfirmButton;
+    public Button confirmDialogBackButton;
+
+    public Button chefsMenuBtn;
+
+    [NonSerialized] public Dictionary<DetailType, DetailUIContainerPrefab> detailInstances = new();
+
+    public ChefsUi chefsUi;
+
     public void Init()
     {
         foreach (var d in Details.all)
@@ -50,6 +63,7 @@ public class UIMAin : MonoBehaviour
             {
                 Vars.Instance.detailsSystem.SellAll(d);
             });
+            detailInstances[d] = script;
         }
 
         winScreenRestartButton.onClick.AddListener(() => Vars.Instance.Restart());
@@ -69,8 +83,13 @@ public class UIMAin : MonoBehaviour
             SetMenuActive(ordersUI.ordersMenuRoot, !ordersUI.ordersMenuRoot.activeInHierarchy));
         researchUI.openResearchMenuBtn.onClick.AddListener(() => 
             SetMenuActive(researchUI.researchMenuRoot, !researchUI.researchMenuRoot.activeInHierarchy));
+        chefsMenuBtn.onClick.AddListener(() => SetMenuActive(chefsUi.root, !chefsUi.root.activeInHierarchy));
 
         ordersUI.Init();
+
+        buildComplexDialogBackButton.onClick.AddListener(() => buildComplexDialogRoot.SetActive(false));
+
+        chefsUi.Init();
     }
 
     public void Update()
@@ -79,14 +98,12 @@ public class UIMAin : MonoBehaviour
         moneyText.text = ((int)money).ToString();
     
         var targetMoney = ((MoneyOrderType)Vars.Instance.orders.curOrder.type).requiredMoney;
-        orderMoneyText.text = $"{Mathf.Clamp(money, 0, targetMoney)}/{targetMoney}";
-        orderTimeText.text = $"{(int)(Vars.Instance.orders.TimeLeft)} sec";
+        orderMoneyText.text = $"{(int)Mathf.Clamp(money, 0, targetMoney)}/{(int)targetMoney}";
+        orderTimeText.text = $"{(int)Vars.Instance.orders.TimeLeft}";
     
         winScreenRoot.SetActive(Vars.Instance.state.IsWin);
         loseScreenRoot.SetActive(Vars.Instance.state.IsLose);
     
-        researchUI.Update();
-
         speedRunStateRoot.SetActive(!Vars.Instance.speedSystem.pause);            
         speedPauseStateRoot.SetActive(Vars.Instance.speedSystem.pause);            
         if (!Vars.Instance.speedSystem.pause)
@@ -94,6 +111,11 @@ public class UIMAin : MonoBehaviour
             speedFiller.fillAmount = (Vars.Instance.speedSystem.speedId + 1) / (float)Vars.Instance.speedSystem.speeds.Count;            
         }
         timeText.text = ((int)Vars.Instance.time.day).ToString();
+    
+        foreach (var (k, v) in detailInstances)
+        {
+            v.countText.text = ((int)Vars.Instance.detailsSystem.GetCount(k)).ToString();
+        }
     }
 
     public void RebuildBuildComplexDialog(List<ComplexType> complexes, UnityAction<ComplexType> onSuccess)
@@ -120,13 +142,38 @@ public class UIMAin : MonoBehaviour
         }
     }
 
+    public void ShowConfirmDialog(string text, UnityAction onConfirm, UnityAction onCancel)
+    {
+        if (confirmDialogRoot.activeInHierarchy)
+        {
+            confirmDialogBackButton.onClick?.Invoke();
+        }
 
+        confirmDialogBackButton.onClick.RemoveAllListeners();
+        confirmDialogConfirmButton.onClick.RemoveAllListeners();
+        
+        confirmDialogConfirmButton.onClick.AddListener(() =>
+        {
+            confirmDialogRoot.SetActive(false);
+            onConfirm?.Invoke();
+        });
+        confirmDialogBackButton.onClick.AddListener(() =>
+        {
+            confirmDialogRoot.SetActive(false);
+            onCancel?.Invoke();
+        });
+
+        confirmDialogText.text = text;
+
+        confirmDialogRoot.SetActive(true);
+    }
 
     public void SetMenuActive(GameObject menu, bool v)
     {
         resourcesRoot.SetActive(false);
         researchUI.researchMenuRoot.SetActive(false);
         ordersUI.ordersMenuRoot.SetActive(false);
+        chefsUi.root.SetActive(false);
         menu.SetActive(v);
     }
 }
