@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -24,6 +23,8 @@ public class Vars : MonoBehaviour
     public ProductionLineColorSystem productionLineColorSystem;
     public ChefsSystem chefs;
     public BuffsSystem buffs;
+    public ManagersSystem managers;
+    public LayerMasksSystem layerMasks;
 
     private void Start()
     {
@@ -36,6 +37,8 @@ public class Vars : MonoBehaviour
         BuildSpots.Init();
         Researches.Init();
         Complexes.PostInit();
+        ManagerCategory.GInit();
+        ManagerType.GInit();
         
         productionLineColorSystem = new();
         productionLineColorSystem.Init();
@@ -75,6 +78,9 @@ public class Vars : MonoBehaviour
         buildSpotPriceSystem = new();
         buildSpotPriceSystem.Init();
 
+        managers = new();
+        managers.Init();
+
         foreach (var i in FindObjectsByType<Complex>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
@@ -103,6 +109,7 @@ public class Vars : MonoBehaviour
         productionLineColorSystem.Restart();
         chefs.Restart();
         buffs.Restart();
+        managers.Restart();
     }
 
     public void Win()
@@ -123,6 +130,7 @@ public class Vars : MonoBehaviour
         unlockedDetails.Update();
         chefs.Update();
         buffs.Update();
+        managers.Update();
     }
 }
 

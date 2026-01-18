@@ -31,6 +31,8 @@ public class Complex : MonoBehaviour
     
     public GameObject selectionFrameRoot;
 
+    public virtual bool IsChefAllowed => true;
+
     public virtual void Init()
     {
         if (selectionFrameRoot)

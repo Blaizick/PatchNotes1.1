@@ -51,7 +51,7 @@ public class UIMAin : MonoBehaviour
 
     [NonSerialized] public Dictionary<DetailType, DetailUIContainerPrefab> detailInstances = new();
 
-    public ChefsUi chefsUi;
+    public EmployeeUi chefsUi;
 
     public void Init()
     {

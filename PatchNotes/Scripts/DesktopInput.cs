@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class DesktopInput : MonoBehaviour
@@ -74,14 +75,14 @@ public class DesktopInput : MonoBehaviour
 
                 foreach (var hit in hits)
                 {
-                    if (hit.TryGetComponent<Complex>(out var c))
+                    if (hit.TryGetComponent<Complex>(out var c) && c.IsChefAllowed)
                     {
                         selectedChef?.SwitchComplex(c);
                         break;
                     }
                 }
             }
-            else if (!dragging)
+            else
             {
                 Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
 
@@ -93,16 +94,10 @@ public class DesktopInput : MonoBehaviour
                         m_Complex0 = c;
                         dragging = true;
                         dragStartTime = Time.time;
+                        m_Complex0.OnPointerDown();
                         break;
                     }
                 }
-            }
-        }
-        if (actions.Player.LMB.IsPressed())
-        {
-            if (dragging && Time.time - dragStartTime > 0.2f && m_Complex0)
-            {
-                m_Complex0.OnPointerDown();
             }
         }
         if (actions.Player.LMB.WasReleasedThisFrame())
@@ -118,7 +113,11 @@ public class DesktopInput : MonoBehaviour
                     {
                         if (Time.time - dragStartTime < 0.2f)
                         {
-                            m_Complex0.OnPointerClick();
+                            if (!EventSystem.current.IsPointerOverGameObject() || EventSystem.current.gameObject
+                                 || EventSystem.current.gameObject.layer != Vars.Instance.layerMasks.uiMask)
+                            {
+                                m_Complex0.OnPointerClick();
+                            }
                         }
                         m_Complex1 = c;
                         break;
@@ -141,6 +140,12 @@ public class DesktopInput : MonoBehaviour
                 i.selectionFrameRoot.SetActive(true);
             }
         }
+
+        Camera.main.transform.position = (Vector2)Camera.main.transform.position + 
+            (actions.Player.Move.ReadValue<Vector2>() * Time.deltaTime * 3 * Camera.main.orthographicSize);
+        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, -10);
+        Camera.main.orthographicSize += -actions.Player.Scroll.ReadValue<float>() * 0.5f;
+        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 2, 12);
     }
 
     public void SwitchSelectingComplexesForChefState(Chef chef)
