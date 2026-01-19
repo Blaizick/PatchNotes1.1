@@ -9,6 +9,7 @@ public class Vars : MonoBehaviour
     public static Vars Instance {get;set;}
 
     public MoneySystem moneySystem;
+    public IncomeSystem income;
     public OrderSystem orders;
     public UIMAin ui;
     public DetailsSystem detailsSystem;
@@ -25,6 +26,12 @@ public class Vars : MonoBehaviour
     public BuffsSystem buffs;
     public ManagersSystem managers;
     public LayerMasksSystem layerMasks;
+    public InfluenceSystem influence;
+    public SuppliersSystem suppliers;
+    public Tooltip tooltip;
+    public MaterialCostSystem materialCostSystem;
+    public TaxesSystem taxes;
+    public ReportsSystem reports;
 
     private void Start()
     {
@@ -39,6 +46,7 @@ public class Vars : MonoBehaviour
         Complexes.PostInit();
         ManagerCategory.GInit();
         ManagerType.GInit();
+        Suppliers.Init();
         
         productionLineColorSystem = new();
         productionLineColorSystem.Init();
@@ -53,6 +61,12 @@ public class Vars : MonoBehaviour
 
         moneySystem = new();
         moneySystem.Init();
+
+        income = new();
+        income.Init();
+
+        influence = new();
+        influence.Init();
 
         buffs = new();
         buffs.Init();
@@ -81,6 +95,18 @@ public class Vars : MonoBehaviour
         managers = new();
         managers.Init();
 
+        materialCostSystem = new();
+        materialCostSystem.Init();
+
+        suppliers = new();
+        suppliers.Init();
+
+        taxes = new();
+        taxes.Init();
+
+        reports = new();
+        reports.Init();
+
         foreach (var i in FindObjectsByType<Complex>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
@@ -92,6 +118,7 @@ public class Vars : MonoBehaviour
 
         buildSystem.Init();
         ui.Init();
+        tooltip.Init();
     }
 
     public void Restart()
@@ -100,16 +127,22 @@ public class Vars : MonoBehaviour
         unlockedDetails.Restart();
         state.Restart();
         moneySystem.Restart();
+        income.Restart();
+        influence.Restart();
         detailsSystem.Restart();
         orders.Restart();
         researches.Restart();
+        buildSpotPriceSystem.Restart();
         buildSystem.Restart();
         speedSystem.Restart();
-        buildSpotPriceSystem.Restart();
         productionLineColorSystem.Restart();
         chefs.Restart();
         buffs.Restart();
         managers.Restart();
+        materialCostSystem.Restart();
+        suppliers.Restart();
+        taxes.Restart();
+        reports.Restart();
     }
 
     public void Win()
@@ -118,7 +151,7 @@ public class Vars : MonoBehaviour
     }
     public void Lose()
     {
-        state.state = GameState.Lose;        
+        state.state = GameState.Lose;
     }
 
     private void Update()
@@ -131,6 +164,12 @@ public class Vars : MonoBehaviour
         chefs.Update();
         buffs.Update();
         managers.Update();
+        influence.Update();
+        materialCostSystem.Update();
+        suppliers.Update();
+        taxes.Update();
+        income.Update();
+        reports.Update();
     }
 }
 
@@ -529,7 +568,9 @@ public class BuffsSystem
 public class ResearchSystem
 {
     public ResearchTech research;
-    public float researchStart;
+    public float researchProgress;
+    public float savedResearchTime;
+    public const float MaxSavedResearchTime = 30.0f;
 
     public List<ResearchTech> awailableTechs = new();
     public List<ResearchTech> researched;
@@ -547,13 +588,20 @@ public class ResearchSystem
             Researches.supplier
         };    
         UpdateAwailableResearches();
+        savedResearchTime = 0.0f;
     }
 
     public void Update()
     {
-        if (research != null)
+        if (research == null)
         {
-            if (Vars.Instance.time.day - researchStart >= research.researchTime)
+            savedResearchTime += Vars.Instance.time.deltaDay;
+            savedResearchTime = Mathf.Clamp(savedResearchTime, 0, MaxSavedResearchTime);
+        }
+        else
+        {
+            researchProgress += Vars.Instance.time.deltaDay / research.researchTime;
+            if (researchProgress > 1.0f)
             {
                 research.Research();
                 researched.Add(research);
@@ -614,7 +662,8 @@ public class ResearchSystem
 
     public void StartResearch(ResearchTech tech)
     {
-        researchStart = Vars.Instance.time.day;
+        researchProgress = savedResearchTime / tech.researchTime;
+        savedResearchTime = 0.0f;
         research = tech;
     }
 
@@ -622,8 +671,6 @@ public class ResearchSystem
     {
         return awailableTechs.Contains(tech);
     }
-
-    public float ResearchProgress => (Vars.Instance.time.day - researchStart) / research.researchTime; 
 }
 
 public class TimeSystem
@@ -757,6 +804,124 @@ public class UnlockedDetailsSystem
                 unlockedSet.Add(k);
                 unlocked.Add(k);
             }
+        }
+    }
+}
+
+public class InfluenceSystem
+{
+    public float influence;
+    public const float MaxInfluence = 2000.0f;
+    public const float InfluenceGrow = 2.0f; 
+
+    public void Init()
+    {
+        Restart();
+    }
+    public void Restart()
+    {
+        influence = 0.0f;
+    }
+
+    public void Update()
+    {
+        Add(InfluenceGrow * Vars.Instance.time.deltaDay);
+    }
+
+    public void Take(float count)
+    {
+        influence -= count;
+    }
+    public void Add(float count)
+    {
+        influence = Mathf.Clamp(influence + count, 0, MaxInfluence);
+    }
+
+    public bool HasEnought(float count)
+    {
+        return influence >= count;
+    }
+}
+
+public class TaxesSystem
+{
+    public const float BaseIncomeTax = 0.15f;
+    public float IncomeTax => BaseIncomeTax;
+
+    public void Init()
+    {
+        Restart();
+    }
+
+    public void Restart()
+    {
+        
+    }
+
+    public void Update()
+    {
+        
+    }
+}
+
+public class MaterialCostSystem
+{
+    public float billMoney;
+
+    public float lastPayTime;
+
+    public float pricePerMaterial;
+
+    public void Init()
+    {
+        Restart();
+    }
+    public void Restart()
+    {
+        pricePerMaterial = 0.0f;
+        billMoney = 0.0f;
+        lastPayTime = Vars.Instance.time.month;
+    }
+
+    public void Update()
+    {
+        if (Vars.Instance.time.month - lastPayTime > 1.0f)
+        {
+            Vars.Instance.moneySystem.Take(billMoney);
+            lastPayTime = Vars.Instance.time.month;
+            billMoney = 0.0f;
+        }
+    }
+
+    public void Add(float count)
+    {
+        billMoney += count;
+    }
+}
+
+public class IncomeSystem
+{
+    public float income;
+
+    public float lastPayTime;
+
+    public void Init()
+    {
+        Restart();
+    } 
+    public void Restart()
+    {
+        lastPayTime = Vars.Instance.time.month;
+        income = 0.0f;
+    }
+
+    public void Update()
+    {
+        if (Vars.Instance.time.month - lastPayTime > 1.0f)
+        {
+            Vars.Instance.moneySystem.Add(income * Vars.Instance.taxes.IncomeTax);
+            income = 0.0f;
+            lastPayTime = Vars.Instance.time.month;
         }
     }
 }

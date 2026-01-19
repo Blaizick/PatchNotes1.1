@@ -38,7 +38,7 @@ public class UIMAin : MonoBehaviour
     public Button prevSpeedBtn;
     public Button pauseBtn;
 
-    public OrdersUI ordersUI;
+    public CooperationUi cooperationUi;
 
     public Button buildComplexDialogBackButton;
 
@@ -49,9 +49,16 @@ public class UIMAin : MonoBehaviour
 
     public Button chefsMenuBtn;
 
+    public Button resourcesCloseBtn;
+
     [NonSerialized] public Dictionary<DetailType, DetailUIContainerPrefab> detailInstances = new();
 
-    public EmployeeUi chefsUi;
+    public EmployeeUi employeeUi;
+
+    public TMP_Text influenceText;
+
+    public ReportsUi reportsUi;
+    public Button reportsBtn;
 
     public void Init()
     {
@@ -79,17 +86,22 @@ public class UIMAin : MonoBehaviour
         pauseBtn.onClick.AddListener(() => Vars.Instance.speedSystem.ChangePauseState());
 
         resourcesBtn.onClick.AddListener(() => SetMenuActive(resourcesRoot, !resourcesRoot.activeInHierarchy));
-        ordersUI.ordersBtn.onClick.AddListener(() => 
-            SetMenuActive(ordersUI.ordersMenuRoot, !ordersUI.ordersMenuRoot.activeInHierarchy));
+        cooperationUi.ordersBtn.onClick.AddListener(() => 
+            SetMenuActive(cooperationUi.root, !cooperationUi.root.activeInHierarchy));
         researchUI.openResearchMenuBtn.onClick.AddListener(() => 
             SetMenuActive(researchUI.researchMenuRoot, !researchUI.researchMenuRoot.activeInHierarchy));
-        chefsMenuBtn.onClick.AddListener(() => SetMenuActive(chefsUi.root, !chefsUi.root.activeInHierarchy));
+        chefsMenuBtn.onClick.AddListener(() => SetMenuActive(employeeUi.root, !employeeUi.root.activeInHierarchy));
+        reportsBtn.onClick.AddListener(() => SetMenuActive(reportsUi.root, !reportsUi.root.activeInHierarchy));
 
-        ordersUI.Init();
+        cooperationUi.Init();
 
         buildComplexDialogBackButton.onClick.AddListener(() => buildComplexDialogRoot.SetActive(false));
 
-        chefsUi.Init();
+        employeeUi.Init();
+
+        resourcesCloseBtn.onClick.AddListener(() => resourcesRoot.SetActive(false));
+    
+        reportsUi.Init();
     }
 
     public void Update()
@@ -116,6 +128,8 @@ public class UIMAin : MonoBehaviour
         {
             v.countText.text = ((int)Vars.Instance.detailsSystem.GetCount(k)).ToString();
         }
+
+        influenceText.text = $"{(int)Vars.Instance.influence.influence}";
     }
 
     public void RebuildBuildComplexDialog(List<ComplexType> complexes, UnityAction<ComplexType> onSuccess)
@@ -172,8 +186,9 @@ public class UIMAin : MonoBehaviour
     {
         resourcesRoot.SetActive(false);
         researchUI.researchMenuRoot.SetActive(false);
-        ordersUI.ordersMenuRoot.SetActive(false);
-        chefsUi.root.SetActive(false);
+        cooperationUi.root.SetActive(false);
+        employeeUi.root.SetActive(false);
+        reportsUi.root.SetActive(false);
         menu.SetActive(v);
     }
 }

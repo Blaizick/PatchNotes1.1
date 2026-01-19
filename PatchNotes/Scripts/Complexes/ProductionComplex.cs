@@ -4,8 +4,10 @@ public class ProductionComplex : Complex
 {
     public override void Update()
     {
-        nextComplex?.Receive(new DetailStack(Details.ironOre, 0.5f * Vars.Instance.time.deltaDay * effeciencySystem.effeciency));
-    
+        var given = 4 * Vars.Instance.time.deltaDay * effeciencySystem.effeciency;
+        nextComplex?.Receive(new DetailStack(Details.ironOre, given));
+        Vars.Instance.materialCostSystem.Add(given);
+
         base.Update();
     }
 }

@@ -6,6 +6,8 @@ public static class Details
     public static DetailType ironOre;
     public static DetailType ironIngot;
     public static DetailType ironPlate;
+    public static DetailType rod;
+    public static DetailType screws;
 
     public static List<DetailType> all;
 
@@ -26,12 +28,24 @@ public static class Details
             name = "Iron Plate",
             price = 50.0f,
         };
+        rod = new()
+        {
+            name = "Rod",
+            price = 40.0f,
+        };
+        screws = new()
+        {
+            name = "Screws",
+            price = 20.0f,
+        };
 
         all = new()
         {
             ironOre,
             ironIngot,
-            ironPlate
+            ironPlate,
+            rod,
+            screws
         };
     }
 }
@@ -83,6 +97,8 @@ public static class Recipes
 {
     public static CraftRecipe smeltRecipe;
     public static CraftRecipe pressRecipe;
+    public static CraftRecipe bendRodRecipe;
+    public static CraftRecipe cutScrewsRecipe;
 
     public static List<CraftRecipe> all;
 
@@ -90,7 +106,7 @@ public static class Recipes
     {
         smeltRecipe = new()
         {
-            craftTime = 1.0f,
+            craftTime = 0.5f,
             inputStacks = new()
             {
                 new(Details.ironOre, 1.0f)
@@ -102,7 +118,7 @@ public static class Recipes
         };
         pressRecipe = new()
         {
-            craftTime = 1.0f,
+            craftTime = 0.5f,
             inputStacks = new()
             {
                 new(Details.ironIngot, 3.0f)
@@ -110,6 +126,30 @@ public static class Recipes
             outputStacks = new()
             {
                 new(Details.ironPlate, 2.0f)
+            }
+        };
+        bendRodRecipe = new()
+        {
+            craftTime = 0.5f,
+            inputStacks = new()
+            {
+                new(Details.ironPlate, 2.0f)
+            },
+            outputStacks = new()
+            {
+                new(Details.rod, 3.0f)
+            }
+        };
+        cutScrewsRecipe = new()
+        {
+            craftTime = 0.5f,
+            inputStacks = new()
+            {
+                new(Details.rod, 1.0f)
+            },
+            outputStacks = new()
+            {
+                new(Details.screws, 2.0f)
             }
         };
     
@@ -126,6 +166,8 @@ public static class Complexes
     public static ComplexType supplier;
     public static ComplexType smelter;
     public static ComplexType press;
+    public static ComplexType bendingComplex;
+    public static ComplexType cuttingComplex;
 
     public static List<ComplexType> all;
 
@@ -148,10 +190,22 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/Press"),
             recipe = Recipes.pressRecipe,
         };
+        bendingComplex = new CraftingComplexType()
+        {
+            name = "Bending Complex",
+            prefab = Resources.Load<Complex>("Prefabs/BendingComplex"),
+            recipe = Recipes.bendRodRecipe
+        };
+        cuttingComplex = new CraftingComplexType()
+        {
+            name = "Cutting Complex",
+            prefab = Resources.Load<Complex>("Prefabs/CuttingComplex"),
+            recipe = Recipes.cutScrewsRecipe
+        };
 
         all = new()
         {
-            supplier, smelter, press,
+            supplier, smelter, press, bendingComplex, cuttingComplex
         };
     } 
 
@@ -160,6 +214,8 @@ public static class Complexes
         supplier.research = Researches.supplier;
         smelter.research = Researches.smelter;
         press.research = Researches.press;
+        bendingComplex.research = Researches.bending;
+        cuttingComplex.research = Researches.cutting;
     }
 }
 
@@ -179,6 +235,8 @@ public static class Researches
     public static ComplexResearchTech supplier;
     public static ComplexResearchTech smelter;
     public static ComplexResearchTech press;
+    public static ComplexResearchTech bending;
+    public static ComplexResearchTech cutting;
 
     public static BuffsResearchTech production;
     public static BuffsResearchTech standardizedComplexes0;
@@ -216,7 +274,25 @@ public static class Researches
                 smelter
             }
         };
-        
+        bending = new()
+        {
+            researchTime = 20.0f,
+            name = "Bending",
+            requiredTechs = new()
+            {
+                press
+            }
+        };
+        cutting = new()
+        {
+            researchTime = 20.0f,
+            name = "Cutting",
+            requiredTechs = new()
+            {
+                bending
+            }
+        };
+
         production = new()
         {
             researchTime = 20.0f,
@@ -291,15 +367,44 @@ public static class Researches
 
         complexTechs = new()
         {
-            supplier, smelter, press
+            supplier, smelter, press, bending, cutting
         };
         all = new()
         {
-            supplier, smelter, press,
+            supplier, smelter, press, bending, cutting,
             
             production, 
             standardizedComplexes0, standardizedComplexes1, standardizedComplexes2, 
             flexibleComplexes0, flexibleComplexes1, flexibleComplexes2
         };
     }    
+}
+
+public static class Suppliers
+{
+    public static SupplierType baseSupplier;
+    public static SupplierType supplier0;
+
+    public static List<SupplierType> all;
+
+    public static void Init()
+    {
+        baseSupplier = new()
+        {
+            name = "Base Supplier",
+            influencePrice = 100.0f,
+            materialPrice = 12.0f,
+        };
+        supplier0 = new()
+        {
+            name = "Placeholder Name 0",
+            influencePrice = 100.0f,
+            materialPrice = 10.0f,
+        };
+
+        all = new()
+        {
+            baseSupplier, supplier0
+        };
+    }
 }

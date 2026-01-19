@@ -1,0 +1,142 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Assertions.Must;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+//TODO orders
+public class ReportsUi : MonoBehaviour
+{
+    public ReportUiCntPfb reportUiCntPfb;
+    public ReportBlockUiCntPfb reportBlockUiCntPfb;
+
+    [NonSerialized] public List<ReportUiCntPfb> reportInstances = new();
+    [NonSerialized] public List<ReportBlockUiCntPfb> blockInstances = new();
+
+    public RectTransform reportsContentRootTransform;
+
+    public RectTransform curReportContentRootTransform;
+    public Button closeBtn;
+    public Button curReportCloseBtn;
+    public GameObject curReportRoot;
+    public GameObject root;
+
+    public void Init()
+    {
+        Vars.Instance.reports.onGlobalChange.AddListener(Rebuild);
+        Rebuild();
+    
+        curReportCloseBtn.onClick.AddListener(() => curReportRoot.SetActive(false));
+        closeBtn.onClick.AddListener(() => root.SetActive(false));
+
+        root.SetActive(false);
+        curReportRoot.SetActive(false);
+    }
+
+    public void Update()
+    {
+        
+    }
+
+    public void Rebuild()
+    {
+        reportInstances.ForEach(i => Destroy(i.gameObject));
+        reportInstances.Clear();
+        foreach (var report in Vars.Instance.reports.all)
+        {
+            var scr = Instantiate(reportUiCntPfb, reportsContentRootTransform);
+            scr.name = report.name;
+            scr.btn.onClick.AddListener(() =>
+            {
+                blockInstances.ForEach(b => Destroy(b.gameObject));
+                blockInstances.Clear();
+                foreach (var (k, v) in report.detailsIncome)
+                {
+                    if (v > 0)
+                    {
+                        SpawnIncomeBlock($"{k.name}: {(int)v}(Each for {(int)k.price})");
+                    }
+                }
+                SpawnExpenseBlock($"Materials {(int)report.totalMaterialsPrice}({(int)report.materialPrice} each)");
+                SpawnExpenseBlock($"Income Tax {(int)report.incomeTaxExpense}({(int)report.incomeTax}%)");
+                SpawnBlock($"Total {(int)report.total}", report.total > 0, report.total < 0, report.total == 0);
+                curReportRoot.SetActive(true);
+            });
+            reportInstances.Add(scr);
+        }
+    }
+
+    public void SpawnExpenseBlock(string text)
+    {
+        SpawnBlock(text, false, true, false);
+    }
+    public void SpawnIncomeBlock(string text)
+    {
+        SpawnBlock(text, true, false, false);
+    }
+    public void SpawnBlock(string text, bool positive, bool negative, bool neutral)
+    {
+        var scr = Instantiate(reportBlockUiCntPfb, curReportContentRootTransform);
+        scr.positiveState.root.SetActive(positive);
+        scr.negativeState.root.SetActive(negative);
+        scr.neutralState.root.SetActive(neutral);
+        foreach (var s in scr.AllStates)
+        {
+            s.text.text = text;
+        }
+        blockInstances.Add(scr);
+    }
+}
+
+public class Report
+{
+    public Dictionary<DetailType, float> detailsIncome = new();
+    public float totalWithoutTaxes;
+    public float total;
+    public float incomeTaxExpense;
+    public float incomeTax;
+    public string name;
+    public float totalMaterialsPrice;
+    public float materialPrice;    
+}
+
+public class ReportsSystem
+{
+    public List<Report> all;
+    public Report cur;
+
+    public UnityEvent onGlobalChange = new();
+    
+    public float lastUpdateTime;
+
+    public void Init()
+    {
+        Restart();
+    }
+
+    public void Restart()
+    {
+        cur = new()
+        {
+            name = Vars.Instance.time.day.ToString()
+        };
+        all = new() {cur};
+        lastUpdateTime = Vars.Instance.time.month;
+        onGlobalChange?.Invoke();
+    }
+
+    public void Update()
+    {
+        if (Vars.Instance.time.month - lastUpdateTime > 1.0f)
+        {
+            cur = new()
+            {
+                name = Vars.Instance.time.day.ToString()
+            };
+            all.Add(cur);
+            onGlobalChange?.Invoke();
+            lastUpdateTime = Vars.Instance.time.month;
+        }
+    }
+}

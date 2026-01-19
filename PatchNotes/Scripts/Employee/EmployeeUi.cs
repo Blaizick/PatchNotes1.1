@@ -56,6 +56,8 @@ public class EmployeeUi : MonoBehaviour
     public Button awailableManagersCloseBtn;
     [NonSerialized] public List<ManagerUiCntPfb> managerInstances = new();
 
+    public TMP_Text awailableManagersLabel;
+
     public void Init()
     {
         chefsMenuRoot.SetActive(true);
@@ -94,7 +96,7 @@ public class EmployeeUi : MonoBehaviour
             slotsDic[category] = s.slot;
             s.slot.btn.onClick.AddListener(() =>
             {
-                ShowAwailableManagers(ManagerType.allDic[category], m =>
+                ShowAwailableManagers(ManagerType.allDic[category], $"Choose {category.name} manager", m =>
                 {
                     Vars.Instance.managers.SetManager(category, m.AsManager());
                 }, null);
@@ -121,7 +123,7 @@ public class EmployeeUi : MonoBehaviour
         }
     }
 
-    public void ShowAwailableManagers(List<ManagerType> managers, UnityAction<ManagerType> onSelected, UnityAction onQuit)
+    public void ShowAwailableManagers(List<ManagerType> managers, string label, UnityAction<ManagerType> onSelected, UnityAction onQuit)
     {
         managerInstances.ForEach(i => Destroy(i.gameObject));
         managerInstances.Clear();
@@ -132,6 +134,8 @@ public class EmployeeUi : MonoBehaviour
             awailableManagersRoot.SetActive(false);
             onQuit?.Invoke();
         });
+
+        awailableManagersLabel.text = label;
 
         foreach (var m in managers)
         {

@@ -31,6 +31,7 @@ public class Complex : MonoBehaviour
     
     public GameObject selectionFrameRoot;
 
+    public virtual bool CanBreak => true;
     public virtual bool IsChefAllowed => true;
 
     public virtual void Init()
@@ -100,13 +101,16 @@ public class Complex : MonoBehaviour
 
     public virtual void Receive(DetailStack stack){}
 
-    public void OnPointerClick()
-    {
-        Vars.Instance.ui.ShowConfirmDialog($"Destroy {type.name}?", () =>
-        {
-            Vars.Instance.buildSystem.DestroyBuild(this);
-        }, null);
-    }
+    // public void OnPointerClick()
+    // {
+    //     if (type != null)
+    //     {
+    //         Vars.Instance.ui.ShowConfirmDialog($"Destroy {type.name}?", () =>
+    //         {
+    //             Vars.Instance.buildSystem.DestroyBuild(this);
+    //         }, null);    
+    //     }
+    // }
 }
 
 public class ProductionLineColorSystem

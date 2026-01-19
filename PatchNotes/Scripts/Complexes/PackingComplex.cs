@@ -1,6 +1,7 @@
 public class PackingComplex : Complex
 {
     public override bool IsChefAllowed => false;
+    public override bool CanBreak => false;
 
     public override void Receive(DetailStack stack)
     {

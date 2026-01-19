@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Unity.VisualStudio.Editor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -20,6 +22,15 @@ public class DesktopInput : MonoBehaviour
 
     [NonSerialized] public bool selectingComplexesForChef;
     [NonSerialized] public Chef selectedChef;
+
+    public RectTransform breakSelectionImageRootTransform;
+    public GameObject breakSelectionImageRoot;
+
+    [NonSerialized] public bool breaking = false;
+    [NonSerialized] public Vector2 breakSelection0;
+    [NonSerialized] public Vector2 breakSelection1;
+
+    public RectTransform tooltipTransform;
 
     public void Init()
     {
@@ -111,14 +122,6 @@ public class DesktopInput : MonoBehaviour
                 {
                     if (hit.TryGetComponent<Complex>(out var c))
                     {
-                        if (Time.time - dragStartTime < 0.2f)
-                        {
-                            if (!EventSystem.current.IsPointerOverGameObject() || EventSystem.current.gameObject
-                                 || EventSystem.current.gameObject.layer != Vars.Instance.layerMasks.uiMask)
-                            {
-                                m_Complex0.OnPointerClick();
-                            }
-                        }
                         m_Complex1 = c;
                         break;
                     }
@@ -146,6 +149,52 @@ public class DesktopInput : MonoBehaviour
         Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, -10);
         Camera.main.orthographicSize += -actions.Player.Scroll.ReadValue<float>() * 0.5f;
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 2, 12);
+
+        {
+            breakSelection1 = mousePos;
+            float minX = Mathf.Min(breakSelection0.x, breakSelection1.x);
+            float minY = Mathf.Min(breakSelection0.y, breakSelection1.y);
+            float maxX = Mathf.Max(breakSelection0.x, breakSelection1.x);
+            float maxY = Mathf.Max(breakSelection0.y, breakSelection1.y);
+            Vector2 size = new Vector2(maxX - minX, maxY - minY);
+            Vector2 pos = new Vector2(minX, minY) + size * 0.5f;
+            Vector2 worldMin = Camera.main.ScreenToWorldPoint(new Vector2(minX, minY));
+            Vector2 worldMax = Camera.main.ScreenToWorldPoint(new Vector2(maxX, maxY));
+            Vector2 worldSize = worldMax - worldMin;
+            Vector2 worldPos = worldMin + worldSize * 0.5f;
+            if (actions.Player.Break.IsPressed() && !breaking)
+            {
+                breakSelection0 = mousePos;
+            }
+            if (!actions.Player.Break.IsPressed() && breaking)
+            {
+                List<Complex> complexes = new();
+                var hits = Physics2D.OverlapBoxAll(worldPos, worldSize, 0);
+                foreach (var hit in hits)
+                {
+                    if (hit.TryGetComponent<Complex>(out var c) && c.CanBreak)
+                    {
+                        complexes.Add(c);
+                    }
+                }
+                if (complexes.Count > 0)
+                {
+                    Vars.Instance.ui.ShowConfirmDialog($"Are you sure you want to destroy {complexes.Count} complexes?", () =>
+                    {
+                        foreach (var i in complexes)
+                        {
+                            Vars.Instance.buildSystem.DestroyBuild(i);
+                        }
+                    }, null);    
+                }
+            }
+            breaking = actions.Player.Break.IsPressed();
+            breakSelectionImageRootTransform.sizeDelta = size;
+            breakSelectionImageRootTransform.anchoredPosition = pos;
+            breakSelectionImageRoot.SetActive(breaking);
+        }
+
+        Vars.Instance.tooltip.SetPosition(mousePos);
     }
 
     public void SwitchSelectingComplexesForChefState(Chef chef)

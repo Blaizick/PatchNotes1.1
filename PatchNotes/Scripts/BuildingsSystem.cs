@@ -28,6 +28,7 @@ public class BuildingsSystem : MonoBehaviour
     {
         buildings.ForEach(b => Destroy(b));
         buildings.Clear();
+        complexes.Clear();
 
         AddBuildSpot();
         AddBuildSpot();
@@ -56,6 +57,10 @@ public class BuildingsSystem : MonoBehaviour
 
     public void DestroyBuild(Complex complex)
     {
+        if (complex == null || !complex.CanBreak)
+        {
+            return;
+        }
         var id = buildings.IndexOf(complex.gameObject);
         if (id >= 0)
         {
@@ -63,6 +68,10 @@ public class BuildingsSystem : MonoBehaviour
             Destroy(buildings[id]);
             buildings[id] = SpawnBuildSpot().gameObject;
         }
+    }
+    public void TryDestroy(Complex complex)
+    {
+        
     }
 
     public BuildSpot SpawnBuildSpot()

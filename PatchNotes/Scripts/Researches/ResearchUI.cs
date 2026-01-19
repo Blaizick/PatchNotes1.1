@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +20,8 @@ public class ResearchUI : MonoBehaviour
     public ResearchTechUICntPfb supplierTech;
     public ResearchTechUICntPfb smelterTech;
     public ResearchTechUICntPfb pressTech;
+    public ResearchTechUICntPfb bendingTech;
+    public ResearchTechUICntPfb cuttingTech;
 
 
     public ResearchTechUICntPfb productionTech;
@@ -34,11 +38,11 @@ public class ResearchUI : MonoBehaviour
 
     public Button openResearchMenuBtn;
 
-
     [NonSerialized] public Dictionary<ResearchTech, ResearchTechUICntPfb> instancesDic = new();
     [NonSerialized] public List<ResearchTechUICntPfb> instances = new();
 
     public Button backButton;
+    public Button menuCloseBtn;
 
     public void Init()
     {
@@ -52,6 +56,8 @@ public class ResearchUI : MonoBehaviour
         InitTechCnt(supplierTech, Researches.supplier);
         InitTechCnt(smelterTech, Researches.smelter);
         InitTechCnt(pressTech, Researches.press);
+        InitTechCnt(bendingTech, Researches.bending);
+        InitTechCnt(cuttingTech, Researches.cutting);
         
         InitTechCnt(productionTech, Researches.production);
 
@@ -64,6 +70,11 @@ public class ResearchUI : MonoBehaviour
         InitTechCnt(flexibleComplexes2Tech, Researches.flexibleComplexes2);
 
         backButton.onClick.AddListener(() => researchesScreenRoot.SetActive(false));
+        menuCloseBtn.onClick.AddListener(() => 
+        {
+            researchMenuRoot.SetActive(false);
+            researchesScreenRoot.SetActive(false);
+        });
     }
 
     public void Update()
@@ -72,24 +83,51 @@ public class ResearchUI : MonoBehaviour
 
         foreach (var (k, v) in instancesDic)
         {
-            v.btn.interactable = researches.CanStartResearch(k);
+            foreach (var i in v.AllStates)
+            {
+                i.root.SetActive(false);
+            }
+
+            if (researches.IsResearched(k))
+            {
+                v.researchedState.root.SetActive(true);
+            }
+            else if (researches.CanStartResearch(k))
+            {
+                v.awailableState.root.SetActive(true);
+            }
+            else
+            {
+                v.unawailableState.root.SetActive(true);
+            }
         }
 
         researchSlot0Txt.text = researches.research == null ? "Empty" : researches.research.name;
-        researchSlot0Filler.fillAmount = researches.research == null ? 1.0f : researches.ResearchProgress;
+        if (researches.research == null)
+        {
+            researchSlot0Filler.fillAmount = researches.savedResearchTime / ResearchSystem.MaxSavedResearchTime;
+        }
+        else
+        {
+            researchSlot0Filler.fillAmount = researches.researchProgress;
+        }
     }
 
     public void InitTechCnt(ResearchTechUICntPfb cnt, ResearchTech tech)
     {
-        cnt.nameText.text = tech.name;
-        cnt.btn.onClick.AddListener(() =>
+        foreach (var state in cnt.AllStates)
         {
-            if (Vars.Instance.researches.research != tech)
+            state.nameText.text = tech.name;
+            state.btn.onClick.AddListener(() =>
             {
-                Vars.Instance.researches.StartResearch(tech);
-            }
-            researchesScreenRoot.SetActive(false);
-        });
+                if (Vars.Instance.researches.research != tech)
+                {
+                    Vars.Instance.researches.StartResearch(tech);
+                }
+                researchesScreenRoot.SetActive(false);
+            });
+        }
+        
         cnt.tech = tech;
         instances.Add(cnt);
         instancesDic[tech] = cnt;

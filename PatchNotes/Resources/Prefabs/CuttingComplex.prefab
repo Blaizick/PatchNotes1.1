@@ -530,12 +530,11 @@ GameObject:
   m_Component:
   - component: {fileID: 572703744192746204}
   - component: {fileID: 5685051746848636410}
-  - component: {fileID: 9149121899391970069}
   - component: {fileID: 5828694964510607227}
   - component: {fileID: 48134912876583089}
-  - component: {fileID: 8449163305830218707}
+  - component: {fileID: 2387459810726897702}
   m_Layer: 0
-  m_Name: Supplier
+  m_Name: CuttingComplex
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -618,22 +617,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &9149121899391970069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8996528251696029576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30a0635a7ff94184381e7c1776cd84a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IronIngotProductionComplex
-  outputLineRenderer: {fileID: 9194023286527373238}
-  nextComplex: {fileID: 0}
-  effeciencyFiller: {fileID: 974775475475610543}
-  selectionFrameRoot: {fileID: 2016311130204222135}
 --- !u!61 &5828694964510607227
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -707,7 +690,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &8449163305830218707
+--- !u!114 &2387459810726897702
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -716,9 +699,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8996528251696029576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bc68a56fce32f14a991c3c28a60d240, type: 3}
+  m_Script: {fileID: 11500000, guid: a3144810c738a7b42a385b886fe046d7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipInfoCnt
-  title: Supplier
-  desc: The supplier delivers iron ore. Keep in mind that all resources in this block
-    will be purchased from a supplier(cooperation tab) and are worth something.
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingComplex
+  outputLineRenderer: {fileID: 9194023286527373238}
+  nextComplex: {fileID: 0}
+  effeciencyFiller: {fileID: 974775475475610543}
+  selectionFrameRoot: {fileID: 2016311130204222135}
