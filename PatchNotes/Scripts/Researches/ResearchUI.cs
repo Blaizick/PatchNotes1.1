@@ -17,12 +17,15 @@ public class ResearchUI : MonoBehaviour
     public Image researchSlot0Filler;
 
     [Space]
-    public ResearchTechUICntPfb supplierTech;
-    public ResearchTechUICntPfb smelterTech;
-    public ResearchTechUICntPfb pressTech;
-    public ResearchTechUICntPfb bendingTech;
+    public ResearchTechUICntPfb supplyTech;
+    public ResearchTechUICntPfb smeltingTech;
+    public ResearchTechUICntPfb pressingTech;
+    public ResearchTechUICntPfb bending0Tech;
     public ResearchTechUICntPfb cuttingTech;
-
+    public ResearchTechUICntPfb reinforcingTech;
+    public ResearchTechUICntPfb bending1Tech;
+    public ResearchTechUICntPfb formingTech;
+    public ResearchTechUICntPfb assemblingTech;
 
     public ResearchTechUICntPfb productionTech;
 
@@ -34,6 +37,8 @@ public class ResearchUI : MonoBehaviour
     public ResearchTechUICntPfb flexibleComplexes1Tech;
     public ResearchTechUICntPfb flexibleComplexes2Tech;
 
+    public ResearchTechUICntPfb researching0Tech;
+
     [Space]
 
     public Button openResearchMenuBtn;
@@ -44,6 +49,9 @@ public class ResearchUI : MonoBehaviour
     public Button backButton;
     public Button menuCloseBtn;
 
+    public TMP_Text researchSpeedBuffText;
+    public TMP_Text researchTimeText;
+
     public void Init()
     {
         researchMenuRoot.SetActive(false);
@@ -53,11 +61,15 @@ public class ResearchUI : MonoBehaviour
             researchesScreenRoot.SetActive(!researchesScreenRoot.activeInHierarchy);
         });
 
-        InitTechCnt(supplierTech, Researches.supplier);
-        InitTechCnt(smelterTech, Researches.smelter);
-        InitTechCnt(pressTech, Researches.press);
-        InitTechCnt(bendingTech, Researches.bending);
+        InitTechCnt(supplyTech, Researches.supply);
+        InitTechCnt(smeltingTech, Researches.smelting);
+        InitTechCnt(pressingTech, Researches.pressing);
+        InitTechCnt(bending0Tech, Researches.bending0);
         InitTechCnt(cuttingTech, Researches.cutting);
+        InitTechCnt(reinforcingTech, Researches.reinforcing);
+        InitTechCnt(bending1Tech, Researches.bending1);
+        InitTechCnt(formingTech, Researches.forming);
+        InitTechCnt(assemblingTech, Researches.assembling);
         
         InitTechCnt(productionTech, Researches.production);
 
@@ -68,6 +80,8 @@ public class ResearchUI : MonoBehaviour
         InitTechCnt(flexibleComplexes0Tech, Researches.flexibleComplexes0);
         InitTechCnt(flexibleComplexes1Tech, Researches.flexibleComplexes1);
         InitTechCnt(flexibleComplexes2Tech, Researches.flexibleComplexes2);
+
+        InitTechCnt(researching0Tech, Researches.researching0);
 
         backButton.onClick.AddListener(() => researchesScreenRoot.SetActive(false));
         menuCloseBtn.onClick.AddListener(() => 
@@ -102,6 +116,8 @@ public class ResearchUI : MonoBehaviour
             }
         }
 
+        researchSpeedBuffText.text = $"+{(int)(Vars.Instance.buffs.researchSpeedBonus * 100)}%";
+
         researchSlot0Txt.text = researches.research == null ? "Empty" : researches.research.name;
         if (researches.research == null)
         {
@@ -111,6 +127,8 @@ public class ResearchUI : MonoBehaviour
         {
             researchSlot0Filler.fillAmount = researches.researchProgress;
         }
+
+        researchTimeText.text = researches.research == null ? string.Empty : $"{(int)researches.DaysLeft} days";
     }
 
     public void InitTechCnt(ResearchTechUICntPfb cnt, ResearchTech tech)

@@ -51,15 +51,15 @@ public class ReportsUi : MonoBehaviour
             {
                 blockInstances.ForEach(b => Destroy(b.gameObject));
                 blockInstances.Clear();
-                foreach (var (k, v) in report.detailsIncome)
+                foreach (var (k, v) in report.detailIncomes)
                 {
                     if (v > 0)
                     {
-                        SpawnIncomeBlock($"{k.name}: {(int)v}(Each for {(int)k.price})");
+                        SpawnIncomeBlock($"{k.name}: {(int)v}({(int)k.price} each)");
                     }
                 }
-                SpawnExpenseBlock($"Materials {(int)report.totalMaterialsPrice}({(int)report.materialPrice} each)");
-                SpawnExpenseBlock($"Income Tax {(int)report.incomeTaxExpense}({(int)report.incomeTax}%)");
+                SpawnExpenseBlock($"Materials {(int)report.totalMaterialsExpense}({(int)report.materialPrice} each)");
+                SpawnExpenseBlock($"Income Tax {(int)report.incomeTaxExpense}({(int)(report.incomeTax * 100.0f)}%)");
                 SpawnBlock($"Total {(int)report.total}", report.total > 0, report.total < 0, report.total == 0);
                 curReportRoot.SetActive(true);
             });
@@ -91,14 +91,26 @@ public class ReportsUi : MonoBehaviour
 
 public class Report
 {
-    public Dictionary<DetailType, float> detailsIncome = new();
+    public Dictionary<DetailType, float> detailIncomes = new();
     public float totalWithoutTaxes;
     public float total;
     public float incomeTaxExpense;
     public float incomeTax;
     public string name;
-    public float totalMaterialsPrice;
+    public float totalMaterialsExpense;
     public float materialPrice;    
+
+    public void AddDetailIncome(DetailType detail, float income)
+    {
+        if (detailIncomes.ContainsKey(detail))
+        {
+            detailIncomes[detail] += income;
+        }
+        else
+        {
+            detailIncomes[detail] = income;
+        }
+    }
 }
 
 public class ReportsSystem
@@ -128,15 +140,20 @@ public class ReportsSystem
 
     public void Update()
     {
-        if (Vars.Instance.time.month - lastUpdateTime > 1.0f)
+        cur.incomeTax = Vars.Instance.taxes.IncomeTax;
+        cur.incomeTaxExpense = Vars.Instance.income.GetIncomeTaxExpense();
+        cur.totalWithoutTaxes = Vars.Instance.income.income;
+        cur.total = Vars.Instance.income.GetIncomeWithIncomeTax();
+    }
+
+    public void MonthUpdate()
+    {
+        cur = new()
         {
-            cur = new()
-            {
-                name = Vars.Instance.time.day.ToString()
-            };
-            all.Add(cur);
-            onGlobalChange?.Invoke();
-            lastUpdateTime = Vars.Instance.time.month;
-        }
+            name = Vars.Instance.time.day.ToString()
+        };
+        all.Add(cur);
+        onGlobalChange?.Invoke();
+        lastUpdateTime = Vars.Instance.time.month;
     }
 }

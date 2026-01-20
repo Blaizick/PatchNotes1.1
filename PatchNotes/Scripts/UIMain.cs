@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -60,6 +61,10 @@ public class UIMAin : MonoBehaviour
     public ReportsUi reportsUi;
     public Button reportsBtn;
 
+    public TMP_Text detailQualityText;
+
+    public Button confirmDialogBackBtn2;
+
     public void Init()
     {
         foreach (var d in Details.all)
@@ -102,16 +107,20 @@ public class UIMAin : MonoBehaviour
         resourcesCloseBtn.onClick.AddListener(() => resourcesRoot.SetActive(false));
     
         reportsUi.Init();
+
+        resourcesRoot.SetActive(false);
     }
 
     public void Update()
     {
+        detailQualityText.text = $"Q: {Vars.Instance.detailQualitySystem.Quality * 100.0f}%";
+
         var money = Vars.Instance.moneySystem.money;
         moneyText.text = ((int)money).ToString();
     
-        var targetMoney = ((MoneyOrderType)Vars.Instance.orders.curOrder.type).requiredMoney;
+        var targetMoney = ((MoneyOrderRequirement)Vars.Instance.orders.curOrder.type.requirements.First()).money;
         orderMoneyText.text = $"{(int)Mathf.Clamp(money, 0, targetMoney)}/{(int)targetMoney}";
-        orderTimeText.text = $"{(int)Vars.Instance.orders.TimeLeft}";
+        orderTimeText.text = $"{(int)Vars.Instance.orders.curOrder.DaysLeft}";
     
         winScreenRoot.SetActive(Vars.Instance.state.IsWin);
         loseScreenRoot.SetActive(Vars.Instance.state.IsLose);
@@ -165,7 +174,8 @@ public class UIMAin : MonoBehaviour
 
         confirmDialogBackButton.onClick.RemoveAllListeners();
         confirmDialogConfirmButton.onClick.RemoveAllListeners();
-        
+        confirmDialogBackBtn2.onClick.RemoveAllListeners();
+
         confirmDialogConfirmButton.onClick.AddListener(() =>
         {
             confirmDialogRoot.SetActive(false);
@@ -176,6 +186,12 @@ public class UIMAin : MonoBehaviour
             confirmDialogRoot.SetActive(false);
             onCancel?.Invoke();
         });
+        confirmDialogBackBtn2.onClick.AddListener(() =>
+        {
+            onCancel?.Invoke();
+            confirmDialogRoot.SetActive(false);
+        });
+
 
         confirmDialogText.text = text;
 

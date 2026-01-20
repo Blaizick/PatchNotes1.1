@@ -19,9 +19,13 @@ public class BuyBuildSpotComplex : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
         Vars.Instance.ui.ShowConfirmDialog($"Are you sure you want to buy new build spot for {(int)price}?", () =>
         {
-            if (Vars.Instance.moneySystem.HasEnoughtMoney(price))
+            if (Vars.Instance.moneySystem.HasEnought(price))
             {
                 Vars.Instance.moneySystem.Take(price);
                 Vars.Instance.buildSystem.BuySpot(gameObject);

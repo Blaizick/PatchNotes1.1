@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
-using Unity.VisualScripting;
+using System.Linq;
+using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class DesktopInput : MonoBehaviour
 {
@@ -32,6 +33,15 @@ public class DesktopInput : MonoBehaviour
 
     public RectTransform tooltipTransform;
 
+    public GraphicRaycaster graphicRaycaster;
+
+    [NonSerialized] public bool pointerOverUi;
+
+    [NonSerialized] public bool moving;
+    [NonSerialized] public Vector2 move0;
+    [NonSerialized] public Vector2 move1;
+
+
     public void Init()
     {
         actions = new();
@@ -51,12 +61,23 @@ public class DesktopInput : MonoBehaviour
     {
         mousePos = actions.Player.MousePosition.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-    
+
+        {
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position = mousePos}, results);
+            pointerOverUi = results.Count > 0 && results.First().gameObject != null && 
+                Utils.MaskContainsLayer(Vars.Instance.layerMasks.uiMask, results.First().gameObject.layer);
+        }
+
         if (actions.Player.Ctrl.IsPressed() && actions.Player.U.IsPressed() && actions.Player.RightAlt.IsPressed())
         {
             if (actions.Player.UpArrow.IsPressed())
             {
                 Vars.Instance.Restart();
+            }
+            if (actions.Player.LeftArrow.IsPressed())
+            {
+                CheatsSystem.godMode = true;
             }
         }
 
@@ -80,35 +101,38 @@ public class DesktopInput : MonoBehaviour
 
         if (actions.Player.LMB.WasPressedThisFrame())
         {
-            if (selectingComplexesForChef)
+            if (!pointerOverUi)
             {
-                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
-
-                foreach (var hit in hits)
+                if (selectingComplexesForChef)
                 {
-                    if (hit.TryGetComponent<Complex>(out var c) && c.IsChefAllowed)
+                    Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
+
+                    foreach (var hit in hits)
                     {
-                        selectedChef?.SwitchComplex(c);
-                        break;
+                        if (hit.TryGetComponent<Complex>(out var c) && c.IsChefAllowed)
+                        {
+                            selectedChef?.SwitchComplex(c);
+                            break;
+                        }
                     }
                 }
-            }
-            else
-            {
-                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
+                else
+                {    
+                    Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
 
-                m_Complex0 = null;
-                foreach (var hit in hits)
-                {
-                    if (hit.TryGetComponent<Complex>(out var c))
+                    m_Complex0 = null;
+                    foreach (var hit in hits)
                     {
-                        m_Complex0 = c;
-                        dragging = true;
-                        dragStartTime = Time.time;
-                        m_Complex0.OnPointerDown();
-                        break;
+                        if (hit.TryGetComponent<Complex>(out var c))
+                        {
+                            m_Complex0 = c;
+                            dragging = true;
+                            dragStartTime = Time.time;
+                            m_Complex0.OnPointerDown();
+                            break;
+                        }
                     }
-                }
+                }    
             }
         }
         if (actions.Player.LMB.WasReleasedThisFrame())
@@ -134,7 +158,10 @@ public class DesktopInput : MonoBehaviour
 
         foreach (var i in Vars.Instance.buildSystem.complexes)
         {
-            i.selectionFrameRoot.SetActive(false);
+            if (i.selectionFrameRoot)
+            {
+                i.selectionFrameRoot.SetActive(false);
+            }
         }
         if (selectedChef != null && selectingComplexesForChef)
         {
@@ -144,9 +171,12 @@ public class DesktopInput : MonoBehaviour
             }
         }
 
-        Camera.main.transform.position = (Vector2)Camera.main.transform.position + 
-            (actions.Player.Move.ReadValue<Vector2>() * Time.deltaTime * 3 * Camera.main.orthographicSize);
-        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, -10);
+        var cam = Camera.main;
+        if (actions.Player.Move.IsPressed())
+        {
+            cam.transform.position = (Vector2)cam.transform.position - (actions.Player.MouseMoveDelta.ReadValue<Vector2>() * 0.01f * cam.orthographicSize / 4);
+            cam.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, -10);
+        }
         Camera.main.orthographicSize += -actions.Player.Scroll.ReadValue<float>() * 0.5f;
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 2, 12);
 
@@ -168,22 +198,22 @@ public class DesktopInput : MonoBehaviour
             }
             if (!actions.Player.Break.IsPressed() && breaking)
             {
-                List<Complex> complexes = new();
+                List<GameObject> breaks = new();
                 var hits = Physics2D.OverlapBoxAll(worldPos, worldSize, 0);
                 foreach (var hit in hits)
                 {
-                    if (hit.TryGetComponent<Complex>(out var c) && c.CanBreak)
+                    if (Vars.Instance.buildSystem.CanBreak(hit.gameObject))
                     {
-                        complexes.Add(c);
+                        breaks.Add(hit.gameObject);
                     }
                 }
-                if (complexes.Count > 0)
+                if (breaks.Count > 0)
                 {
-                    Vars.Instance.ui.ShowConfirmDialog($"Are you sure you want to destroy {complexes.Count} complexes?", () =>
+                    Vars.Instance.ui.ShowConfirmDialog($"Are you sure you want to destroy {breaks.Count} complexes?", () =>
                     {
-                        foreach (var i in complexes)
+                        foreach (var i in breaks)
                         {
-                            Vars.Instance.buildSystem.DestroyBuild(i);
+                            Vars.Instance.buildSystem.Break(i);
                         }
                     }, null);    
                 }

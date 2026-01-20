@@ -24,4 +24,5 @@ public class SupplierUiCntPfb : MonoBehaviour
         awailableState,
         unawailableStates,
     };
+    public TooltipInfoCnt tooltipInfoCnt;
 }

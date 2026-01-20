@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingsSystem : MonoBehaviour
@@ -12,6 +14,8 @@ public class BuildingsSystem : MonoBehaviour
     public Vector2 anchor;
     public int buildingsInRow;
     public Vector2 spacing;
+
+    public BuildingComplex buildingComplexPfb;
 
     public void OnDrawGizmos()
     {
@@ -55,12 +59,33 @@ public class BuildingsSystem : MonoBehaviour
         buildings.Add(SpawnBuildSpot().gameObject);
     }
 
-    public void DestroyBuild(Complex complex)
+    public void StartBuilding(BuildSpot spot, ComplexType complexType)
     {
-        if (complex == null || !complex.CanBreak)
-        {
-            return;
-        }
+        var id = buildings.IndexOf(spot.gameObject);
+        Destroy(buildings[id].gameObject);
+        var buildingComplex = Instantiate(buildingComplexPfb);
+        buildings[id] =  buildingComplex.gameObject;
+        complexes.Add(buildingComplex);
+        buildingComplex.buildingComplex = complexType;
+        buildingComplex.Init();
+    }
+    public void FinishBuilding(BuildingComplex buildingComplex)
+    {
+        var id = buildings.IndexOf(buildingComplex.gameObject);
+        complexes.Remove(buildingComplex);
+        Destroy(buildings[id].gameObject);
+        var complex = SpawnComplex(buildingComplex.buildingComplex);
+        buildings[id] = complex.gameObject;
+        complexes.Add(complex);        
+    }
+
+    public bool CanBreak(GameObject go)
+    {
+        return go.TryGetComponent<Complex>(out var c) && c.CanBreak;
+    }
+    public void Break(GameObject go)
+    {
+        var complex = go.GetComponent<Complex>();
         var id = buildings.IndexOf(complex.gameObject);
         if (id >= 0)
         {
@@ -68,24 +93,22 @@ public class BuildingsSystem : MonoBehaviour
             Destroy(buildings[id]);
             buildings[id] = SpawnBuildSpot().gameObject;
         }
-    }
-    public void TryDestroy(Complex complex)
-    {
-        
+        buildings.Remove(go);
+        Destroy(go);
     }
 
     public BuildSpot SpawnBuildSpot()
     {
         var script = Instantiate(buildSpotPfb);
-        script.onConvert.AddListener(complex =>
-        {
-            complexes.Add(complex);
-            var id = buildings.IndexOf(script.gameObject);
-            if (id >= 0)
-            {
-                buildings[id] = complex.gameObject;
-            }
-        });
+        // script.onConvert.AddListener(complex =>
+        // {
+        //     complexes.Add(complex);
+        //     var id = buildings.IndexOf(script.gameObject);
+        //     if (id >= 0)
+        //     {
+        //         buildings[id] = complex.gameObject;
+        //     }
+        // });
         script.Init();
         return script;
     }
@@ -108,5 +131,13 @@ public class BuildingsSystem : MonoBehaviour
         script.price = Vars.Instance.buildSpotPriceSystem.GetPrice();
         Vars.Instance.buildSpotPriceSystem.OnBuy();
         return script;
+    }
+
+    public Complex SpawnComplex(ComplexType complexType)
+    {
+        var scr = Instantiate(complexType.prefab);
+        scr.type = complexType;
+        scr.Init();
+        return scr;
     }
 }

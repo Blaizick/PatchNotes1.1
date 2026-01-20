@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
+using Mono.Cecil.Cil;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -29,9 +33,12 @@ public class Vars : MonoBehaviour
     public InfluenceSystem influence;
     public SuppliersSystem suppliers;
     public Tooltip tooltip;
-    public MaterialCostSystem materialCostSystem;
     public TaxesSystem taxes;
     public ReportsSystem reports;
+    public TimeSpanUpdateSystem timeSpanUpdate;
+    public ModifiersSystem modifiers;
+    public DetailQualitySystem detailQualitySystem;
+    public MaterialPriceSystem materialPriceSystem;
 
     private void Start()
     {
@@ -54,6 +61,9 @@ public class Vars : MonoBehaviour
         time = new();
         time.Init();
 
+        timeSpanUpdate = new();
+        timeSpanUpdate.Init();
+
         input.Init();
 
         state = new();
@@ -64,6 +74,12 @@ public class Vars : MonoBehaviour
 
         income = new();
         income.Init();
+
+        modifiers = new();
+        modifiers.Init();
+
+        detailQualitySystem = new();
+        materialPriceSystem = new();
 
         influence = new();
         influence.Init();
@@ -95,9 +111,6 @@ public class Vars : MonoBehaviour
         managers = new();
         managers.Init();
 
-        materialCostSystem = new();
-        materialCostSystem.Init();
-
         suppliers = new();
         suppliers.Init();
 
@@ -124,6 +137,7 @@ public class Vars : MonoBehaviour
     public void Restart()
     {
         time.Restart();
+        timeSpanUpdate.Restart();
         unlockedDetails.Restart();
         state.Restart();
         moneySystem.Restart();
@@ -139,10 +153,10 @@ public class Vars : MonoBehaviour
         chefs.Restart();
         buffs.Restart();
         managers.Restart();
-        materialCostSystem.Restart();
         suppliers.Restart();
         taxes.Restart();
         reports.Restart();
+        modifiers.Restart();
     }
 
     public void Win()
@@ -157,6 +171,7 @@ public class Vars : MonoBehaviour
     private void Update()
     {
         time.Update();
+        timeSpanUpdate.Update();
         orders.Update();
         researches.Update();
         speedSystem.Update();
@@ -165,11 +180,11 @@ public class Vars : MonoBehaviour
         buffs.Update();
         managers.Update();
         influence.Update();
-        materialCostSystem.Update();
         suppliers.Update();
         taxes.Update();
         income.Update();
         reports.Update();
+        materialPriceSystem.Update();
     }
 }
 
@@ -195,7 +210,7 @@ public class MoneySystem
         money+= count;
     }
 
-    public bool HasEnoughtMoney(float count)
+    public bool HasEnought(float count)
     {
         return count <= money;
     }
@@ -204,89 +219,141 @@ public class MoneySystem
 public class OrderType
 {
     public float time;
-    public Type type;
     public string name;
+
+    public List<OrderRequirement> requirements;
+    public List<OrderPunishment> punishments;
+    public List<OrderReward> rewards;
 
     public Order AsOrder()
     {
-        var order = (Order)Activator.CreateInstance(type);
-        order.type = this;
-        return order;
+        return new Order{type = this};
     }
 }
 
-public class MoneyOrderType : OrderType
+public class OrderRequirement
 {
-    public float requiredMoney;
+    public virtual bool CanComplete() => false;
+}
 
-    public MoneyOrderType() : base()
+public class MoneyOrderRequirement : OrderRequirement, IFormattable
+{
+    public float money;
+
+    public override bool CanComplete() => Vars.Instance.moneySystem.HasEnought(money);
+
+    public string ToString(string format, IFormatProvider formatProvider)
     {
-        type = typeof(MoneyOrder);
+        return $"Money: {(int)money}";
     }
 }
-public class DetailsOrderType : OrderType
-{
-    public List<DetailStack> requiredDetails;
-    public float moneyReward;
 
-    public DetailsOrderType() : base()
+public class DetailOrderRequirement : OrderRequirement, IFormattable
+{
+    public DetailStack detailStack;
+
+    public override bool CanComplete() => Vars.Instance.detailsSystem.HasEnought(detailStack);
+
+    public string ToString(string format, IFormatProvider formatProvider)
     {
-        type = typeof(DetailsOrder);
+        return $"{detailStack.detail.name}: {(int)detailStack.count}";
+    }
+}
+
+public class OrderPunishment
+{
+    public virtual void Execute() {}
+}
+
+public class MoneyOrderPunishment : OrderPunishment, IFormattable
+{
+    public float money;
+
+    public override void Execute()
+    {
+        Vars.Instance.moneySystem.Take(money);
+    }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        return $"Money: {(int)money}";
+    }
+}
+
+public class OrderDetailPunishment : OrderPunishment, IFormattable
+{
+    public DetailStack detailStack;
+
+    public override void Execute()
+    {
+        Vars.Instance.detailsSystem.Take(detailStack);
+    }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        return $"{detailStack.detail.name}: {(int)detailStack.count}";
+    }
+}
+
+public class OrderReward
+{
+    public virtual void Execute() {}
+}
+
+public class OrderIncomeReward : OrderReward, IFormattable
+{
+    public float income;
+
+    public override void Execute()
+    {
+        Vars.Instance.income.Add(income);
+    }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        return $"Income: {income}";
     }
 }
 
 public class Order
 {
-    public float startTime;
-
-    public Order()
-    {
-        startTime = Vars.Instance.time.day;
-    }
+    public float timeProgress = 0.0f;
 
     public OrderType type;
 
-    public virtual bool CanComplete => false;
-    public virtual void Complete() {}
-}
-public class MoneyOrder : Order
-{
-    public MoneyOrderType MoneyOrderType => (MoneyOrderType)type;
-
-    public override bool CanComplete => Vars.Instance.moneySystem.money >= MoneyOrderType.requiredMoney;
-    public override void Complete()
+    public virtual bool CanComplete()
     {
-        Vars.Instance.moneySystem.Take(MoneyOrderType.requiredMoney);
-    }
-}
-public class DetailsOrder : Order
-{
-    public DetailsOrderType DetailsOrderType => (DetailsOrderType)type;
-
-    public override bool CanComplete
-    {
-        get
+        if (type.requirements == null)
         {
-            foreach (var i in DetailsOrderType.requiredDetails)
+            return false;            
+        }
+        foreach (var i in type.requirements)
+        {
+            if (!i.CanComplete())
             {
-                if (!Vars.Instance.detailsSystem.HasEnought(i))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
         }
+        return true;
     }
-
-    public override void Complete()
+    public virtual void Complete()
     {
-        Vars.Instance.moneySystem.Add(DetailsOrderType.moneyReward);
-
-        foreach (var i in DetailsOrderType.requiredDetails)
+        if (type.punishments != null)
         {
-            Vars.Instance.detailsSystem.Remove(i);
+            foreach (var i in type.punishments)
+            {
+                i.Execute();
+            }    
+        }
+        if (type.rewards != null)
+        {
+            foreach (var i in type.rewards)
+            {
+                i.Execute();
+            }    
         }
     }
+    public virtual float DaysLeft => (1.0f - timeProgress) * type.time; 
 }
 
 public class OrderSystem
@@ -317,38 +384,42 @@ public class OrderSystem
 
     public void Update()
     {
-        if (Vars.Instance.time.day - curOrder.startTime > curOrder.type.time)
+        curOrder.timeProgress += Vars.Instance.time.deltaDay / curOrder.type.time;
+        if (curOrder.timeProgress > 1.0f)
         {
-            if (curOrder.CanComplete)
+            if (curOrder.CanComplete())
             {
                 if (curOrderId + 1 < Orders.requiredOrders.Count)
                 {
                     curOrder.Complete();
                     SetRequiredOrder(curOrderId + 1);
+                    onChange?.Invoke();
                 }
                 else
                 {
-                    Vars.Instance.Win();
+                    if (!CheatsSystem.godMode)
+                    {
+                        Vars.Instance.Win();
+                    }
                 }
             }
             else
             {
-                Vars.Instance.Lose();
-            }
+                if (!CheatsSystem.godMode)
+                {
+                    Vars.Instance.Lose();
+                }
+            }    
         }
-        if (Vars.Instance.time.day - lastUpdateTime > 20.0f)
-        {
-            UpdateAwailableOrders();
-            lastUpdateTime = Vars.Instance.time.day;
-        }
-
+        
         HashSet<Order> remove = new(); 
         for (int i = 0; i < optionalOrders.Count; i++)
         {
             var order = optionalOrders[i];
-            if (Vars.Instance.time.day - order.startTime > order.type.time)
+            order.timeProgress += Vars.Instance.time.deltaDay /  order.type.time;
+            if (order.timeProgress > 1.0f)
             {
-                if (order.CanComplete)
+                if (order.CanComplete())
                 {
                     order.Complete();
                 }
@@ -360,6 +431,11 @@ public class OrderSystem
             optionalOrders.RemoveAll(i => remove.Contains(i));
             onChange?.Invoke();
         }
+    }
+
+    public void MonthUpdate()
+    {
+        UpdateAwailableOrders();
     }
 
     public void SetRequiredOrder(int id)
@@ -382,13 +458,29 @@ public class OrderSystem
             var detail = details.Last();
             details.RemoveAt(details.Count - 1);
 
-            awailableOrders.Add(new DetailsOrderType()
+            awailableOrders.Add(new OrderType()
             {
-                requiredDetails = new()
+                requirements = new()
                 {
-                    new(detail, count)
+                    new DetailOrderRequirement()
+                    {
+                        detailStack = new(detail, count)
+                    },
                 },
-                moneyReward = detail.price * count * 1.5f,
+                punishments = new()
+                {
+                    new OrderDetailPunishment()
+                    {
+                        detailStack = new(detail, count)
+                    }
+                },
+                rewards = new()
+                {
+                    new OrderIncomeReward()
+                    {
+                        income = detail.price * count * 1.5f,
+                    }
+                },
                 name = $"Optional Order {i}",
                 time = 30.0f,
             });
@@ -404,8 +496,6 @@ public class OrderSystem
         optionalOrders.Add(order);
         onChange?.Invoke();
     }
-
-    public float TimeLeft => curOrder.type.time - (Vars.Instance.time.day - curOrder.startTime);
 }
 
 public class DetailType
@@ -442,14 +532,21 @@ public class DetailsSystem
 
     public void SellAll(DetailType detail)
     {
-        if (!details.ContainsKey(detail))
+        if (detail == null || !details.ContainsKey(detail))
             return;
-
-        Vars.Instance.moneySystem.Add(details[detail] * detail.price);
-        details[detail] = 0;
+        Sell(new(detail, details[detail]));
     }
 
-    public void Remove(DetailStack stack)
+    public void Sell(DetailStack detailStack)
+    {
+        if (detailStack.detail == null || !details.ContainsKey(detailStack.detail))
+            return;
+        var d = Mathf.Min(detailStack.count, details[detailStack.detail]);
+        Vars.Instance.income.AddDetailIncome(detailStack.detail, d * detailStack.detail.price * Vars.Instance.detailQualitySystem.Quality);
+        details[detailStack.detail] -= d;
+    }
+
+    public void Take(DetailStack stack)
     {
         if (!details.ContainsKey(stack.detail))
             return;
@@ -493,6 +590,7 @@ public class ComplexType
     public Complex prefab;
     public string name;    
     public ComplexResearchTech research;
+    public float buildTime;
 }
 
 public class CraftingComplexType : ComplexType
@@ -529,6 +627,7 @@ public class BuffsResearchTech : ResearchTech
     public float effeciencyGrowBonus;
     public float maxEffeciencyMultiplier;
     public float effeciencyGrowMultiplier;
+    public float researchSpeedBonus;
 
     public override void Research()
     {
@@ -536,6 +635,7 @@ public class BuffsResearchTech : ResearchTech
         Vars.Instance.buffs.maxEffeciencyMultiplier += maxEffeciencyMultiplier;
         Vars.Instance.buffs.effeciencyGrowBonus += effeciencyGrowBonus;
         Vars.Instance.buffs.effeciencyGrowMultiplier += effeciencyGrowMultiplier;
+        Vars.Instance.buffs.researchSpeedBonus += researchSpeedBonus;
     }
 }
 
@@ -545,6 +645,8 @@ public class BuffsSystem
     public float maxEffeciencyMultiplier;
     public float effeciencyGrowBonus;
     public float effeciencyGrowMultiplier;
+
+    public float researchSpeedBonus;
 
     public void Init()
     {
@@ -557,6 +659,8 @@ public class BuffsSystem
         maxEffeciencyMultiplier = 0.0f;
         effeciencyGrowBonus = 0.0f;
         effeciencyGrowMultiplier = 0.0f;
+
+        researchSpeedBonus = 0.0f;
     }
 
     public void Update()
@@ -585,7 +689,8 @@ public class ResearchSystem
         research = null;
         researched = new()
         {
-            Researches.supplier
+            Researches.supply,
+            Researches.smelting
         };    
         UpdateAwailableResearches();
         savedResearchTime = 0.0f;
@@ -600,7 +705,7 @@ public class ResearchSystem
         }
         else
         {
-            researchProgress += Vars.Instance.time.deltaDay / research.researchTime;
+            researchProgress += TimeAsProgress(Vars.Instance.time.deltaDay);
             if (researchProgress > 1.0f)
             {
                 research.Research();
@@ -662,15 +767,22 @@ public class ResearchSystem
 
     public void StartResearch(ResearchTech tech)
     {
-        researchProgress = savedResearchTime / tech.researchTime;
-        savedResearchTime = 0.0f;
         research = tech;
+        researchProgress = TimeAsProgress(savedResearchTime);
+        savedResearchTime = 0.0f;
     }
 
     public bool CanStartResearch(ResearchTech tech)
     {
         return awailableTechs.Contains(tech);
     }
+
+    public float TimeAsProgress(float t)
+    {
+        return t / research.researchTime * (1 + Vars.Instance.buffs.researchSpeedBonus);
+    }
+
+    public float DaysLeft => (1.0f - researchProgress) * research.researchTime / (1 + Vars.Instance.buffs.researchSpeedBonus);
 }
 
 public class TimeSystem
@@ -724,11 +836,11 @@ public class SpeedSystem
 
         speeds = new()
         {
+            0.5f,
+            0.75f,
             1.0f,
             2.0f,
-            3.0f,
-            5.0f,
-            7.5f            
+            5.0f            
         };
 
         Restart();
@@ -847,6 +959,7 @@ public class TaxesSystem
 {
     public const float BaseIncomeTax = 0.15f;
     public float IncomeTax => BaseIncomeTax;
+    public float IncomeTaxInfluence => 1.0f - IncomeTax;
 
     public void Init()
     {
@@ -861,41 +974,6 @@ public class TaxesSystem
     public void Update()
     {
         
-    }
-}
-
-public class MaterialCostSystem
-{
-    public float billMoney;
-
-    public float lastPayTime;
-
-    public float pricePerMaterial;
-
-    public void Init()
-    {
-        Restart();
-    }
-    public void Restart()
-    {
-        pricePerMaterial = 0.0f;
-        billMoney = 0.0f;
-        lastPayTime = Vars.Instance.time.month;
-    }
-
-    public void Update()
-    {
-        if (Vars.Instance.time.month - lastPayTime > 1.0f)
-        {
-            Vars.Instance.moneySystem.Take(billMoney);
-            lastPayTime = Vars.Instance.time.month;
-            billMoney = 0.0f;
-        }
-    }
-
-    public void Add(float count)
-    {
-        billMoney += count;
     }
 }
 
@@ -903,25 +981,256 @@ public class IncomeSystem
 {
     public float income;
 
-    public float lastPayTime;
-
     public void Init()
     {
         Restart();
     } 
     public void Restart()
     {
-        lastPayTime = Vars.Instance.time.month;
-        income = 0.0f;
+        ResetIncomes();
     }
 
     public void Update()
     {
-        if (Vars.Instance.time.month - lastPayTime > 1.0f)
+
+    }
+
+    public void MonthUpdate()
+    {
+        Vars.Instance.moneySystem.Add(GetIncomeWithIncomeTax());
+        ResetIncomes();
+    }
+
+    public void AddDetailIncome(DetailType detail, float income)
+    {
+        Vars.Instance.reports.cur.AddDetailIncome(detail, income);
+        this.income += income;
+    }
+
+    public void ResetIncomes()
+    {
+        income = 0.0f;
+    }
+    public void ExpenseByMaterial(float expense)
+    {
+        this.income -= expense;
+        Vars.Instance.reports.cur.totalMaterialsExpense += expense;
+    }
+
+    public float GetIncomeWithIncomeTax()
+    {
+        if (income <= 0)
         {
-            Vars.Instance.moneySystem.Add(income * Vars.Instance.taxes.IncomeTax);
-            income = 0.0f;
-            lastPayTime = Vars.Instance.time.month;
+            return income;
+        }
+        return income * Vars.Instance.taxes.IncomeTaxInfluence;
+    }
+    public float GetIncomeTaxExpense()
+    {
+        if (income <= 0)
+        {
+            return 0;
+        }
+        return income - GetIncomeWithIncomeTax();
+    }
+
+    public void Add(float income)
+    {
+        this.income += income;        
+    }
+    public void Remove(float expense)
+    {
+        income -= expense;
+    }
+}
+
+public class TimeSpanUpdateSystem
+{
+    public float lastDayUpdateTime;
+    public float lastMonthUpdateTime;
+
+    public void Init()
+    {
+        Restart();
+    }
+    public void Restart()
+    {
+        lastDayUpdateTime = Vars.Instance.time.day;
+        lastMonthUpdateTime = Vars.Instance.time.month;
+    }
+
+    public void Update()
+    {
+        if (Vars.Instance.time.day - lastDayUpdateTime > 1.0f)
+        {
+            lastDayUpdateTime = Vars.Instance.time.day;
+        }
+        if (Vars.Instance.time.month - lastMonthUpdateTime > 1.0f)
+        {
+            Vars.Instance.reports.MonthUpdate();
+            Vars.Instance.income.MonthUpdate();
+            Vars.Instance.orders.MonthUpdate();
+
+            lastMonthUpdateTime = Vars.Instance.time.month;
         }
     }
+}
+
+public class Modifier
+{
+    public virtual void Apply() {}     
+    public virtual void Cancel() {}     
+
+    public bool IsInflucing() => true;
+}
+
+public interface IBonus
+{
+    public float Bonus {get;set;}        
+}
+public interface IMultiplier
+{
+    public float Multiplier {get;set;}        
+}
+
+public class DetailQualityModifier : Modifier, IBonus, IFormattable
+{
+    public float Bonus { get; set; }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        return $"Detail quality: {(Bonus < 0 ? "-" : "+")}{(int)(Mathf.Abs(Bonus) * 100)}%";
+    }
+}
+public class MaterialPriceModifier : Modifier, IBonus, IMultiplier, IFormattable
+{
+    public float Bonus { get; set; }
+    public float Multiplier { get; set; }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        string str = string.Empty;
+        if (Bonus != 0)
+        {
+            str += "Material Price: ";
+            str += Bonus > 0 ? "+" : "-";
+            str += Mathf.Abs(Bonus);
+            if (Multiplier != 0)
+            {
+                str += "\n";
+            }
+        }
+        if (Multiplier != 0)
+        {
+            str += "Material Price: ";
+            str += Multiplier > 0 ? "+" : "-";
+            str += Mathf.Abs(Multiplier);
+            str += "%";
+        }
+        return str;
+    }
+}
+public class EffeciencyGrowModifier : Modifier, IBonus, IFormattable
+{
+    public float Bonus { get; set; }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        string str = string.Empty;
+        if (Bonus != 0)
+        {
+            
+        }
+        return str;
+    }
+}
+public class MaxEffeciencyModifier : Modifier, IBonus
+{
+    public float Bonus { get; set; }
+}
+
+public class ModifiersSystem
+{
+    public Dictionary<Type, List<Modifier>> modifiers = new();
+
+    public void Init()
+    {
+        Restart();
+    }
+
+    public void Restart()
+    {
+        modifiers.Clear();
+    }
+
+    public List<Modifier> GetModifiers(Type modifierType)
+    {
+        return modifiers.TryGetValue(modifierType, out var l) ? l : new();
+    }
+    public List<Modifier> GetModifiers<T>() => GetModifiers(typeof(T));
+
+    public void AddModifier(Modifier modifier)
+    {
+        List<Modifier> l;
+        if (!modifiers.TryGetValue(modifier.GetType(), out l))
+        {
+            l = new();
+            modifiers[modifier.GetType()] = l;
+        }
+        l.Add(modifier);        
+    }
+    public void RemoveModifier(Modifier m)
+    {
+        if (modifiers.TryGetValue(m.GetType(), out var l))
+        {
+            l.Remove(m);
+        }
+    }
+
+    public float GetBonus<T>()
+    {
+        float total = 0;
+        foreach (var m in GetModifiers<T>())
+        {
+            if (m is IBonus bm)
+            {
+                total += bm.Bonus; 
+            }
+        }
+        return total;
+    }
+    public float GetMultiplier<T>()
+    {
+        float total = 0;
+        foreach (var m in GetModifiers<T>())
+        {
+            if (m is IMultiplier bm)
+            {
+                total += bm.Multiplier; 
+            }
+        }
+        return total;
+    }
+}
+
+public class DetailQualitySystem
+{
+    public const float BaseValue = 1.0f;
+    public float Quality => BaseValue + Vars.Instance.modifiers.GetBonus<DetailQualityModifier>();
+}
+public class MaterialPriceSystem
+{
+    public const float BaseValue = 10.0f;
+    public float MaterialPrice => (BaseValue + Vars.Instance.modifiers.GetBonus<MaterialPriceModifier>()) * 
+        (1 + Vars.Instance.modifiers.GetMultiplier<MaterialPriceModifier>());
+
+    public void Update()
+    {
+        Vars.Instance.reports.cur.materialPrice = MaterialPrice;
+    }
+}
+
+public static class CheatsSystem
+{
+    public static bool godMode;
 }

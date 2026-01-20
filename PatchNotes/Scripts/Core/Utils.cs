@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using UnityEngine;
 
 public static class Extensions
 {
@@ -37,4 +38,8 @@ public static UnityEngine.Color FromHexadecimal(string hex)
 
     return new UnityEngine.Color32(r, g, b, a);
 }
+    public static bool MaskContainsLayer(LayerMask layerMask, int layer)
+    {
+        return (layerMask.value & (1 << layer)) > 0;       
+    }
 }

@@ -12,4 +12,9 @@ public class OrderUICntPfb : MonoBehaviour
 
     public Image awailableStateImg;
     public Image takenStateImg;
+
+    public TMP_Text timeLeftText;
+    public Image timeLeftFiller;
+
+    public TooltipInfoCnt tooltipInfoCnt;
 }

@@ -720,5 +720,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipInfoCnt
   title: Supplier
-  desc: The supplier delivers iron ore. Keep in mind that all resources in this block
-    will be purchased from a supplier(cooperation tab) and are worth something.
+  desc: The supplier complex delivers iron ore. Keep in mind that all resources from
+    this complex will be purchased from a supplier(cooperation tab) and are not for
+    free.
