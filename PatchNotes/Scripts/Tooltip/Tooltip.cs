@@ -22,8 +22,8 @@ public class Tooltip : MonoBehaviour
 
     public void Update()
     {
-        int titleLen = titleText.text.Length;
-        int descLen = descText.text.Length;
+        int titleLen = string.IsNullOrEmpty(titleText.text) ? 0 : titleText.text.Length;
+        int descLen = string.IsNullOrEmpty(descText.text) ? 0 : descText.text.Length;
         foreach (var i in layoutElements)
         {
             i.enabled = (titleLen > characterWrapLimit || descLen > characterWrapLimit) ? true : false;            
@@ -32,7 +32,11 @@ public class Tooltip : MonoBehaviour
 
     public void Show(string title, string desc)
     {
+        Set(title, desc);
         root.SetActive(true);
+    }
+    public void Set(string title, string desc)
+    {
         titleText.text = title;
         descText.text = desc;        
     }

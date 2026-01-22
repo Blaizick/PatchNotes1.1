@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-
 
 public class DetailStack
 {
@@ -30,9 +28,7 @@ public class Complex : MonoBehaviour
     public UnityEngine.UI.Image effeciencyFiller;
     
     public GameObject selectionFrameRoot;
-
-    public virtual bool CanBreak => true;
-    public virtual bool IsChefAllowed => true;
+    public TooltipInfoCnt tooltipInfoCnt;
 
     public virtual void Init()
     {
@@ -54,6 +50,11 @@ public class Complex : MonoBehaviour
 
     public virtual void Update()
     {
+        if (tooltipInfoCnt)
+        {
+            SetTooltip();
+        }
+
         effeciencySystem.Update();
         if (effeciencyFiller)
         {
@@ -84,22 +85,43 @@ public class Complex : MonoBehaviour
         }
     }
 
-    public void OnPointerDown()
+    public virtual void SetTooltip()
     {
-        pointerStay = true;
-        pointerDownPos = Vars.Instance.input.mouseWorldPos;
-    }
-    public void OnPointerUp(Complex c)
-    {
-        pointerStay = false;
-        nextComplex = null;
-        if (c != this)
+        tooltipInfoCnt.title = type.name;
+        tooltipInfoCnt.desc = $"Effeciency: {(int)(effeciencySystem.Effeciency * 100)}/{(int)(effeciencySystem.MaxEffeciency * 100)}\n";
+        if (nextComplex != null)
         {
-            nextComplex = c;
+            tooltipInfoCnt.desc += $"Connected With: {nextComplex.type.name}\n";
         }
     }
 
-    public virtual void Receive(DetailStack stack){}
+    public void OnPointerDown()
+    {
+        if (type.canHaveNextComplex)
+        {
+            pointerStay = true;
+            pointerDownPos = Vars.Instance.input.mouseWorldPos;    
+        }
+    }
+    public void OnPointerUp(Complex c)
+    {
+        if (type.canHaveNextComplex)
+        {
+            pointerStay = false;
+            nextComplex = null;
+            if (c != null && c != this && c.type != null && c.type.canBeNextComplex)
+            {
+                nextComplex = c;
+            }
+        }
+    }
+
+    public virtual bool CanReceive(DetailStack stack)
+    {
+        return true;
+    }
+
+    public virtual void Receive(DetailStack stack) {}
 
     // public void OnPointerClick()
     // {
@@ -170,8 +192,8 @@ public class EffeciencySystem
 
     public float RelativeEffeciency => effeciency / MaxEffeciency;
     public float Effeciency => effeciency;
-    public float MaxEffeciency => (maxEffeciency + maxEffeciencyBonus + Vars.Instance.buffs.maxEffeciencyBonus) * 
-        (1.0f + maxEffeciencyMultiplier + Vars.Instance.buffs.maxEffeciencyMultiplier);
+    public float MaxEffeciency => (maxEffeciency + maxEffeciencyBonus + Vars.Instance.modifiers.GetBonus<EffeciencyGrowModifier>()) * 
+        (1.0f + maxEffeciencyMultiplier + Vars.Instance.modifiers.GetMultiplier<EffeciencyGrowModifier>());
 
     public void Init()
     {
@@ -182,8 +204,11 @@ public class EffeciencySystem
 
     public void Update()
     {
-        effeciency += (effeciencyGrow + effeciencyGrowBonus + Vars.Instance.buffs.effeciencyGrowBonus) * Vars.Instance.time.deltaDay * 
-            (1.0f + effeciencyGrowMultiplier + Vars.Instance.buffs.effeciencyGrowMultiplier);
+        var bonus = Vars.Instance.modifiers.GetBonus<EffeciencyGrowModifier>();
+        var multiplier = Vars.Instance.modifiers.GetMultiplier<EffeciencyGrowModifier>();
+
+        effeciency += (effeciencyGrow + effeciencyGrowBonus + bonus) * Vars.Instance.time.deltaDay * 
+            (1.0f + effeciencyGrowMultiplier + multiplier);
         effeciency = Mathf.Clamp(effeciency, 0, MaxEffeciency);
     
         maxEffeciencyMultiplier = 0.0f;
@@ -192,4 +217,34 @@ public class EffeciencySystem
         maxEffeciencyBonus = 0.0f;
         effeciencyGrowBonus = 0.0f;
     }
+}
+
+public class ComplexType
+{
+    public Complex prefab;
+    public string name;
+    public ComplexResearchTech research;
+    public float buildTime;
+
+    public bool canBeNextComplex = true;
+    public bool canHaveNextComplex = true;
+
+    public bool breakable = true;
+    public bool chefAllowed = true;
+
+    public bool buildable = true;
+
+    public string desc;
+
+    public Complex AsComplex()
+    {
+        var scr = GameObject.Instantiate(prefab);
+        scr.type = this;
+        return scr;
+    }
+}
+
+public class CraftingComplexType : ComplexType
+{
+    public CraftRecipe recipe;
 }

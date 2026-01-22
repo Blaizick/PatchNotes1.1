@@ -25,6 +25,7 @@ public class UIMAin : MonoBehaviour
     public Button loseScreenRestartButton;
 
     public GameObject buildComplexDialogRoot;
+    public RectTransform buildComplexDialogRootTransform;
     public RectTransform buildComplexDialogContentRootTransform;
     public BuildComplexUICntPfb buildComplexPfb;
     [NonSerialized] public List<BuildComplexUICntPfb> complexInstances = new();
@@ -65,8 +66,17 @@ public class UIMAin : MonoBehaviour
 
     public Button confirmDialogBackBtn2;
 
+    public TMP_Text buildingsText;
+
+    public ControlsSettingsUi controlsSettingsUi;
+
+    public Button pauseMenuBtn;
+    public PopupsUi popups;
+
     public void Init()
     {
+        pauseMenuBtn.onClick.AddListener(() => controlsSettingsUi.root.SetActive(!controlsSettingsUi.root.activeInHierarchy));
+
         foreach (var d in Details.all)
         {
             var script = Instantiate(detailUIContainerPrefab, detailsContentRootTransform);
@@ -109,10 +119,20 @@ public class UIMAin : MonoBehaviour
         reportsUi.Init();
 
         resourcesRoot.SetActive(false);
+
+        controlsSettingsUi.Init();
+        
+        popups.Init();
+    }
+
+    public void Restart()
+    {
+        popups.Restart();
     }
 
     public void Update()
     {
+        buildingsText.text = Vars.Instance.buildSystem.complexes.Count.ToString();
         detailQualityText.text = $"Q: {Vars.Instance.detailQualitySystem.Quality * 100.0f}%";
 
         var money = Vars.Instance.moneySystem.money;
@@ -141,8 +161,9 @@ public class UIMAin : MonoBehaviour
         influenceText.text = $"{(int)Vars.Instance.influence.influence}";
     }
 
-    public void RebuildBuildComplexDialog(List<ComplexType> complexes, UnityAction<ComplexType> onSuccess)
+    public void RebuildBuildComplexDialog(Vector2 position, List<ComplexType> complexes, UnityAction<ComplexType> onSuccess)
     {
+        buildComplexDialogRootTransform.anchoredPosition = position;
         buildComplexDialogRoot.SetActive(true);
         
         foreach (var i in complexInstances)

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using UnityEngine;
 
 public static class Details
@@ -415,6 +417,10 @@ public static class Recipes
 public static class Complexes
 {
     public static ComplexType supplier;
+    public static ComplexType packingComplex;
+    public static ComplexType buildingComplex;
+    public static ComplexType buildSpotComplex;
+    public static ComplexType buyBuildSpotComplex;
     public static ComplexType smelter;
     public static ComplexType press;
     public static ComplexType rodBendingComplex;
@@ -423,7 +429,6 @@ public static class Complexes
     public static ComplexType formingComplex;
     public static ComplexType tubeBendingComplex;
     public static ComplexType engineAssemblingComplex;
-
 
     public static List<ComplexType> all;
 
@@ -434,32 +439,75 @@ public static class Complexes
             name = "Supplier",
             prefab = Resources.Load<Complex>("Prefabs/Supplier"),
             buildTime = 10.0f,
+            canBeNextComplex = false,
+            desc = "Delivers base resource from your supplier person, it is basically the foundament of each production line.",
+        };
+        packingComplex = new ComplexType()
+        {
+            name = "Packing Complex",
+            prefab = Resources.Load<Complex>("Prefabs/PackingComplex"),
+            chefAllowed = false,
+            breakable = false,
+            canHaveNextComplex = false,
+            buildable = false,
+        };
+        buildingComplex = new ComplexType()
+        {
+            name = "Building Complex",
+            prefab = Resources.Load<Complex>("Prefabs/BuildingComplex"),
+            chefAllowed = false,
+            breakable = false,
+            buildable = false,
+            canHaveNextComplex = false,
+            canBeNextComplex = false,
+        };
+        buildSpotComplex = new ComplexType()
+        {
+            name = "Build Spot",
+            desc = "You can build any complex here by clicking on it",
+            prefab = Resources.Load<Complex>("Prefabs/BuildSpotComplex"),
+            chefAllowed = false,
+            breakable = false,
+            buildable = false,
+            canHaveNextComplex = false,
+            canBeNextComplex = false,
+        };
+        buyBuildSpotComplex = new ComplexType()
+        {
+            name = "Buy Build Spot",
+            prefab = Resources.Load<Complex>("Prefabs/BuyBuildSpotComplex"),
+            chefAllowed = false,
+            breakable = false,
+            buildable = false,
+            canHaveNextComplex = false,
+            canBeNextComplex = false,
+            desc = "You can buy a build spot on place of this building for your money",
         };
         smelter = new CraftingComplexType()
         {
             name = "Smelter",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/Smelter"),
             recipe = Recipes.smeltRecipe,
             buildTime = 10.0f,
         };
         press = new CraftingComplexType()
         {
             name = "Press",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/Press"),
             recipe = Recipes.pressRecipe,
             buildTime = 10.0f,
         };
         rodBendingComplex = new CraftingComplexType()
         {
             name = "Rod Bender",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/RodBender"),
             recipe = Recipes.bendRodRecipe,
             buildTime = 10.0f,
         };
         cuttingComplex = new CraftingComplexType()
         {
             name = "Cutter",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/Cutter"),
             recipe = Recipes.cutScrewsRecipe,
             buildTime = 10.0f,
         };
@@ -494,7 +542,8 @@ public static class Complexes
 
         all = new()
         {
-            supplier, smelter, press, rodBendingComplex, cuttingComplex, reinforcingComplex, tubeBendingComplex, formingComplex, engineAssemblingComplex
+            supplier, packingComplex, buildingComplex, buildSpotComplex, buyBuildSpotComplex,
+            smelter, press, rodBendingComplex, cuttingComplex, reinforcingComplex, tubeBendingComplex, formingComplex, engineAssemblingComplex,
         };
     } 
 
@@ -512,17 +561,6 @@ public static class Complexes
     }
 }
 
-public static class BuildSpots
-{
-    public static BuildSpotType spot0;
-
-    public static void Init()
-    {
-        spot0 = new()
-        {
-        };
-    }
-}
 public static class Researches
 {
     public static ComplexResearchTech supply;
@@ -535,15 +573,15 @@ public static class Researches
     public static ComplexResearchTech forming;
     public static ComplexResearchTech assembling;
 
-    public static BuffsResearchTech production;
-    public static BuffsResearchTech standardizedComplexes0;
-    public static BuffsResearchTech standardizedComplexes1;
-    public static BuffsResearchTech standardizedComplexes2;
-    public static BuffsResearchTech flexibleComplexes0;
-    public static BuffsResearchTech flexibleComplexes1;
-    public static BuffsResearchTech flexibleComplexes2;
+    public static ModifiersResearchTech production;
+    public static ModifiersResearchTech standardizedComplexes0;
+    public static ModifiersResearchTech standardizedComplexes1;
+    public static ModifiersResearchTech standardizedComplexes2;
+    public static ModifiersResearchTech flexibleComplexes0;
+    public static ModifiersResearchTech flexibleComplexes1;
+    public static ModifiersResearchTech flexibleComplexes2;
 
-    public static BuffsResearchTech researching0;
+    public static ModifiersResearchTech researching0;
 
     public static List<ComplexResearchTech> complexTechs;
     public static List<ResearchTech> all;
@@ -554,6 +592,7 @@ public static class Researches
         {
             researchTime = 35.0f,
             name = "Supply",
+            unlock = Complexes.supplier,
         };
         smelting = new()
         {
@@ -562,7 +601,8 @@ public static class Researches
             requiredTechs = new()
             {
                 supply
-            }
+            },
+            unlock = Complexes.smelter,
         };
         pressing = new()
         {
@@ -571,7 +611,8 @@ public static class Researches
             requiredTechs = new()
             {
                 smelting
-            }
+            },
+            unlock = Complexes.press,
         };
         bending0 = new()
         {
@@ -580,7 +621,8 @@ public static class Researches
             requiredTechs = new()
             {
                 pressing
-            }
+            },
+            unlock = Complexes.rodBendingComplex,
         };
         cutting = new()
         {
@@ -589,7 +631,8 @@ public static class Researches
             requiredTechs = new()
             {
                 bending0
-            }
+            },
+            unlock = Complexes.cuttingComplex,
         };
         reinforcing = new()
         {
@@ -598,7 +641,8 @@ public static class Researches
             requiredTechs = new()
             {
                 cutting
-            }
+            },
+            unlock = Complexes.reinforcingComplex,
         };
         bending1 = new()
         {
@@ -607,7 +651,8 @@ public static class Researches
             requiredTechs = new()
             {
                 pressing
-            }
+            },
+            unlock = Complexes.tubeBendingComplex,
         };
         forming = new()
         {
@@ -616,7 +661,8 @@ public static class Researches
             requiredTechs = new()
             {
                 smelting
-            }
+            },
+            unlock = Complexes.formingComplex,
         };
         assembling = new()
         {
@@ -627,7 +673,8 @@ public static class Researches
                 reinforcing,
                 bending1,
                 forming
-            }
+            },
+            unlock = Complexes.engineAssemblingComplex,
         };
 
         production = new()
@@ -705,7 +752,13 @@ public static class Researches
         {
             researchTime = 40.0f,
             name = "Researching",
-            researchSpeedBonus = 0.05f
+            modifiers = new()
+            {
+                new ResearchSpeedModifier()
+                {
+                    Bonus = 0.05f,
+                },
+            }
         };
 
         complexTechs = new()
@@ -747,6 +800,7 @@ public static class Suppliers
                     Bonus = 2.0f,
                 }
             },
+            sprite = Portraits.all[0],
         };
         supplier0 = new()
         {
@@ -759,6 +813,7 @@ public static class Suppliers
                     Bonus = -0.05f
                 },
             },
+            sprite = Portraits.all[4],
         };
         supplier1 = new()
         {
@@ -775,6 +830,7 @@ public static class Suppliers
                     Bonus = 4.0f,
                 },
             },
+            sprite = Portraits.all[5],
         };
         supplier2 = new()
         {
@@ -791,11 +847,297 @@ public static class Suppliers
                     Bonus = -5.0f,
                 },
             },
+            sprite = Portraits.all[1],
         };
 
         all = new()
         {
             baseSupplier, supplier0, supplier1, supplier2, 
         };
+    }
+}
+
+public static class Chefs
+{
+    public static ChefType chef0;
+    public static ChefType chef1;
+    public static ChefType chef2;
+    public static ChefType chef3;
+    public static ChefType chef4;
+    public static ChefType chef5;
+    public static ChefType chef6;
+
+    public static List<ChefType> all;
+
+    public static void Init()
+    {
+        chef0 = new()
+        {
+            name = "Dayton Tommy",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[2],
+        };
+        chef1 = new()
+        {
+            name = "Elina Sabryna",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[0],
+        };
+        chef2 = new()
+        {
+            name = "Tyron Villem",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[3],
+        };
+        chef3 = new()
+        {
+            name = "Jamison Al",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[6],
+        };
+        chef4 = new()
+        {
+            name = "Adrienne Cor",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[4],
+        };
+        chef5 = new()
+        {
+            name = "Norbert Kimbra",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[7],
+        };
+        chef6 = new()
+        {
+            name = "Rowley Kaarel",
+            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyMultiplier = 0.0f,
+            effeciencyGrowBonus = 0.05f,
+            effeciencyGrowMultiplier = 0.0f,
+            influencePrice = 50.0f,
+            sprite = Portraits.all[8],
+        };
+
+        all = new()
+        {
+            chef0, chef1, chef2, chef3, chef4, chef5, chef6
+        };
+    }
+}
+
+public class ManagerType
+{
+    public Sprite sprite;
+    public string name;
+    public ManagerCategory category;
+
+    public List<Modifier> modifiers;
+
+    public float influencePrice;
+
+    public static Dictionary<ManagerCategory, List<ManagerType>> allDic = new();
+    public static List<ManagerType> all = new();
+
+
+    public Manager AsManager()
+    {
+        var m = new Manager();
+        m.type = this;
+        return m;
+    }
+
+    public static void GInit()
+    {
+        new ManagerType()
+        {
+            name = "Jayanti Kantuta",
+            category = ManagerCategory.cfo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new IncomeTaxModifier()
+                {
+                    Bonus = -0.1f,
+                }
+            },
+            sprite = Portraits.all[2],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Hanne Shulamith",
+            category = ManagerCategory.cfo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new MaterialPriceModifier()
+                {
+                    Bonus = -2f,                    
+                },
+            },
+            sprite = Portraits.all[3],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Aamu Pavana",
+            category = ManagerCategory.cfo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new DetailQualityModifier()
+                {
+                    Bonus = 0.1f,                    
+                },
+            },
+            sprite = Portraits.all[0],
+        }.Init();
+
+        new ManagerType()
+        {
+            name = "Cornélio Noʻoroa",
+            category = ManagerCategory.coo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.15f,
+                },
+            },
+            sprite = Portraits.all[6],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Kyllian Admetos",
+            category = ManagerCategory.coo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.15f,
+                },
+                new BuildSpeedModifier()
+                {
+                    Bonus = 0.05f,
+                }
+            },
+            sprite = Portraits.all[7],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Zawar Balbino",
+            category = ManagerCategory.coo,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new BuildSpeedModifier()
+                {
+                    Bonus = 0.05f,
+                },
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.03f,
+                },
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.05f,
+                },
+            },
+            sprite = Portraits.all[8],
+        }.Init();
+
+        new ManagerType()
+        {
+            name = "Upton Joziah",
+            category = ManagerCategory.cto,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new BuildSpeedModifier()
+                {
+                    Bonus = 0.25f,
+                },
+            },
+            sprite = Portraits.all[9],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Maxi Kornelija",
+            category = ManagerCategory.cto,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new ResearchSpeedModifier()
+                {
+                    Bonus = 0.1f,
+                },
+                // new BuildSpeedModifier()
+                // {
+                //     Bonus = 0.05f,
+                // },
+            },
+            sprite = Portraits.all[4],
+        }.Init();
+        new ManagerType()
+        {
+            name = "Macey Nokuthula",
+            category = ManagerCategory.cto,
+            influencePrice = 75.0f,
+            modifiers = new()
+            {
+                new DetailQualityModifier()
+                {
+                    Bonus = 0.1f,
+                },
+            },
+            sprite = Portraits.all[2],
+        }.Init();
+    }
+
+    public ManagerType Init()
+    {
+        all.Add(this);
+        List<ManagerType> l;
+        if (!allDic.TryGetValue(category, out l))
+        {
+            l = new();
+            allDic[category] = l;
+        }
+        l.Add(this);
+        return this;
+    }
+}
+
+public static class Portraits
+{
+    public static List<Sprite> all;
+
+    public static void Init()
+    {
+        all = Resources.LoadAll<Sprite>("Sprites/Portraits").ToList();
     }
 }

@@ -310,6 +310,72 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Icons_9
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f51fd498b9aea1b41b205d8d5abe7dee
+      internalID: 1061446880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Icons_10
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff3571b79f538be4ca3c75a630bb88c5
+      internalID: -620888875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Icons_11
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d7cb5196d6466a46b7357ecd459493b
+      internalID: -2133205505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -328,6 +394,8 @@ TextureImporter:
     nameFileIdTable:
       Icons_0: 1161201145128540330
       Icons_1: 1536355300
+      Icons_10: -620888875
+      Icons_11: -2133205505
       Icons_2: -954950884
       Icons_3: -1886094430
       Icons_4: 1744580588
@@ -335,6 +403,7 @@ TextureImporter:
       Icons_6: 605957207
       Icons_7: -840399311
       Icons_8: -700180733
+      Icons_9: 1061446880
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

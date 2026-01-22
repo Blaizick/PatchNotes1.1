@@ -1,13 +1,27 @@
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChefUiCntPfb : MonoBehaviour
+[Serializable]
+public class ChefUiState
 {
     public Image image;
     public Button btn;
-    public TMP_Text nameText;
-    public TMP_Text countText;
-    public Button infoBtn;
+    public GameObject root;
+    public TMP_Text text;
+}
+
+public class ChefUiCntPfb : MonoBehaviour
+{
+    public ChefUiState awailableState;
+    public ChefUiState takenState;
+    public ChefUiState unawailableState;
+
+    public List<ChefUiState> AllStates => new (){awailableState, takenState, unawailableState};
+
     public GameObject selectionFrameRoot;
+
+    public TooltipInfoCnt tooltipInfoCnt;
 }

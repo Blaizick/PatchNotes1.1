@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BuildingsSystem : MonoBehaviour
 {
-    public BuildSpot buildSpotPfb;
+    public BuildSpotComplex buildSpotPfb;
     public BuyBuildSpotComplex buyBuildSpotComplexPfb; 
 
     public List<GameObject> buildings = new();
@@ -59,29 +59,34 @@ public class BuildingsSystem : MonoBehaviour
         buildings.Add(SpawnBuildSpot().gameObject);
     }
 
-    public void StartBuilding(BuildSpot spot, ComplexType complexType)
+    public void StartBuilding(BuildSpotComplex spot, ComplexType complexType)
     {
         var id = buildings.IndexOf(spot.gameObject);
         Destroy(buildings[id].gameObject);
-        var buildingComplex = Instantiate(buildingComplexPfb);
-        buildings[id] =  buildingComplex.gameObject;
-        complexes.Add(buildingComplex);
+
+        var buildingComplex = (BuildingComplex)Complexes.buildingComplex.AsComplex();
+        buildingComplex.Init();
+        buildings[id] = buildingComplex.gameObject;
         buildingComplex.buildingComplex = complexType;
         buildingComplex.Init();
+        complexes.Add(buildingComplex);
+        
     }
     public void FinishBuilding(BuildingComplex buildingComplex)
     {
         var id = buildings.IndexOf(buildingComplex.gameObject);
         complexes.Remove(buildingComplex);
         Destroy(buildings[id].gameObject);
-        var complex = SpawnComplex(buildingComplex.buildingComplex);
+
+        var complex = buildingComplex.buildingComplex.AsComplex();
+        complex.Init();
         buildings[id] = complex.gameObject;
         complexes.Add(complex);        
     }
 
     public bool CanBreak(GameObject go)
     {
-        return go.TryGetComponent<Complex>(out var c) && c.CanBreak;
+        return go.TryGetComponent<Complex>(out var c) && c.type.breakable;
     }
     public void Break(GameObject go)
     {
@@ -96,21 +101,17 @@ public class BuildingsSystem : MonoBehaviour
         buildings.Remove(go);
         Destroy(go);
     }
-
-    public BuildSpot SpawnBuildSpot()
+    
+    public bool CanHaveChef(GameObject go)
     {
-        var script = Instantiate(buildSpotPfb);
-        // script.onConvert.AddListener(complex =>
-        // {
-        //     complexes.Add(complex);
-        //     var id = buildings.IndexOf(script.gameObject);
-        //     if (id >= 0)
-        //     {
-        //         buildings[id] = complex.gameObject;
-        //     }
-        // });
-        script.Init();
-        return script;
+        return go != null && go.TryGetComponent<Complex>(out var c) && c.type.chefAllowed;
+    }
+
+    public BuildSpotComplex SpawnBuildSpot()
+    {
+        var scr = (BuildSpotComplex)Complexes.buildSpotComplex.AsComplex();
+        scr.Init();
+        return scr;
     }
 
     public void BuySpot(GameObject go)
@@ -126,18 +127,10 @@ public class BuildingsSystem : MonoBehaviour
 
     public BuyBuildSpotComplex SpawnBuyBuildSpot()
     {
-        var script = Instantiate(buyBuildSpotComplexPfb);
-        script.Init();
-        script.price = Vars.Instance.buildSpotPriceSystem.GetPrice();
-        Vars.Instance.buildSpotPriceSystem.OnBuy();
-        return script;
-    }
-
-    public Complex SpawnComplex(ComplexType complexType)
-    {
-        var scr = Instantiate(complexType.prefab);
-        scr.type = complexType;
+        var scr = (BuyBuildSpotComplex)Complexes.buyBuildSpotComplex.AsComplex();
         scr.Init();
+        scr.price = Vars.Instance.buildSpotPriceSystem.GetPrice();
+        Vars.Instance.buildSpotPriceSystem.OnBuy();
         return scr;
     }
 }

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using Mono.Cecil.Cil;
-using Unity.Mathematics;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering.Universal;
 
 public class Vars : MonoBehaviour
 {
@@ -27,7 +25,7 @@ public class Vars : MonoBehaviour
     public BuildSpotPriceSystem buildSpotPriceSystem;
     public ProductionLineColorSystem productionLineColorSystem;
     public ChefsSystem chefs;
-    public BuffsSystem buffs;
+    // public BuffsSystem buffs;
     public ManagersSystem managers;
     public LayerMasksSystem layerMasks;
     public InfluenceSystem influence;
@@ -39,21 +37,24 @@ public class Vars : MonoBehaviour
     public ModifiersSystem modifiers;
     public DetailQualitySystem detailQualitySystem;
     public MaterialPriceSystem materialPriceSystem;
+    public CinemachineCamera cam;
+    public RebindSystem rebinds;
 
     private void Start()
     {
         Instance = this;
 
+        Portraits.Init();
         Details.Init();
         Orders.Init();
         Recipes.Init();
         Complexes.Init();
-        BuildSpots.Init();
         Researches.Init();
         Complexes.PostInit();
         ManagerCategory.GInit();
         ManagerType.GInit();
         Suppliers.Init();
+        Chefs.Init();
         
         productionLineColorSystem = new();
         productionLineColorSystem.Init();
@@ -84,8 +85,8 @@ public class Vars : MonoBehaviour
         influence = new();
         influence.Init();
 
-        buffs = new();
-        buffs.Init();
+        // buffs = new();
+        // buffs.Init();
 
         chefs = new();
         chefs.Init();
@@ -120,11 +121,14 @@ public class Vars : MonoBehaviour
         reports = new();
         reports.Init();
 
+        rebinds = new();
+        rebinds.Init();
+
         foreach (var i in FindObjectsByType<Complex>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
         }
-        foreach (var i in FindObjectsByType<BuildSpot>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        foreach (var i in FindObjectsByType<BuildSpotComplex>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             i.Init();
         }
@@ -132,6 +136,40 @@ public class Vars : MonoBehaviour
         buildSystem.Init();
         ui.Init();
         tooltip.Init();
+
+        ui.popups.ShowPopup("Welcome", "You inherited a factory, unfortunately the situation in your country(Wrazkoslavia) is so bad that the government takes away part of the income regardless of how much you earn", null, new()
+        {
+            new()
+            {
+                name = "OK",
+            },
+            new()
+            {
+                name = "Get extra info",
+                onChoose = () =>
+                {
+                    ui.popups.ShowPopup("Money", "You can earn money by selling details(menu \"resources\")", null, new()
+                    {
+                        new()
+                        {
+                            name = "OK",
+                            desc = "1 left",
+                            onChoose = () =>
+                            {
+                                ui.popups.ShowPopup("Getting details", "You can get details from production complexes, you can build production complexes on build spots, by simply clicking on them. You can also connect 2 complexes with each other, so they will transfer resources. In order to get details you shoulda connect one of your complexes with packing complex in order to see your details in resources menu. The start resource is coming from supplier.", null, new()
+                                {
+                                    new()
+                                    {
+                                        name = "OK",
+                                        desc = "0 left"
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void Restart()
@@ -151,12 +189,13 @@ public class Vars : MonoBehaviour
         speedSystem.Restart();
         productionLineColorSystem.Restart();
         chefs.Restart();
-        buffs.Restart();
+        // buffs.Restart();
         managers.Restart();
         suppliers.Restart();
         taxes.Restart();
         reports.Restart();
         modifiers.Restart();
+        ui.Restart();
     }
 
     public void Win()
@@ -177,7 +216,7 @@ public class Vars : MonoBehaviour
         speedSystem.Update();
         unlockedDetails.Update();
         chefs.Update();
-        buffs.Update();
+        // buffs.Update();
         managers.Update();
         influence.Update();
         suppliers.Update();
@@ -585,24 +624,6 @@ public class GameStateSystem
     public bool IsLose => state == GameState.Lose;
 }
 
-public class ComplexType
-{
-    public Complex prefab;
-    public string name;    
-    public ComplexResearchTech research;
-    public float buildTime;
-}
-
-public class CraftingComplexType : ComplexType
-{
-    public CraftRecipe recipe;
-}
-
-public class BuildSpotType
-{
-}
-
-
 public class ResearchTech
 {
     /// <summary>
@@ -614,60 +635,94 @@ public class ResearchTech
     public List<ResearchTech> exclusive;
 
     public virtual void Research() {}
+
+    public virtual string GetDesc() => $"Research Time: {(int)Vars.Instance.researches.GetTechResearchTime(researchTime, Vars.Instance.researches.TimeAsProgress(Vars.Instance.researches.savedResearchTime, researchTime))} days\n\n";
 }
 
 public class ComplexResearchTech : ResearchTech
 {
-    public ComplexType type;
+    public ComplexType unlock;
+
+    public override string GetDesc()
+    {
+        string str = base.GetDesc();
+        if (unlock != null)
+        {
+            str += $"Unlocks: {unlock.name}\n";
+        }
+        return str;
+    }
 }
 
-public class BuffsResearchTech : ResearchTech
+public class ModifiersResearchTech : ResearchTech
 {
-    public float maxEffeciencyBonus;
-    public float effeciencyGrowBonus;
-    public float maxEffeciencyMultiplier;
-    public float effeciencyGrowMultiplier;
-    public float researchSpeedBonus;
+    public List<Modifier> modifiers;
+    // public float maxEffeciencyBonus;
+    // public float effeciencyGrowBonus;
+    // public float maxEffeciencyMultiplier;
+    // public float effeciencyGrowMultiplier;
+    // public float researchSpeedBonus;
 
     public override void Research()
     {
-        Vars.Instance.buffs.maxEffeciencyBonus += maxEffeciencyBonus;
-        Vars.Instance.buffs.maxEffeciencyMultiplier += maxEffeciencyMultiplier;
-        Vars.Instance.buffs.effeciencyGrowBonus += effeciencyGrowBonus;
-        Vars.Instance.buffs.effeciencyGrowMultiplier += effeciencyGrowMultiplier;
-        Vars.Instance.buffs.researchSpeedBonus += researchSpeedBonus;
+        if (modifiers != null)
+        {
+            foreach (var modifier in modifiers)
+            {
+                Vars.Instance.modifiers.AddModifier(modifier);
+                // modifier.Apply();
+            }
+        }
+        // Vars.Instance.buffs.maxEffeciencyBonus += maxEffeciencyBonus;
+        // Vars.Instance.buffs.maxEffeciencyMultiplier += maxEffeciencyMultiplier;
+        // Vars.Instance.buffs.effeciencyGrowBonus += effeciencyGrowBonus;
+        // Vars.Instance.buffs.effeciencyGrowMultiplier += effeciencyGrowMultiplier;
+        // Vars.Instance.buffs.researchSpeedBonus += researchSpeedBonus;
+    }
+
+    public override string GetDesc()
+    {
+        string str = base.GetDesc();
+        if (modifiers != null)
+        {
+            foreach (var m in modifiers)
+            {
+                str += $"{m}";
+            }    
+        }
+        return str;
     }
 }
 
-public class BuffsSystem
-{
-    public float maxEffeciencyBonus;
-    public float maxEffeciencyMultiplier;
-    public float effeciencyGrowBonus;
-    public float effeciencyGrowMultiplier;
+// public class BuffsSystem
+// {
+//     public float maxEffeciencyBonus;
+//     public float maxEffeciencyMultiplier;
+//     public float effeciencyGrowBonus;
+//     public float effeciencyGrowMultiplier;
 
-    public float researchSpeedBonus;
+//     public float researchSpeedBonus;
 
-    public void Init()
-    {
-        Restart();
-    }
+//     public void Init()
+//     {
+//         Restart();
+//     }
 
-    public void Restart()
-    {
-        maxEffeciencyBonus = 0.0f;
-        maxEffeciencyMultiplier = 0.0f;
-        effeciencyGrowBonus = 0.0f;
-        effeciencyGrowMultiplier = 0.0f;
+//     public void Restart()
+//     {
+//         maxEffeciencyBonus = 0.0f;
+//         maxEffeciencyMultiplier = 0.0f;
+//         effeciencyGrowBonus = 0.0f;
+//         effeciencyGrowMultiplier = 0.0f;
 
-        researchSpeedBonus = 0.0f;
-    }
+//         researchSpeedBonus = 0.0f;
+//     }
 
-    public void Update()
-    {
+//     public void Update()
+//     {
         
-    }
-}
+//     }
+// }
 
 public class ResearchSystem
 {
@@ -776,13 +831,22 @@ public class ResearchSystem
     {
         return awailableTechs.Contains(tech);
     }
-
+    public float TimeAsProgress(float t, float researchTime)
+    {
+        return t / researchTime * ResearchSpeed;
+    }
     public float TimeAsProgress(float t)
     {
-        return t / research.researchTime * (1 + Vars.Instance.buffs.researchSpeedBonus);
+        return TimeAsProgress(t, research.researchTime);
     }
 
-    public float DaysLeft => (1.0f - researchProgress) * research.researchTime / (1 + Vars.Instance.buffs.researchSpeedBonus);
+    public float ResearchSpeed => 1 + Vars.Instance.modifiers.GetBonus<ResearchSpeedModifier>();
+    public float DaysLeft => GetTechResearchTime(research.researchTime, researchProgress);
+
+    public float GetTechResearchTime(float timeReq, float progress)
+    {
+        return (1.0f - progress) * timeReq / ResearchSpeed;
+    }
 }
 
 public class TimeSystem
@@ -923,8 +987,8 @@ public class UnlockedDetailsSystem
 public class InfluenceSystem
 {
     public float influence;
-    public const float MaxInfluence = 2000.0f;
-    public const float InfluenceGrow = 2.0f; 
+    public const float MaxInfluence = 300.0f;
+    public const float InfluenceGrow = 1.2f; 
 
     public void Init()
     {
@@ -1073,143 +1137,6 @@ public class TimeSpanUpdateSystem
 
             lastMonthUpdateTime = Vars.Instance.time.month;
         }
-    }
-}
-
-public class Modifier
-{
-    public virtual void Apply() {}     
-    public virtual void Cancel() {}     
-
-    public bool IsInflucing() => true;
-}
-
-public interface IBonus
-{
-    public float Bonus {get;set;}        
-}
-public interface IMultiplier
-{
-    public float Multiplier {get;set;}        
-}
-
-public class DetailQualityModifier : Modifier, IBonus, IFormattable
-{
-    public float Bonus { get; set; }
-
-    public string ToString(string format, IFormatProvider formatProvider)
-    {
-        return $"Detail quality: {(Bonus < 0 ? "-" : "+")}{(int)(Mathf.Abs(Bonus) * 100)}%";
-    }
-}
-public class MaterialPriceModifier : Modifier, IBonus, IMultiplier, IFormattable
-{
-    public float Bonus { get; set; }
-    public float Multiplier { get; set; }
-
-    public string ToString(string format, IFormatProvider formatProvider)
-    {
-        string str = string.Empty;
-        if (Bonus != 0)
-        {
-            str += "Material Price: ";
-            str += Bonus > 0 ? "+" : "-";
-            str += Mathf.Abs(Bonus);
-            if (Multiplier != 0)
-            {
-                str += "\n";
-            }
-        }
-        if (Multiplier != 0)
-        {
-            str += "Material Price: ";
-            str += Multiplier > 0 ? "+" : "-";
-            str += Mathf.Abs(Multiplier);
-            str += "%";
-        }
-        return str;
-    }
-}
-public class EffeciencyGrowModifier : Modifier, IBonus, IFormattable
-{
-    public float Bonus { get; set; }
-
-    public string ToString(string format, IFormatProvider formatProvider)
-    {
-        string str = string.Empty;
-        if (Bonus != 0)
-        {
-            
-        }
-        return str;
-    }
-}
-public class MaxEffeciencyModifier : Modifier, IBonus
-{
-    public float Bonus { get; set; }
-}
-
-public class ModifiersSystem
-{
-    public Dictionary<Type, List<Modifier>> modifiers = new();
-
-    public void Init()
-    {
-        Restart();
-    }
-
-    public void Restart()
-    {
-        modifiers.Clear();
-    }
-
-    public List<Modifier> GetModifiers(Type modifierType)
-    {
-        return modifiers.TryGetValue(modifierType, out var l) ? l : new();
-    }
-    public List<Modifier> GetModifiers<T>() => GetModifiers(typeof(T));
-
-    public void AddModifier(Modifier modifier)
-    {
-        List<Modifier> l;
-        if (!modifiers.TryGetValue(modifier.GetType(), out l))
-        {
-            l = new();
-            modifiers[modifier.GetType()] = l;
-        }
-        l.Add(modifier);        
-    }
-    public void RemoveModifier(Modifier m)
-    {
-        if (modifiers.TryGetValue(m.GetType(), out var l))
-        {
-            l.Remove(m);
-        }
-    }
-
-    public float GetBonus<T>()
-    {
-        float total = 0;
-        foreach (var m in GetModifiers<T>())
-        {
-            if (m is IBonus bm)
-            {
-                total += bm.Bonus; 
-            }
-        }
-        return total;
-    }
-    public float GetMultiplier<T>()
-    {
-        float total = 0;
-        foreach (var m in GetModifiers<T>())
-        {
-            if (m is IMultiplier bm)
-            {
-                total += bm.Multiplier; 
-            }
-        }
-        return total;
     }
 }
 

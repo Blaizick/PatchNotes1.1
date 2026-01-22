@@ -4,21 +4,9 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 
-public class BuildSpot : MonoBehaviour, IPointerClickHandler
+public class BuildSpotComplex : Complex, IPointerClickHandler
 {
-    public BuildSpotType type;
-
     public UnityEvent<Complex> onConvert = new();
-
-    public void Init()
-    {
-        type = BuildSpots.spot0;
-    }
-
-    public void Update()
-    {
-        
-    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -34,18 +22,16 @@ public class BuildSpot : MonoBehaviour, IPointerClickHandler
                 complexes.Add(c);
             }
         }
-        Vars.Instance.ui.RebuildBuildComplexDialog(complexes, c =>
+        Vars.Instance.ui.RebuildBuildComplexDialog(Camera.main.WorldToScreenPoint(transform.position), complexes, c =>
         {
-            // var script = Instantiate(c.prefab);
-            // script.type = c;
-            // script.transform.position = transform.position;
-            // script.Init();
-
-            // onConvert?.Invoke(script);
-            
             Vars.Instance.buildSystem.StartBuilding(this, c);
             Vars.Instance.ui.buildComplexDialogRoot.SetActive(false);
-            // Destroy(gameObject);
         });
+    }
+
+    public override void SetTooltip()
+    {
+        tooltipInfoCnt.title = type.name;
+        tooltipInfoCnt.desc = type.desc;
     }
 }

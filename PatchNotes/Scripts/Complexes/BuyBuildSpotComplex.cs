@@ -1,20 +1,17 @@
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BuyBuildSpotComplex : MonoBehaviour, IPointerClickHandler
+public class BuyBuildSpotComplex : Complex, IPointerClickHandler
 {
     public TMP_Text priceText;
     public float price;
 
-    public void Init()
-    {
-        
-    }
-
-    public void Update()
+    public override void Update()
     {
         priceText.text = ((int)price).ToString();
+        base.Update();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -31,6 +28,12 @@ public class BuyBuildSpotComplex : MonoBehaviour, IPointerClickHandler
                 Vars.Instance.buildSystem.BuySpot(gameObject);
             }
         }, null);
+    }
+
+    public override void SetTooltip()
+    {
+        tooltipInfoCnt.title = type.name;
+        tooltipInfoCnt.desc = type.desc;
     }
 }
 

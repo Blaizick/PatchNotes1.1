@@ -1,7 +1,10 @@
 public class PackingComplex : Complex
 {
-    public override bool IsChefAllowed => false;
-    public override bool CanBreak => false;
+    public override void Init()
+    {
+        type = Complexes.packingComplex;
+        base.Init();
+    }
 
     public override void Receive(DetailStack stack)
     {

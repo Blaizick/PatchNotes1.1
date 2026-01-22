@@ -114,9 +114,12 @@ public class ResearchUI : MonoBehaviour
             {
                 v.unawailableState.root.SetActive(true);
             }
+
+            v.tooltipInfoCnt.title = k.name;
+            v.tooltipInfoCnt.desc = k.GetDesc();
         }
 
-        researchSpeedBuffText.text = $"+{(int)(Vars.Instance.buffs.researchSpeedBonus * 100)}%";
+        researchSpeedBuffText.text = $"+{(int)(Vars.Instance.researches.ResearchSpeed * 100)}%";
 
         researchSlot0Txt.text = researches.research == null ? "Empty" : researches.research.name;
         if (researches.research == null)
@@ -146,7 +149,6 @@ public class ResearchUI : MonoBehaviour
             });
         }
         
-        cnt.tech = tech;
         instances.Add(cnt);
         instancesDic[tech] = cnt;
     }

@@ -26,5 +26,5 @@ public class ResearchTechUICntPfb : MonoBehaviour
         unawailableState,
     };
 
-    [NonSerialized] public ResearchTech tech;
+    public TooltipInfoCnt tooltipInfoCnt;
 }

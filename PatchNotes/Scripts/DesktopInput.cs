@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -19,7 +18,6 @@ public class DesktopInput : MonoBehaviour
     [NonSerialized] public float dragStartTime;
     [NonSerialized] public bool dragging;
     private Complex m_Complex0;
-    private Complex m_Complex1;
 
     [NonSerialized] public bool selectingComplexesForChef;
     [NonSerialized] public Chef selectedChef;
@@ -65,8 +63,15 @@ public class DesktopInput : MonoBehaviour
         {
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position = mousePos}, results);
-            pointerOverUi = results.Count > 0 && results.First().gameObject != null && 
-                Utils.MaskContainsLayer(Vars.Instance.layerMasks.uiMask, results.First().gameObject.layer);
+            pointerOverUi = false;
+            foreach (var i in results)
+            {
+                if (i.gameObject != null && Utils.MaskContainsLayer(Vars.Instance.layerMasks.uiMask, i.gameObject.layer))
+                {
+                    pointerOverUi = true;
+                    break;
+                }
+            }
         }
 
         if (actions.Player.Ctrl.IsPressed() && actions.Player.U.IsPressed() && actions.Player.RightAlt.IsPressed())
@@ -109,9 +114,9 @@ public class DesktopInput : MonoBehaviour
 
                     foreach (var hit in hits)
                     {
-                        if (hit.TryGetComponent<Complex>(out var c) && c.IsChefAllowed)
+                        if (Vars.Instance.buildSystem.CanHaveChef(hit.gameObject))
                         {
-                            selectedChef?.SwitchComplex(c);
+                            selectedChef?.SwitchComplex(hit.GetComponent<Complex>());
                             break;
                         }
                     }
@@ -125,11 +130,13 @@ public class DesktopInput : MonoBehaviour
                     {
                         if (hit.TryGetComponent<Complex>(out var c))
                         {
-                            m_Complex0 = c;
-                            dragging = true;
-                            dragStartTime = Time.time;
-                            m_Complex0.OnPointerDown();
-                            break;
+                            if (c.type.canHaveNextComplex)
+                            {
+                                m_Complex0 = c;
+                                dragging = true;
+                                dragStartTime = Time.time;
+                                m_Complex0.OnPointerDown();    
+                            }
                         }
                     }
                 }    
@@ -141,18 +148,18 @@ public class DesktopInput : MonoBehaviour
             {
                 Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
 
-                m_Complex1 = null;
                 foreach (var hit in hits)
                 {
                     if (hit.TryGetComponent<Complex>(out var c))
                     {
-                        m_Complex1 = c;
+                        dragging = false;
+                        if (m_Complex0)
+                        {
+                            m_Complex0.OnPointerUp(c);
+                        }
                         break;
                     }
                 }
-                
-                dragging = false;
-                m_Complex0?.OnPointerUp(m_Complex1);
             }
         }
 
@@ -171,14 +178,14 @@ public class DesktopInput : MonoBehaviour
             }
         }
 
-        var cam = Camera.main;
+        var cam = Vars.Instance.cam;
         if (actions.Player.Move.IsPressed())
         {
-            cam.transform.position = (Vector2)cam.transform.position - (actions.Player.MouseMoveDelta.ReadValue<Vector2>() * 0.01f * cam.orthographicSize / 4);
+            cam.transform.position = (Vector2)cam.transform.position - (actions.Player.MouseMoveDelta.ReadValue<Vector2>() * 0.01f * cam.Lens.OrthographicSize / 4);
             cam.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, -10);
         }
-        Camera.main.orthographicSize += -actions.Player.Scroll.ReadValue<float>() * 0.5f;
-        Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 2, 12);
+        cam.Lens.OrthographicSize += -actions.Player.Scroll.ReadValue<float>() * 0.5f;
+        cam.Lens.OrthographicSize = Mathf.Clamp(cam.Lens.OrthographicSize, 2, 12);
 
         {
             breakSelection1 = mousePos;
@@ -225,6 +232,11 @@ public class DesktopInput : MonoBehaviour
         }
 
         Vars.Instance.tooltip.SetPosition(mousePos);
+    
+        if (actions.Player.PauseMenu.WasPerformedThisFrame())
+        {
+            Vars.Instance.ui.controlsSettingsUi.root.SetActive(!Vars.Instance.ui.controlsSettingsUi.root.activeInHierarchy);
+        }
     }
 
     public void SwitchSelectingComplexesForChefState(Chef chef)

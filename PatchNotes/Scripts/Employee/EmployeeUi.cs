@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -23,7 +25,6 @@ public class EmployeeUi : MonoBehaviour
     public GameObject managersMenuRoot;
 
     public ChefUiCntPfb chefUiCntPfb;
-    public AwailableChefUiCntPfb awailableChefUiCntPfb;
 
     public RectTransform chefsTableRootTransform;
 
@@ -40,9 +41,10 @@ public class EmployeeUi : MonoBehaviour
 
     public Button hireBtn;
 
-    [NonSerialized] public List<ChefUiCntPfb> instances = new();
-    [NonSerialized] public List<AwailableChefUiCntPfb> awailableInstances = new();
-    public Dictionary<Chef, ChefUiCntPfb> instancesDic = new();
+    [NonSerialized] public List<ChefUiCntPfb> takenInstances = new();
+    [NonSerialized] public List<ChefUiCntPfb> awailableInstances = new();
+    public Dictionary<Chef, ChefUiCntPfb> takenInstancesDic = new();
+    public Dictionary<ChefType, ChefUiCntPfb> awailableInstancesDic = new();
 
     public Button closeBtn;
 
@@ -55,6 +57,7 @@ public class EmployeeUi : MonoBehaviour
     public GameObject awailableManagersRoot;
     public Button awailableManagersCloseBtn;
     [NonSerialized] public List<ManagerUiCntPfb> managerInstances = new();
+    public Dictionary<ManagerType, ManagerUiCntPfb> managerInstancesDic = new();
 
     public TMP_Text awailableManagersLabel;
 
@@ -104,6 +107,7 @@ public class EmployeeUi : MonoBehaviour
         }
 
         awailableManagersRoot.SetActive(false);
+        root.SetActive(false);
     }
 
     public void Update()
@@ -111,20 +115,60 @@ public class EmployeeUi : MonoBehaviour
         foreach (var (k, v) in slotsDic)
         {
             var m = Vars.Instance.managers.managers[k];
+            if (m == null)
+            {
+                v.tooltipInfoCnt.enabled = false;
+            }
+            else
+            {
+                v.image.sprite = m.type.sprite;
+                v.tooltipInfoCnt.enabled = true;
+                SetManagerTooltip(m.type, v.tooltipInfoCnt);
+            }
         }
 
         chefsMenuBtn.interactable = !chefsMenuRoot.activeInHierarchy;
         managersMenuBtn.interactable = !managersMenuRoot.activeInHierarchy;
 
-        foreach (var (k, v) in instancesDic)
+        foreach (var (k, v) in takenInstancesDic)
         {
-            v.countText.text = $"{k.complexes.Count}/{k.maxComplexes}";
+            foreach (var state in v.AllStates)
+            {
+                state.text.text = $"{k.complexes.Count}/{k.maxComplexes}";
+            }
             v.selectionFrameRoot.SetActive(Vars.Instance.input.selectingComplexesForChef && Vars.Instance.input.selectedChef == k);
+        }
+        foreach (var (k, v) in awailableInstancesDic)
+        {
+            bool t = Vars.Instance.influence.HasEnought(k.influencePrice);
+            v.awailableState.root.SetActive(t);
+            v.unawailableState.root.SetActive(!t);
+        }
+
+        foreach (var (k, v) in managerInstancesDic)
+        {
+            foreach (var state in v.AllStates)
+            {
+                state.image.sprite = k.sprite;
+                state.root.SetActive(false);
+            }
+            if (Vars.Instance.managers.HasSameManager(k))
+            {
+                v.takenState.root.SetActive(true);                
+            }
+            else
+            {
+                bool t = Vars.Instance.influence.HasEnought(k.influencePrice);
+                v.awailableState.root.SetActive(t);
+                v.unawailableState.root.SetActive(!t);    
+            }
         }
     }
 
+
     public void ShowAwailableManagers(List<ManagerType> managers, string label, UnityAction<ManagerType> onSelected, UnityAction onQuit)
     {
+        managerInstancesDic.Clear();
         managerInstances.ForEach(i => Destroy(i.gameObject));
         managerInstances.Clear();
 
@@ -140,16 +184,35 @@ public class EmployeeUi : MonoBehaviour
         foreach (var m in managers)
         {
             var scr = Instantiate(managerUiCntPfb, awailableManagersTableRoot);
-            scr.btn.onClick.AddListener(() =>
+            foreach (var state in scr.AllStates)
             {
-                awailableManagersRoot.SetActive(false);
-                onSelected?.Invoke(m);
-            });
-            scr.name = m.name;
+                state.btn.onClick.AddListener(() =>
+                {
+                    awailableManagersRoot.SetActive(false);
+                    onSelected?.Invoke(m);
+                });
+                state.text.text = ((int)m.influencePrice).ToString();
+                state.root.SetActive(false);
+            }
+            SetManagerTooltip(m, scr.tooltipInfoCnt);
+            managerInstancesDic[m] = scr;
             managerInstances.Add(scr);
         }
 
         awailableManagersRoot.SetActive(true);
+    }
+
+    public void SetManagerTooltip(ManagerType type, TooltipInfoCnt tooltipInfoCnt)
+    {
+        tooltipInfoCnt.title = type.name;
+        tooltipInfoCnt.desc = $"Price: {type.influencePrice} influence\n\n";
+        if (type.modifiers != null)
+        {
+            foreach (var m in type.modifiers)
+            {
+                tooltipInfoCnt.desc += $"{m}";
+            }    
+        }
     }
 
     public void RebuildChefsUi()
@@ -157,66 +220,70 @@ public class EmployeeUi : MonoBehaviour
         awailableTableRoot.SetActive(false);
         infoDialogRoot.SetActive(false);
 
-        instances.ForEach(i => Destroy(i.gameObject));
-        instances.Clear();
-        instancesDic.Clear();
+        takenInstances.ForEach(i => Destroy(i.gameObject));
+        takenInstances.Clear();
+        takenInstancesDic.Clear();
         awailableInstances.ForEach(i => Destroy(i.gameObject));
         awailableInstances.Clear();
+        awailableInstancesDic.Clear();
 
         foreach (var chef in Vars.Instance.chefs.chefs)
         {
             var script = Instantiate(chefUiCntPfb, chefsTableRootTransform);
-            script.nameText.text = chef.type.name;
-            script.btn.onClick.AddListener(() =>
+            foreach (var state in script.AllStates)
             {
-                Vars.Instance.input.SwitchSelectingComplexesForChefState(chef);
-            });
-            script.infoBtn.onClick.AddListener(() =>
-            {
-                ShowHireChefDialog(chef, chef.type, false, true);
-            });
-            instances.Add(script);
-            instancesDic[chef] = script;
+                state.btn.onClick.AddListener(() =>
+                {
+                    Vars.Instance.input.SwitchSelectingComplexesForChefState(chef);
+                });
+                state.image.sprite = chef.type.sprite;
+                state.root.SetActive(false);
+            }
+            script.takenState.root.SetActive(true);
+            SetChefTooltip(chef.type, script.tooltipInfoCnt);
+            takenInstances.Add(script);
+            takenInstancesDic[chef] = script;
         }
 
         foreach (var chef in Vars.Instance.chefs.awailableChefs)
         {
-            var script = Instantiate(awailableChefUiCntPfb, awailableTableRootTransform);
-            script.nameText.text = chef.name;
-            script.btn.onClick.AddListener(() =>
+            var script = Instantiate(chefUiCntPfb, awailableTableRootTransform);
+            foreach (var state in script.AllStates)
             {
-                ShowHireChefDialog(null, chef, true, false);
-            });
+                state.btn.onClick.AddListener(() =>
+                {
+                    Vars.Instance.chefs.HireChef(chef);
+                });
+                state.text.text = ((int)chef.influencePrice).ToString();
+                state.root.SetActive(false);
+                state.image.sprite = chef.sprite;
+            }
+            SetChefTooltip(chef, script.tooltipInfoCnt);
             awailableInstances.Add(script);
+            awailableInstancesDic[chef] = script;
         }
     }
 
-    public void ShowHireChefDialog(Chef chef, ChefType chefType, bool hireBtn, bool fireBtn)
+    public void SetChefTooltip(ChefType chef, TooltipInfoCnt tooltipInfoCnt)
     {
-        infoDialogRoot.SetActive(true);
-
-        infoDialogHireChefBtn.onClick.RemoveAllListeners();
-        infoDialogFireChefBtn.onClick.RemoveAllListeners();
-
-        infoDialogHireChefBtn.onClick.AddListener(() => 
+        tooltipInfoCnt.title = chef.name;
+        tooltipInfoCnt.desc = $"Price: {chef.influencePrice} influence\n\n";
+        if (chef.maxEffeciencyBonus != 0.0f)
         {
-            Vars.Instance.chefs.HireChef(chefType);
-            infoDialogRoot.SetActive(false);
-        });
-        infoDialogFireChefBtn.onClick.AddListener(() =>
+            tooltipInfoCnt.desc += $"Max Effeciency: +{chef.maxEffeciencyBonus}\n";
+        }
+        if (chef.maxEffeciencyMultiplier != 0.0f)
         {
-            Vars.Instance.chefs.FireChef(chef);
-            infoDialogRoot.SetActive(false);
-        });
-
-        infoDialogHireChefBtn.gameObject.SetActive(hireBtn);
-        infoDialogFireChefBtn.gameObject.SetActive(fireBtn);
-
-        infoDialogChefInfoText.text = $"Salary {(int)chefType.salary}\n" +
-                                          $"Max Effeciency +{(int)chefType.maxEffeciencyMultiplier}%\n" +
-                                          $"Effeciency Grow +{(int)chefType.effeciencyGrowMultiplier}%\n";
-    
-        infoDialogChefNameText.text = chefType.name;
+            tooltipInfoCnt.desc += $"Max Effeciency: +{(int)(chef.maxEffeciencyMultiplier * 100.0f)}%\n";
+        }
+        if (chef.effeciencyGrowBonus != 0.0f)
+        {
+            tooltipInfoCnt.desc += $"Effeciency Grow: +{chef.effeciencyGrowBonus}\n";
+        }
+        if (chef.effeciencyGrowMultiplier != 0.0f)
+        {
+            tooltipInfoCnt.desc += $"Effeciency Grow: +{(int)(chef.effeciencyGrowMultiplier * 100.0f)}%\n";
+        }
     }
 }
 
@@ -228,9 +295,6 @@ public class ChefsSystem
 
     public UnityEvent onChange = new();
 
-    public float lastUpdateTime = 0.0f;
-    public float lastChefsPayMonth = 0.0f;
-
     public void Init()
     {
         Restart();
@@ -239,56 +303,26 @@ public class ChefsSystem
     public void Restart()
     {
         chefs.Clear();
-        lastUpdateTime = Vars.Instance.time.day;
-        lastChefsPayMonth = Vars.Instance.time.month;
-        UpdateAwailableChefs();
+        awailableChefs = new(Chefs.all);
     }
 
     public void Update()
     {
-        if (Vars.Instance.time.day - lastUpdateTime > 10.0f)
-        {
-            UpdateAwailableChefs();
-            lastUpdateTime = Vars.Instance.time.day;
-        }
-        if (Vars.Instance.time.month - lastChefsPayMonth > 1.0f)
-        {
-            foreach (var chef in chefs)
-            {
-                Vars.Instance.moneySystem.Take(chef.type.salary);
-            }
-            lastChefsPayMonth = Vars.Instance.time.month;
-        }
-
         foreach (var chef in chefs)
         {
             chef.Update();
         }
     }
 
-    public void UpdateAwailableChefs()
-    {
-        awailableChefs.Clear();
-        for (int i = 0; i < 5; i++)
-        {
-            var points = UnityEngine.Random.Range(10.0f, 30.0f);
-            ChefType type = new()
-            {
-                salary = points * 5.0f,
-                points = points,
-                effeciencyGrowMultiplier = UnityEngine.Random.Range(0.0f, points),
-            };
-            type.maxEffeciencyMultiplier = points - type.effeciencyGrowMultiplier;
-            awailableChefs.Add(type);
-        }
-        onChange?.Invoke();
-    }
-
     public void HireChef(ChefType chef)
     {
-        awailableChefs.Remove(chef);
-        chefs.Add(chef.AsChef());
-        onChange?.Invoke();
+        if (Vars.Instance.influence.HasEnought(chef.influencePrice))
+        {
+            Vars.Instance.influence.Take(chef.influencePrice);
+            awailableChefs.Remove(chef);
+            chefs.Add(chef.AsChef());
+            onChange?.Invoke();
+        }
     }        
     public void FireChef(Chef chef)
     {
@@ -356,11 +390,14 @@ public class ChefType
 {
     public string name = "Template Name";
 
-    public float points;
-    public float salary;
+    public float influencePrice;
 
+    public float maxEffeciencyBonus;
     public float maxEffeciencyMultiplier;
+    public float effeciencyGrowBonus;
     public float effeciencyGrowMultiplier;
+
+    public Sprite sprite;
 
     public Chef AsChef()
     {
@@ -404,8 +441,26 @@ public class ManagersSystem
 
     public void SetManager(ManagerCategory category, Manager manager)
     {
+        Vars.Instance.influence.Take(manager.type.influencePrice);
+        if (managers[category] != null)
+        {
+            managers[category].OnLeave();
+        }
+        manager.OnTake();
         managers[category] = manager;
         onChange?.Invoke();
+    }
+
+    public bool HasSameManager(ManagerType type)
+    {
+        var m = managers[type.category];
+        if (m == null && type == null)
+            return true;
+        if (m == null || type == null)
+            return false;
+        if (m.type == type)
+            return true;
+        return false;
     }
 }
 
@@ -449,84 +504,25 @@ public class ManagerCategory
 public class Manager
 {
     public ManagerType type;
-}
 
-public class ManagerType
-{
-    public string name;
-    public ManagerCategory category;
-
-    public float maxEffeciencyBonus;
-    public float maxEffeciencyMultiplier;
-    public float effeciencyGrowBonus;
-    public float effeciencyGrowMultiplier;
-    public float researchSpeedBonus;
-    public float researchSpeedMultiplier;
-
-    public static Dictionary<ManagerCategory, List<ManagerType>> allDic = new();
-    public static List<ManagerType> all = new();
-
-
-    public Manager AsManager()
+    public void OnTake()
     {
-        return new Manager()
+        if (type.modifiers != null)
         {
-            type = this
-        };
-    }
-
-    public static void GInit()
-    {
-        new ManagerType()
-        {
-            category = ManagerCategory.cfo
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.cfo
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.cfo
-        }.Init();
-
-        new ManagerType()
-        {
-            category = ManagerCategory.coo
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.coo
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.coo
-        }.Init();
-
-        new ManagerType()
-        {
-            category = ManagerCategory.cto
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.cto
-        }.Init();
-        new ManagerType()
-        {
-            category = ManagerCategory.cto
-        }.Init();
-    }
-
-    public ManagerType Init()
-    {
-        all.Add(this);
-        List<ManagerType> l;
-        if (!allDic.TryGetValue(category, out l))
-        {
-            l = new();
-            allDic[category] = l;
+            foreach (var m in type.modifiers)
+            {
+                Vars.Instance.modifiers.AddModifier(m);
+            }
         }
-        l.Add(this);
-        return this;
+    }
+    public void OnLeave()
+    {
+        if (type.modifiers != null)
+        {
+            foreach (var m in type.modifiers)
+            {
+                Vars.Instance.modifiers.RemoveModifier(m);
+            }
+        }
     }
 }

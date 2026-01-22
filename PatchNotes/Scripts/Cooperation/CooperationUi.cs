@@ -123,6 +123,7 @@ public class CooperationUi : MonoBehaviour
 
             foreach (var state in v.AllStates)
             {
+                state.image.sprite = k.sprite;
                 state.influencePriceText.text = ((int)k.influencePrice).ToString();
             }
             bool taken = Vars.Instance.suppliers.supplier.type == k;
@@ -132,6 +133,7 @@ public class CooperationUi : MonoBehaviour
             v.unawailableStates.root.SetActive(!taken && !awailable);
         }
 
+        curSupplier.image.sprite = Vars.Instance.suppliers.supplier.type.sprite;
         SetSupplierTooltip(supplierTooltipInfoCnt, Vars.Instance.suppliers.supplier.type);
     }
 
@@ -143,7 +145,7 @@ public class CooperationUi : MonoBehaviour
         {
             if (m.IsInflucing())
             {
-                tooltipInfoCnt.desc += $"{m}\n";
+                tooltipInfoCnt.desc += $"{m}";
             }
         }
         tooltipInfoCnt.desc += $"Price: {(int)Mathf.Clamp(Vars.Instance.influence.influence, 0, supplier.influencePrice)}/{supplier.influencePrice} influence\n";
@@ -218,6 +220,7 @@ public class SupplierType
     public List<Modifier> modifiers;
     public float influencePrice;
     public string name;
+    public Sprite sprite;
 
     public Supplier AsSupplier()
     {
