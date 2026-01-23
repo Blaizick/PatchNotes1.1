@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingsSystem : MonoBehaviour
@@ -129,8 +127,8 @@ public class BuildingsSystem : MonoBehaviour
     {
         var scr = (BuyBuildSpotComplex)Complexes.buyBuildSpotComplex.AsComplex();
         scr.Init();
-        scr.price = Vars.Instance.buildSpotPriceSystem.GetPrice();
-        Vars.Instance.buildSpotPriceSystem.OnBuy();
+        scr.price = Vars.Instance.buildSpotPrice.GetPrice();
+        Vars.Instance.buildSpotPrice.OnBuy();
         return scr;
     }
 }

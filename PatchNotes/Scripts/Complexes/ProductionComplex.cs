@@ -4,7 +4,7 @@ public class ProductionComplex : Complex
 {
     public override void Update()
     {
-        var matPrice = Vars.Instance.materialPriceSystem.MaterialPrice;
+        var matPrice = Vars.Instance.materialPrices.MaterialPrice;
         if (nextComplex)
         {
             var count = Vars.Instance.time.deltaDay * effeciencySystem.effeciency;

@@ -78,9 +78,10 @@ public class EffeciencyGrowModifier : Modifier, IBonus, IMultiplier, IFormattabl
         return str;
     }
 }
-public class MaxEffeciencyModifier : Modifier, IBonus, IFormattable
+public class MaxEffeciencyModifier : Modifier, IBonus, IMultiplier, IFormattable
 {
     public float Bonus { get; set; }
+    public float Multiplier { get; set; }
 
     public string ToString(string format, IFormatProvider formatProvider)
     {
@@ -88,6 +89,10 @@ public class MaxEffeciencyModifier : Modifier, IBonus, IFormattable
         if (Bonus != 0)
         {
             str += $"Max Effeciency: {(Bonus > 0 ? "+" : "-")}{(int)(Mathf.Abs(Bonus) * 100)}\n";
+        }
+        if (Multiplier != 0)
+        {
+            str += $"Max Effeciency: {(Multiplier > 0 ? "+" : "-")}{(int)(Mathf.Abs(Multiplier) * 100)}%\n";
         }
         return str;
     }

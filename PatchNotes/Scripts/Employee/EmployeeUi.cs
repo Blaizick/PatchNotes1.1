@@ -28,13 +28,6 @@ public class EmployeeUi : MonoBehaviour
 
     public RectTransform chefsTableRootTransform;
 
-    public GameObject infoDialogRoot;
-    public TMP_Text infoDialogChefNameText;
-    public TMP_Text infoDialogChefInfoText;
-    public Button infoDialogHireChefBtn;
-    public Button infoDialogFireChefBtn;
-    public Button infoDialogCloseBtn;
-
     public GameObject awailableTableRoot;
     public RectTransform awailableTableRootTransform;
     public Button awailableTableCloseBtn;
@@ -66,9 +59,6 @@ public class EmployeeUi : MonoBehaviour
         chefsMenuRoot.SetActive(true);
         managersMenuRoot.SetActive(false);
 
-        infoDialogRoot.SetActive(false);
-        infoDialogCloseBtn.onClick.AddListener(() => infoDialogRoot.SetActive(false));
-    
         awailableTableRoot.SetActive(false);
         hireBtn.onClick.AddListener(() => awailableTableRoot.SetActive(!awailableTableRoot.activeInHierarchy));
         awailableTableCloseBtn.onClick.AddListener(() => awailableTableRoot.SetActive(false));
@@ -81,14 +71,12 @@ public class EmployeeUi : MonoBehaviour
             chefsMenuRoot.SetActive(true);
             managersMenuRoot.SetActive(false);
             awailableTableRoot.SetActive(false);
-            infoDialogRoot.SetActive(false);
         });
         managersMenuBtn.onClick.AddListener(() =>
         {
             chefsMenuRoot.SetActive(false);
             managersMenuRoot.SetActive(true);
             awailableTableRoot.SetActive(false);
-            infoDialogRoot.SetActive(false);
         });
 
         closeBtn.onClick.AddListener(() => root.SetActive(false));
@@ -218,7 +206,6 @@ public class EmployeeUi : MonoBehaviour
     public void RebuildChefsUi()
     {
         awailableTableRoot.SetActive(false);
-        infoDialogRoot.SetActive(false);
 
         takenInstances.ForEach(i => Destroy(i.gameObject));
         takenInstances.Clear();

@@ -47,8 +47,8 @@ public class PopupsUi : MonoBehaviour
                     o.onChoose?.Invoke();
                 });
                 s.text.text = o.name;
-                s.tooltipInfoCnt.name = o.name;
-                s.tooltipInfoCnt.desc = o.desc;
+                s.tooltipInfoCnt.title = o.tooltipName;
+                s.tooltipInfoCnt.desc = o.tooltipDesc;
             }
         }
         instances.Add(scr);
@@ -59,6 +59,7 @@ public class PopupsUi : MonoBehaviour
 public class PopupOption
 {
     public string name;
-    public string desc;
+    public string tooltipName;
+    public string tooltipDesc;
     public UnityAction onChoose;
 }

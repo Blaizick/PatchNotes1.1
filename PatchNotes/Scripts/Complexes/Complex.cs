@@ -42,7 +42,7 @@ public class Complex : MonoBehaviour
 
         if (outputLineRenderer)
         {
-            var col = Vars.Instance.productionLineColorSystem.GetNextColor();
+            var col = Vars.Instance.productionLineColor.GetNextColor();
             outputLineRenderer.startColor = col;
             outputLineRenderer.endColor = col;
         }
@@ -192,8 +192,8 @@ public class EffeciencySystem
 
     public float RelativeEffeciency => effeciency / MaxEffeciency;
     public float Effeciency => effeciency;
-    public float MaxEffeciency => (maxEffeciency + maxEffeciencyBonus + Vars.Instance.modifiers.GetBonus<EffeciencyGrowModifier>()) * 
-        (1.0f + maxEffeciencyMultiplier + Vars.Instance.modifiers.GetMultiplier<EffeciencyGrowModifier>());
+    public float MaxEffeciency => (maxEffeciency + maxEffeciencyBonus + Vars.Instance.modifiers.GetBonus<MaxEffeciencyModifier>()) * 
+        (1.0f + maxEffeciencyMultiplier + Vars.Instance.modifiers.GetMultiplier<MaxEffeciencyModifier>());
 
     public void Init()
     {
@@ -204,11 +204,11 @@ public class EffeciencySystem
 
     public void Update()
     {
-        var bonus = Vars.Instance.modifiers.GetBonus<EffeciencyGrowModifier>();
-        var multiplier = Vars.Instance.modifiers.GetMultiplier<EffeciencyGrowModifier>();
+        var growBonus = Vars.Instance.modifiers.GetBonus<EffeciencyGrowModifier>();
+        var growMultiplier = Vars.Instance.modifiers.GetMultiplier<EffeciencyGrowModifier>();
 
-        effeciency += (effeciencyGrow + effeciencyGrowBonus + bonus) * Vars.Instance.time.deltaDay * 
-            (1.0f + effeciencyGrowMultiplier + multiplier);
+        effeciency += (effeciencyGrow + effeciencyGrowBonus + growBonus) * Vars.Instance.time.deltaDay * 
+            (1.0f + effeciencyGrowMultiplier + growMultiplier);
         effeciency = Mathf.Clamp(effeciency, 0, MaxEffeciency);
     
         maxEffeciencyMultiplier = 0.0f;
@@ -235,6 +235,8 @@ public class ComplexType
     public bool buildable = true;
 
     public string desc;
+
+    public Sprite sprite;
 
     public Complex AsComplex()
     {

@@ -22,9 +22,9 @@ public class BuyBuildSpotComplex : Complex, IPointerClickHandler
         }
         Vars.Instance.ui.ShowConfirmDialog($"Are you sure you want to buy new build spot for {(int)price}?", () =>
         {
-            if (Vars.Instance.moneySystem.HasEnought(price))
+            if (Vars.Instance.money.HasEnought(price))
             {
-                Vars.Instance.moneySystem.Take(price);
+                Vars.Instance.money.Take(price);
                 Vars.Instance.buildSystem.BuySpot(gameObject);
             }
         }, null);

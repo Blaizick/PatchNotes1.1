@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -83,7 +84,11 @@ public class UIMAin : MonoBehaviour
             script.nameText.text = d.name;
             script.sellAllBtn.onClick.AddListener(() =>
             {
-                Vars.Instance.detailsSystem.SellAll(d);
+                Vars.Instance.details.SellAll(d);
+            });
+            script.autoSellToggle.onValueChanged.AddListener(v =>
+            {
+                Vars.Instance.details.SetAutoSell(d, v);
             });
             detailInstances[d] = script;
         }
@@ -135,10 +140,10 @@ public class UIMAin : MonoBehaviour
         buildingsText.text = Vars.Instance.buildSystem.complexes.Count.ToString();
         detailQualityText.text = $"Q: {Vars.Instance.detailQualitySystem.Quality * 100.0f}%";
 
-        var money = Vars.Instance.moneySystem.money;
+        var money = Vars.Instance.money.money;
         moneyText.text = ((int)money).ToString();
     
-        var targetMoney = ((MoneyOrderRequirement)Vars.Instance.orders.curOrder.type.requirements.First()).money;
+        var targetMoney = ((MoneyRequirement)Vars.Instance.orders.curOrder.type.requirements.First()).money;
         orderMoneyText.text = $"{(int)Mathf.Clamp(money, 0, targetMoney)}/{(int)targetMoney}";
         orderTimeText.text = $"{(int)Vars.Instance.orders.curOrder.DaysLeft}";
     
@@ -155,7 +160,8 @@ public class UIMAin : MonoBehaviour
     
         foreach (var (k, v) in detailInstances)
         {
-            v.countText.text = ((int)Vars.Instance.detailsSystem.GetCount(k)).ToString();
+            v.autoSellToggle.isOn = Vars.Instance.details.IsAutoSelling(k);
+            v.countText.text = ((int)Vars.Instance.details.GetCount(k)).ToString();
         }
 
         influenceText.text = $"{(int)Vars.Instance.influence.influence}";
@@ -181,6 +187,7 @@ public class UIMAin : MonoBehaviour
             {
                 onSuccess(i);
             });
+            script.image.sprite = i.sprite;
 
             complexInstances.Add(script);
         }

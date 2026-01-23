@@ -49,6 +49,17 @@ public class CooperationUi : MonoBehaviour
         awailableSuppliersRoot.SetActive(false);
 
         RebuildSuppliersMenu();
+
+        Vars.Instance.orders.onOptionalOrderComplete.AddListener(o =>
+        {
+            Vars.Instance.ui.popups.ShowPopup("Order Comleted", $"{o.type.name}", null, new()
+            {
+                new()
+                {
+                    name = "OK",
+                },
+            });
+        });
     }
 
     public void Update()
@@ -158,7 +169,10 @@ public class CooperationUi : MonoBehaviour
         instances.ForEach(i => Destroy(i.gameObject));
         instances.Clear();
 
-        SpawnTakenOrder(Vars.Instance.orders.curOrder);
+        if (Vars.Instance.orders.curOrder != null)
+        {
+            SpawnTakenOrder(Vars.Instance.orders.curOrder);
+        }
         foreach (var i in Vars.Instance.orders.optionalOrders)
         {
             SpawnTakenOrder(i);

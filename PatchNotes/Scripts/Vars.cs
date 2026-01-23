@@ -4,17 +4,16 @@ using System.Linq;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering.Universal;
 
 public class Vars : MonoBehaviour
 {
     public static Vars Instance {get;set;}
 
-    public MoneySystem moneySystem;
+    public MoneySystem money;
     public IncomeSystem income;
     public OrderSystem orders;
     public UIMAin ui;
-    public DetailsSystem detailsSystem;
+    public DetailsSystem details;
     public DesktopInput input;
     public GameStateSystem state;
     public TimeSystem time;
@@ -22,10 +21,9 @@ public class Vars : MonoBehaviour
     public BuildingsSystem buildSystem;
     public SpeedSystem speedSystem;
     public UnlockedDetailsSystem unlockedDetails;
-    public BuildSpotPriceSystem buildSpotPriceSystem;
-    public ProductionLineColorSystem productionLineColorSystem;
+    public BuildSpotPriceSystem buildSpotPrice;
+    public ProductionLineColorSystem productionLineColor;
     public ChefsSystem chefs;
-    // public BuffsSystem buffs;
     public ManagersSystem managers;
     public LayerMasksSystem layerMasks;
     public InfluenceSystem influence;
@@ -36,15 +34,19 @@ public class Vars : MonoBehaviour
     public TimeSpanUpdateSystem timeSpanUpdate;
     public ModifiersSystem modifiers;
     public DetailQualitySystem detailQualitySystem;
-    public MaterialPriceSystem materialPriceSystem;
+    public MaterialPriceSystem materialPrices;
     public CinemachineCamera cam;
     public RebindSystem rebinds;
+    public EventsSystem events;
 
     private void Start()
     {
+        float time0 = Time.realtimeSinceStartup;
+
         Instance = this;
 
         Portraits.Init();
+        BuildingIcons.Init();
         Details.Init();
         Orders.Init();
         Recipes.Init();
@@ -55,9 +57,10 @@ public class Vars : MonoBehaviour
         ManagerType.GInit();
         Suppliers.Init();
         Chefs.Init();
+        Events.Init();
         
-        productionLineColorSystem = new();
-        productionLineColorSystem.Init();
+        productionLineColor = new();
+        productionLineColor.Init();
 
         time = new();
         time.Init();
@@ -70,8 +73,8 @@ public class Vars : MonoBehaviour
         state = new();
         state.Init();
 
-        moneySystem = new();
-        moneySystem.Init();
+        money = new();
+        money.Init();
 
         income = new();
         income.Init();
@@ -80,19 +83,16 @@ public class Vars : MonoBehaviour
         modifiers.Init();
 
         detailQualitySystem = new();
-        materialPriceSystem = new();
+        materialPrices = new();
 
         influence = new();
         influence.Init();
 
-        // buffs = new();
-        // buffs.Init();
-
         chefs = new();
         chefs.Init();
 
-        detailsSystem = new();
-        detailsSystem.Init();
+        details = new();
+        details.Init();
 
         researches = new();
         researches.Init();
@@ -106,8 +106,8 @@ public class Vars : MonoBehaviour
         orders = new();
         orders.Init();
 
-        buildSpotPriceSystem = new();
-        buildSpotPriceSystem.Init();
+        buildSpotPrice = new();
+        buildSpotPrice.Init();
 
         managers = new();
         managers.Init();
@@ -137,39 +137,10 @@ public class Vars : MonoBehaviour
         ui.Init();
         tooltip.Init();
 
-        ui.popups.ShowPopup("Welcome", "You inherited a factory, unfortunately the situation in your country(Wrazkoslavia) is so bad that the government takes away part of the income regardless of how much you earn", null, new()
-        {
-            new()
-            {
-                name = "OK",
-            },
-            new()
-            {
-                name = "Get extra info",
-                onChoose = () =>
-                {
-                    ui.popups.ShowPopup("Money", "You can earn money by selling details(menu \"resources\")", null, new()
-                    {
-                        new()
-                        {
-                            name = "OK",
-                            desc = "1 left",
-                            onChoose = () =>
-                            {
-                                ui.popups.ShowPopup("Getting details", "You can get details from production complexes, you can build production complexes on build spots, by simply clicking on them. You can also connect 2 complexes with each other, so they will transfer resources. In order to get details you shoulda connect one of your complexes with packing complex in order to see your details in resources menu. The start resource is coming from supplier.", null, new()
-                                {
-                                    new()
-                                    {
-                                        name = "OK",
-                                        desc = "0 left"
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        events = new();
+        events.Init();
+
+        Debug.Log($"Startup Time: {Time.realtimeSinceStartup - time0}");
     }
 
     public void Restart()
@@ -178,24 +149,24 @@ public class Vars : MonoBehaviour
         timeSpanUpdate.Restart();
         unlockedDetails.Restart();
         state.Restart();
-        moneySystem.Restart();
+        money.Restart();
         income.Restart();
         influence.Restart();
-        detailsSystem.Restart();
+        details.Restart();
         orders.Restart();
         researches.Restart();
-        buildSpotPriceSystem.Restart();
+        buildSpotPrice.Restart();
         buildSystem.Restart();
         speedSystem.Restart();
-        productionLineColorSystem.Restart();
+        productionLineColor.Restart();
         chefs.Restart();
-        // buffs.Restart();
         managers.Restart();
         suppliers.Restart();
         taxes.Restart();
         reports.Restart();
         modifiers.Restart();
         ui.Restart();
+        events.Restart();
     }
 
     public void Win()
@@ -216,14 +187,15 @@ public class Vars : MonoBehaviour
         speedSystem.Update();
         unlockedDetails.Update();
         chefs.Update();
-        // buffs.Update();
         managers.Update();
         influence.Update();
         suppliers.Update();
         taxes.Update();
         income.Update();
         reports.Update();
-        materialPriceSystem.Update();
+        materialPrices.Update();
+        details.Update();
+        events.Update();
     }
 }
 
@@ -260,9 +232,9 @@ public class OrderType
     public float time;
     public string name;
 
-    public List<OrderRequirement> requirements;
-    public List<OrderPunishment> punishments;
-    public List<OrderReward> rewards;
+    public List<Requirement> requirements;
+    public List<Punishment> punishments;
+    public List<Reward> rewards;
 
     public Order AsOrder()
     {
@@ -270,16 +242,16 @@ public class OrderType
     }
 }
 
-public class OrderRequirement
+public class Requirement
 {
     public virtual bool CanComplete() => false;
 }
 
-public class MoneyOrderRequirement : OrderRequirement, IFormattable
+public class MoneyRequirement : Requirement, IFormattable
 {
     public float money;
 
-    public override bool CanComplete() => Vars.Instance.moneySystem.HasEnought(money);
+    public override bool CanComplete() => Vars.Instance.money.HasEnought(money);
 
     public string ToString(string format, IFormatProvider formatProvider)
     {
@@ -287,11 +259,11 @@ public class MoneyOrderRequirement : OrderRequirement, IFormattable
     }
 }
 
-public class DetailOrderRequirement : OrderRequirement, IFormattable
+public class DetailRequirement : Requirement, IFormattable
 {
     public DetailStack detailStack;
 
-    public override bool CanComplete() => Vars.Instance.detailsSystem.HasEnought(detailStack);
+    public override bool CanComplete() => Vars.Instance.details.HasEnought(detailStack);
 
     public string ToString(string format, IFormatProvider formatProvider)
     {
@@ -299,18 +271,28 @@ public class DetailOrderRequirement : OrderRequirement, IFormattable
     }
 }
 
-public class OrderPunishment
+public class DayRequirement : Requirement
+{
+    public float day;
+
+    public override bool CanComplete()
+    {
+        return Vars.Instance.time.day >= day;
+    }
+}
+
+public class Punishment
 {
     public virtual void Execute() {}
 }
 
-public class MoneyOrderPunishment : OrderPunishment, IFormattable
+public class MoneyPunishment : Punishment, IFormattable
 {
     public float money;
 
     public override void Execute()
     {
-        Vars.Instance.moneySystem.Take(money);
+        Vars.Instance.money.Take(money);
     }
 
     public string ToString(string format, IFormatProvider formatProvider)
@@ -319,13 +301,13 @@ public class MoneyOrderPunishment : OrderPunishment, IFormattable
     }
 }
 
-public class OrderDetailPunishment : OrderPunishment, IFormattable
+public class DetailPunishment : Punishment, IFormattable
 {
     public DetailStack detailStack;
 
     public override void Execute()
     {
-        Vars.Instance.detailsSystem.Take(detailStack);
+        Vars.Instance.details.Take(detailStack);
     }
 
     public string ToString(string format, IFormatProvider formatProvider)
@@ -334,18 +316,18 @@ public class OrderDetailPunishment : OrderPunishment, IFormattable
     }
 }
 
-public class OrderReward
+public class Reward
 {
     public virtual void Execute() {}
 }
 
-public class OrderIncomeReward : OrderReward, IFormattable
+public class IncomeReward : Reward, IFormattable
 {
     public float income;
 
     public override void Execute()
     {
-        Vars.Instance.income.Add(income);
+        Vars.Instance.income.AddOrderIncome(income);
     }
 
     public string ToString(string format, IFormatProvider formatProvider)
@@ -400,10 +382,13 @@ public class OrderSystem
     public List<OrderType> awailableOrders;
     public List<Order> optionalOrders;
     
+    public HashSet<DetailType> lastOrderDetails = new();
+    
     public Order curOrder;
     public int curOrderId;
 
     public UnityEvent onChange = new();
+    public UnityEvent<Order> onOptionalOrderComplete = new();
 
     public float lastUpdateTime;
 
@@ -413,6 +398,7 @@ public class OrderSystem
     }
     public void Restart()
     {
+        lastOrderDetails.Clear();
         awailableOrders = new();
         UpdateAwailableOrders();
         SetRequiredOrder(0);
@@ -456,12 +442,14 @@ public class OrderSystem
         {
             var order = optionalOrders[i];
             order.timeProgress += Vars.Instance.time.deltaDay /  order.type.time;
-            if (order.timeProgress > 1.0f)
+            if (order.CanComplete())
             {
-                if (order.CanComplete())
-                {
-                    order.Complete();
-                }
+                order.Complete();
+                onOptionalOrderComplete?.Invoke(order);
+                remove.Add(order);
+            }
+            if (order.timeProgress > 1)
+            {
                 remove.Add(order);
             }
         }
@@ -489,33 +477,37 @@ public class OrderSystem
         awailableOrders.Clear();
 
         List<DetailType> details = new(Vars.Instance.unlockedDetails.unlocked);
+        details.RemoveAll(i => lastOrderDetails.Contains(i));
         details.Shuffle();
+
+        lastOrderDetails.Clear();
 
         for (int i = 0; i < 3 && details.Count > 0; i++)
         {
             var count = (int)UnityEngine.Random.Range(5f, 100f);
             var detail = details.Last();
+            lastOrderDetails.Add(detail);
             details.RemoveAt(details.Count - 1);
 
             awailableOrders.Add(new OrderType()
             {
                 requirements = new()
                 {
-                    new DetailOrderRequirement()
+                    new DetailRequirement()
                     {
                         detailStack = new(detail, count)
                     },
                 },
                 punishments = new()
                 {
-                    new OrderDetailPunishment()
+                    new DetailPunishment()
                     {
                         detailStack = new(detail, count)
                     }
                 },
                 rewards = new()
                 {
-                    new OrderIncomeReward()
+                    new IncomeReward()
                     {
                         income = detail.price * count * 1.5f,
                     }
@@ -546,14 +538,27 @@ public class DetailType
 public class DetailsSystem
 {
     public Dictionary<DetailType, float> details;
+    public Dictionary<DetailType, bool> autoSellDetails;
 
     public void Init()
-    {
-        details = new();
+    {   
+        Restart();
     }
     public void Restart()
     {
+        autoSellDetails = new();
         details = new();
+    }
+
+    public void Update()
+    {
+        foreach (var (k, v) in autoSellDetails)
+        {
+            if (v)
+            {
+                SellAll(k);
+            }
+        }
     }
 
     public float GetCount(DetailType detail)
@@ -597,6 +602,26 @@ public class DetailsSystem
     {
         return GetCount(stack.detail) >= stack.count;
     }
+
+    public void SwithAutoSellState(DetailType detail)
+    {
+        if (!autoSellDetails.ContainsKey(detail))
+        {
+            autoSellDetails[detail] = true;
+        }
+        else
+        {
+            autoSellDetails[detail] = !autoSellDetails[detail];
+        }
+    }
+    public void SetAutoSell(DetailType detail, bool v)
+    {
+        autoSellDetails[detail] = v;
+    }
+    public bool IsAutoSelling(DetailType detail)
+    {
+        return autoSellDetails.TryGetValue(detail, out var b) && b;
+    }
 }
 
 public enum GameState
@@ -622,231 +647,6 @@ public class GameStateSystem
     public bool IsGame => state == GameState.Running;
     public bool IsWin => state == GameState.Win;
     public bool IsLose => state == GameState.Lose;
-}
-
-public class ResearchTech
-{
-    /// <summary>
-    /// Days to research tech
-    /// </summary>
-    public float researchTime;
-    public string name;
-    public List<ResearchTech> requiredTechs;
-    public List<ResearchTech> exclusive;
-
-    public virtual void Research() {}
-
-    public virtual string GetDesc() => $"Research Time: {(int)Vars.Instance.researches.GetTechResearchTime(researchTime, Vars.Instance.researches.TimeAsProgress(Vars.Instance.researches.savedResearchTime, researchTime))} days\n\n";
-}
-
-public class ComplexResearchTech : ResearchTech
-{
-    public ComplexType unlock;
-
-    public override string GetDesc()
-    {
-        string str = base.GetDesc();
-        if (unlock != null)
-        {
-            str += $"Unlocks: {unlock.name}\n";
-        }
-        return str;
-    }
-}
-
-public class ModifiersResearchTech : ResearchTech
-{
-    public List<Modifier> modifiers;
-    // public float maxEffeciencyBonus;
-    // public float effeciencyGrowBonus;
-    // public float maxEffeciencyMultiplier;
-    // public float effeciencyGrowMultiplier;
-    // public float researchSpeedBonus;
-
-    public override void Research()
-    {
-        if (modifiers != null)
-        {
-            foreach (var modifier in modifiers)
-            {
-                Vars.Instance.modifiers.AddModifier(modifier);
-                // modifier.Apply();
-            }
-        }
-        // Vars.Instance.buffs.maxEffeciencyBonus += maxEffeciencyBonus;
-        // Vars.Instance.buffs.maxEffeciencyMultiplier += maxEffeciencyMultiplier;
-        // Vars.Instance.buffs.effeciencyGrowBonus += effeciencyGrowBonus;
-        // Vars.Instance.buffs.effeciencyGrowMultiplier += effeciencyGrowMultiplier;
-        // Vars.Instance.buffs.researchSpeedBonus += researchSpeedBonus;
-    }
-
-    public override string GetDesc()
-    {
-        string str = base.GetDesc();
-        if (modifiers != null)
-        {
-            foreach (var m in modifiers)
-            {
-                str += $"{m}";
-            }    
-        }
-        return str;
-    }
-}
-
-// public class BuffsSystem
-// {
-//     public float maxEffeciencyBonus;
-//     public float maxEffeciencyMultiplier;
-//     public float effeciencyGrowBonus;
-//     public float effeciencyGrowMultiplier;
-
-//     public float researchSpeedBonus;
-
-//     public void Init()
-//     {
-//         Restart();
-//     }
-
-//     public void Restart()
-//     {
-//         maxEffeciencyBonus = 0.0f;
-//         maxEffeciencyMultiplier = 0.0f;
-//         effeciencyGrowBonus = 0.0f;
-//         effeciencyGrowMultiplier = 0.0f;
-
-//         researchSpeedBonus = 0.0f;
-//     }
-
-//     public void Update()
-//     {
-        
-//     }
-// }
-
-public class ResearchSystem
-{
-    public ResearchTech research;
-    public float researchProgress;
-    public float savedResearchTime;
-    public const float MaxSavedResearchTime = 30.0f;
-
-    public List<ResearchTech> awailableTechs = new();
-    public List<ResearchTech> researched;
-
-    public void Init()
-    {
-        Restart();
-    }
-
-    public void Restart()
-    {
-        research = null;
-        researched = new()
-        {
-            Researches.supply,
-            Researches.smelting
-        };    
-        UpdateAwailableResearches();
-        savedResearchTime = 0.0f;
-    }
-
-    public void Update()
-    {
-        if (research == null)
-        {
-            savedResearchTime += Vars.Instance.time.deltaDay;
-            savedResearchTime = Mathf.Clamp(savedResearchTime, 0, MaxSavedResearchTime);
-        }
-        else
-        {
-            researchProgress += TimeAsProgress(Vars.Instance.time.deltaDay);
-            if (researchProgress > 1.0f)
-            {
-                research.Research();
-                researched.Add(research);
-                research = null;
-                UpdateAwailableResearches();
-            }
-        }
-    }
-
-    public void UpdateAwailableResearches()
-    {
-        awailableTechs.Clear();
-        foreach (var tech in Researches.all)
-        {
-            if (!researched.Contains(tech))
-            {
-                if (tech.requiredTechs != null)
-                {
-                    bool can = true;
-                    foreach (var req in tech.requiredTechs)
-                    {
-                        if (!researched.Contains(req))
-                        {
-                            can = false;
-                            break;
-                        }
-                    }
-                    if (!can)
-                    {
-                        continue;
-                    }
-                }
-                if (tech.exclusive != null)
-                {
-                    bool can = true;
-                    foreach (var exc in tech.exclusive)
-                    {
-                        if (researched.Contains(exc))
-                        {
-                            can = false;
-                            break;
-                        }
-                    }
-                    if (!can)
-                    {
-                        continue;
-                    }
-                }
-                awailableTechs.Add(tech);
-            }
-        }
-    }
-
-    public bool IsResearched(ResearchTech tech)
-    {
-        return researched.Contains(tech);
-    }
-
-    public void StartResearch(ResearchTech tech)
-    {
-        research = tech;
-        researchProgress = TimeAsProgress(savedResearchTime);
-        savedResearchTime = 0.0f;
-    }
-
-    public bool CanStartResearch(ResearchTech tech)
-    {
-        return awailableTechs.Contains(tech);
-    }
-    public float TimeAsProgress(float t, float researchTime)
-    {
-        return t / researchTime * ResearchSpeed;
-    }
-    public float TimeAsProgress(float t)
-    {
-        return TimeAsProgress(t, research.researchTime);
-    }
-
-    public float ResearchSpeed => 1 + Vars.Instance.modifiers.GetBonus<ResearchSpeedModifier>();
-    public float DaysLeft => GetTechResearchTime(research.researchTime, researchProgress);
-
-    public float GetTechResearchTime(float timeReq, float progress)
-    {
-        return (1.0f - progress) * timeReq / ResearchSpeed;
-    }
 }
 
 public class TimeSystem
@@ -973,7 +773,7 @@ public class UnlockedDetailsSystem
 
     public void Update()
     {
-        foreach (var (k, v) in Vars.Instance.detailsSystem.details)
+        foreach (var (k, v) in Vars.Instance.details.details)
         {
             if (!unlockedSet.Contains(k))
             {
@@ -1022,7 +822,7 @@ public class InfluenceSystem
 public class TaxesSystem
 {
     public const float BaseIncomeTax = 0.15f;
-    public float IncomeTax => BaseIncomeTax;
+    public float IncomeTax => BaseIncomeTax + Vars.Instance.modifiers.GetBonus<IncomeTaxModifier>();
     public float IncomeTaxInfluence => 1.0f - IncomeTax;
 
     public void Init()
@@ -1061,7 +861,7 @@ public class IncomeSystem
 
     public void MonthUpdate()
     {
-        Vars.Instance.moneySystem.Add(GetIncomeWithIncomeTax());
+        Vars.Instance.money.Add(IncomeWithIncomeTax);
         ResetIncomes();
     }
 
@@ -1070,6 +870,12 @@ public class IncomeSystem
         Vars.Instance.reports.cur.AddDetailIncome(detail, income);
         this.income += income;
     }
+    public void AddOrderIncome(float income)
+    {
+        this.income += income;
+        Vars.Instance.reports.cur.orders += income;
+    }
+
 
     public void ResetIncomes()
     {
@@ -1081,13 +887,16 @@ public class IncomeSystem
         Vars.Instance.reports.cur.totalMaterialsExpense += expense;
     }
 
-    public float GetIncomeWithIncomeTax()
+    public float IncomeWithIncomeTax
     {
-        if (income <= 0)
+        get
         {
-            return income;
+            if (income <= 0)
+            {
+                return income;
+            }
+            return income * Vars.Instance.taxes.IncomeTaxInfluence;    
         }
-        return income * Vars.Instance.taxes.IncomeTaxInfluence;
     }
     public float GetIncomeTaxExpense()
     {
@@ -1095,7 +904,7 @@ public class IncomeSystem
         {
             return 0;
         }
-        return income - GetIncomeWithIncomeTax();
+        return income - IncomeWithIncomeTax;
     }
 
     public void Add(float income)
@@ -1160,4 +969,60 @@ public class MaterialPriceSystem
 public static class CheatsSystem
 {
     public static bool godMode;
+}
+
+public class Event
+{
+    public string name;
+    public string desc;
+
+    public List<Requirement> requirements;
+    public UnityAction action;
+}
+
+public class EventsSystem
+{
+    public List<Event> events;
+
+    public HashSet<Event> invokedEvents = new();
+
+    public void Init()
+    {
+        events = new(Events.all);
+        
+        Restart();
+    }
+
+    public void Restart()
+    {
+        invokedEvents.Clear();
+    }
+
+    public void Update()
+    {
+        foreach (var e in events)
+        {
+            if (invokedEvents.Contains(e))
+            {
+                continue;
+            }
+            bool canInvoke = true;
+            if (e.requirements != null)
+            {
+                foreach (var r in e.requirements)
+                {
+                    if (!r.CanComplete())
+                    {
+                        canInvoke = false;
+                        break;
+                    }
+                }    
+            }
+            if (canInvoke)
+            {
+                invokedEvents.Add(e);
+                e.action?.Invoke();
+            }
+        }
+    }
 }

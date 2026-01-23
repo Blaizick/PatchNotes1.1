@@ -27,27 +27,27 @@ public static class Details
         ingot = new()
         {
             name = "Ingot",
-            price = 20.0f
+            price = 18.0f
         };
         plate = new()
         {
             name = "Plate",
-            price = 50.0f,
+            price = 30.0f,
         };
         rod = new()
         {
             name = "Rod",
-            price = 40.0f,
+            price = 25.0f,
         };
         screws = new()
         {
             name = "Screws",
-            price = 20.0f,
+            price = 25.0f,
         };
         reinforcedPlate = new()
         {
             name = "Reinforced Plate",
-            price = 20.0f
+            price = 50.0f
         };
         gear = new()
         {
@@ -57,12 +57,12 @@ public static class Details
         tube = new()
         {
             name = "Tube",
-            price = 20.0f
+            price = 25.0f
         };
         engine = new()
         {
             name = "Engine",
-            price = 20.0f,
+            price = 100.0f,
         };
         
 
@@ -94,16 +94,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 400
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 400
                 },
             },
             time = 35,
@@ -113,16 +113,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 400
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 400
                 },
             },
 
@@ -133,16 +133,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 600
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 600
                 },
             },
 
@@ -153,16 +153,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 600
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 600
                 },
             },
 
@@ -173,16 +173,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 600
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 1500
                 },
             },
             time = 35,
@@ -192,16 +192,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 800
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 800
                 },
             },
             time = 35,
@@ -211,16 +211,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 800
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 800
                 },
             },
             time = 35,
@@ -230,16 +230,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 800
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 800
                 },
             },
             time = 35,
@@ -249,16 +249,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 1000
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 1000
                 },
             },
             time = 40,
@@ -268,16 +268,16 @@ public static class Orders
         {
             requirements = new()
             {
-                new MoneyOrderRequirement()
+                new MoneyRequirement()
                 {
-                    money = 200
+                    money = 1000
                 }
             },
             punishments = new()
             {
-                new MoneyOrderPunishment()
+                new MoneyPunishment()
                 {
-                    money = 200
+                    money = 1000
                 },
             },
             time = 45,
@@ -441,6 +441,7 @@ public static class Complexes
             buildTime = 10.0f,
             canBeNextComplex = false,
             desc = "Delivers base resource from your supplier person, it is basically the foundament of each production line.",
+            sprite = BuildingIcons.all[6],
         };
         packingComplex = new ComplexType()
         {
@@ -450,13 +451,13 @@ public static class Complexes
             breakable = false,
             canHaveNextComplex = false,
             buildable = false,
+            sprite = BuildingIcons.all[5],
         };
         buildingComplex = new ComplexType()
         {
             name = "Building Complex",
             prefab = Resources.Load<Complex>("Prefabs/BuildingComplex"),
             chefAllowed = false,
-            breakable = false,
             buildable = false,
             canHaveNextComplex = false,
             canBeNextComplex = false,
@@ -489,6 +490,7 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/Smelter"),
             recipe = Recipes.smeltRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[0],
         };
         press = new CraftingComplexType()
         {
@@ -496,6 +498,7 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/Press"),
             recipe = Recipes.pressRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[1],
         };
         rodBendingComplex = new CraftingComplexType()
         {
@@ -503,6 +506,7 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/RodBender"),
             recipe = Recipes.bendRodRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[2],
         };
         cuttingComplex = new CraftingComplexType()
         {
@@ -510,34 +514,39 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/Cutter"),
             recipe = Recipes.cutScrewsRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[3],
         };
         reinforcingComplex = new CraftingComplexType()
         {
             name = "Reinforcer",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/ReinforcingComplex"),
             recipe = Recipes.reinforcePlateRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[10],
         };
         tubeBendingComplex = new CraftingComplexType()
         {
             name = "Tube Bender",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/TubeBender"),
             recipe = Recipes.bendTubeRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[11],
         };
         formingComplex = new CraftingComplexType()
         {
             name = "Former",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/Former"),
             recipe = Recipes.formGearRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[12],
         };
         engineAssemblingComplex = new CraftingComplexType()
         {
             name = "Engine Assembler",
-            prefab = Resources.Load<Complex>("Prefabs/CraftingComplex"),
+            prefab = Resources.Load<Complex>("Prefabs/EngineAssembler"),
             recipe = Recipes.assemblyEngineRecipe,
             buildTime = 10.0f,
+            sprite = BuildingIcons.all[4],
         };
 
         all = new()
@@ -681,6 +690,17 @@ public static class Researches
         {
             researchTime = 35.0f,
             name = "Production",
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.1f,
+                },
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.1f,
+                },
+            }
         };
         
         standardizedComplexes0 = new()
@@ -690,7 +710,14 @@ public static class Researches
             requiredTechs = new()
             {
                 production
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.15f,
+                },
+            },
         };
         standardizedComplexes1 = new()
         {
@@ -699,7 +726,14 @@ public static class Researches
             requiredTechs = new()
             {
                 standardizedComplexes0
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.15f,
+                },
+            },
         };
         standardizedComplexes2 = new()
         {
@@ -708,7 +742,14 @@ public static class Researches
             requiredTechs = new()
             {
                 standardizedComplexes1
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.15f,
+                },
+            },
         };
 
         flexibleComplexes0 = new()
@@ -718,7 +759,18 @@ public static class Researches
             requiredTechs = new()
             {
                 production
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.05f,
+                },
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.2f,
+                },
+            },
         };
         flexibleComplexes1 = new()
         {
@@ -727,7 +779,18 @@ public static class Researches
             requiredTechs = new()
             {
                 flexibleComplexes0
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.05f,
+                },
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.2f,
+                },
+            },
         };
         flexibleComplexes2 = new()
         {
@@ -736,7 +799,18 @@ public static class Researches
             requiredTechs = new()
             {
                 flexibleComplexes1
-            }
+            },
+            modifiers = new()
+            {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.05f,
+                },
+                new EffeciencyGrowModifier()
+                {
+                    Bonus = 0.3f,
+                },
+            },
         };
 
         standardizedComplexes0.exclusive = new()
@@ -1139,5 +1213,229 @@ public static class Portraits
     public static void Init()
     {
         all = Resources.LoadAll<Sprite>("Sprites/Portraits").ToList();
+    }
+}
+
+public static class BuildingIcons
+{
+    public static List<Sprite> all;
+
+    public static void Init()
+    {
+        all = Resources.LoadAll<Sprite>("Sprites/Buildings").ToList();
+    }
+}
+
+public static class Events
+{
+    public static Event event0;
+    public static Event event1;
+    public static Event event2;
+    public static Event event3;
+    public static Event event4;
+    public static Event event5;
+    public static Event event6;
+    public static Event event7;
+
+    public static List<Event> all;
+
+    public static void Init()
+    {
+event0 = new()
+{
+    action = () =>
+    {
+        Vars.Instance.ui.popups.ShowPopup(
+            "Welcome",
+            "You have inherited a factory. By the way, the civil war in your country, Wrazkoslavia, has recently ended. Who knows what the new regime will bring...",
+            null,
+            new()
+            {
+                new()
+                {
+                    name = "OK",
+                },
+                new()
+                {
+                    name = "Get Extra Info",
+                    tooltipName = "Get Extra Info",
+                    tooltipDesc = "Consequence: the tutorial will begin",
+                    onChoose = () =>
+                    {
+                        Vars.Instance.ui.popups.ShowPopup(
+                            "Money",
+                            "You can earn money by selling details (see the \"Resources\" menu).",
+                            null,
+                            new()
+                            {
+                                new()
+                                {
+                                    name = "OK",
+                                    onChoose = () =>
+                                    {
+                                        Vars.Instance.ui.popups.ShowPopup(
+                                            "Getting details",
+                                            "You can obtain details from production complexes. You can build production complexes on build spots by simply clicking on them. You can also connect two complexes so they can transfer resources between each other. To receive details, you must connect one of your complexes to a packing complex in order for the details to appear in the Resources menu. The starting resource is supplied by a supplier.",
+                                            null,
+                                            new()
+                                            {
+                                                new()
+                                                {
+                                                    name = "OK",
+                                                }
+                                            });
+                                    }
+                                }
+                            });
+                    }
+                }
+            });
+    }
+};
+        event1 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 5.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("New law", "The leader of your country, Jasmin Khushi, has issued a new law requiring all manufacturers to pay their government bills.", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event2 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 30.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Criticism", "The new law is facing widespread criticism from manufacturers.", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event3 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 70.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Mass bankruptcies", "Due to the new law, many businesses are simply unable to pay their bills and are closing. Will you be one of them, or will you be able to survive these difficult times?", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event4 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 120.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Assassination attempt on the president", "Recently, the leader of your country was the target of an assassination attempt by unknown individuals. Fortunately or unfortunately, he managed to survive it.", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event5 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 200.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Tyranny", "There are rumors about the terrible atrocities of Jasmin Khushi", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event6 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 300.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Only a few left", "Due to the situation in the country, there are only a few large producers left, most of them are authorized by the state", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+        event7 = new()
+        {
+            requirements = new()
+            {
+                new DayRequirement()
+                {
+                    day = 360.0f,
+                },
+            },
+            action = () =>
+            {
+                Vars.Instance.ui.popups.ShowPopup("Kidnapping", "Recently, your country's leader was kidnapped by a terrorist organization from a neighboring country. It seems like a victory...", null, new()
+                {
+                    new()
+                    {
+                        name = "OK"
+                    }
+                });
+            },
+        };
+
+        all = new()
+        {
+            event0, event1, event2, event3, event4, event5, event6, event7
+        };
     }
 }

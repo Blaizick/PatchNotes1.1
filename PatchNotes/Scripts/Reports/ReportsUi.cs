@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-//TODO orders
 public class ReportsUi : MonoBehaviour
 {
     public ReportUiCntPfb reportUiCntPfb;
@@ -46,11 +46,12 @@ public class ReportsUi : MonoBehaviour
         foreach (var report in Vars.Instance.reports.all)
         {
             var scr = Instantiate(reportUiCntPfb, reportsContentRootTransform);
-            scr.name = report.name;
+            scr.nameText.text = report.name;
             scr.btn.onClick.AddListener(() =>
             {
                 blockInstances.ForEach(b => Destroy(b.gameObject));
                 blockInstances.Clear();
+                SpawnIncomeBlock($"Orders: {report.orders}");
                 foreach (var (k, v) in report.detailIncomes)
                 {
                     if (v > 0)
@@ -58,9 +59,10 @@ public class ReportsUi : MonoBehaviour
                         SpawnIncomeBlock($"{k.name}: {(int)v}({(int)k.price} each)");
                     }
                 }
-                SpawnExpenseBlock($"Materials {(int)report.totalMaterialsExpense}({(int)report.materialPrice} each)");
-                SpawnExpenseBlock($"Income Tax {(int)report.incomeTaxExpense}({(int)(report.incomeTax * 100.0f)}%)");
-                SpawnBlock($"Total {(int)report.total}", report.total > 0, report.total < 0, report.total == 0);
+                SpawnExpenseBlock($"Materials: {(int)report.totalMaterialsExpense}({(int)report.materialPrice} each)");
+                SpawnExpenseBlock($"Income Tax: {(int)report.incomeTaxExpense}({(int)(report.incomeTax * 100.0f)}%)");
+                SpawnBlock($"Total(Without Taxes): {(int)report.totalWithoutTaxes}", report.totalWithoutTaxes > 0, report.totalWithoutTaxes < 0, report.totalWithoutTaxes == 0);
+                SpawnBlock($"Total: {(int)report.total}", report.total > 0, report.total < 0, report.total == 0);
                 curReportRoot.SetActive(true);
             });
             reportInstances.Add(scr);
@@ -94,6 +96,7 @@ public class Report
     public Dictionary<DetailType, float> detailIncomes = new();
     public float totalWithoutTaxes;
     public float total;
+    public float orders;
     public float incomeTaxExpense;
     public float incomeTax;
     public string name;
@@ -131,7 +134,7 @@ public class ReportsSystem
     {
         cur = new()
         {
-            name = Vars.Instance.time.day.ToString()
+            name = ((int)Vars.Instance.time.day).ToString()
         };
         all = new() {cur};
         lastUpdateTime = Vars.Instance.time.month;
@@ -143,14 +146,14 @@ public class ReportsSystem
         cur.incomeTax = Vars.Instance.taxes.IncomeTax;
         cur.incomeTaxExpense = Vars.Instance.income.GetIncomeTaxExpense();
         cur.totalWithoutTaxes = Vars.Instance.income.income;
-        cur.total = Vars.Instance.income.GetIncomeWithIncomeTax();
+        cur.total = Vars.Instance.income.IncomeWithIncomeTax;
     }
 
     public void MonthUpdate()
     {
         cur = new()
         {
-            name = Vars.Instance.time.day.ToString()
+            name = ((int)Vars.Instance.time.day).ToString()
         };
         all.Add(cur);
         onGlobalChange?.Invoke();
