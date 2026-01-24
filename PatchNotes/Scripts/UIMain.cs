@@ -69,14 +69,14 @@ public class UIMAin : MonoBehaviour
 
     public TMP_Text buildingsText;
 
-    public ControlsSettingsUi controlsSettingsUi;
+    public MenuUi menuUi;
 
     public Button pauseMenuBtn;
     public PopupsUi popups;
 
     public void Init()
     {
-        pauseMenuBtn.onClick.AddListener(() => controlsSettingsUi.root.SetActive(!controlsSettingsUi.root.activeInHierarchy));
+        pauseMenuBtn.onClick.AddListener(() => menuUi.root.SetActive(!menuUi.root.activeInHierarchy));
 
         foreach (var d in Details.all)
         {
@@ -128,7 +128,7 @@ public class UIMAin : MonoBehaviour
 
         resourcesRoot.SetActive(false);
 
-        controlsSettingsUi.Init();
+        menuUi.Init();
         
         popups.Init();
     }

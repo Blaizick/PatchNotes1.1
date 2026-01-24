@@ -149,6 +149,8 @@ public class Vars : MonoBehaviour
         timeSpanUpdate.Restart();
         unlockedDetails.Restart();
         state.Restart();
+        input.Restart();
+        modifiers.Restart();
         money.Restart();
         income.Restart();
         influence.Restart();
@@ -164,7 +166,6 @@ public class Vars : MonoBehaviour
         suppliers.Restart();
         taxes.Restart();
         reports.Restart();
-        modifiers.Restart();
         ui.Restart();
         events.Restart();
     }
@@ -791,7 +792,7 @@ public class InfluenceSystem
     public const float BaseInfluenceGrow = 1.2f; 
 
     public float InfluenceGrow => (BaseInfluenceGrow + Vars.Instance.modifiers.GetBonus<InfluenceGrowModifier>()) * 
-        Vars.Instance.modifiers.GetMultiplier<InfluenceGrowModifier>();
+        (1.0f + Vars.Instance.modifiers.GetMultiplier<InfluenceGrowModifier>());
 
     public void Init()
     {
@@ -959,7 +960,7 @@ public class DetailQualitySystem
 }
 public class MaterialPriceSystem
 {
-    public const float BaseValue = 10.0f;
+    public const float BaseValue = 6.0f;
     public float MaterialPrice => (BaseValue + Vars.Instance.modifiers.GetBonus<MaterialPriceModifier>()) * 
         (1 + Vars.Instance.modifiers.GetMultiplier<MaterialPriceModifier>());
 

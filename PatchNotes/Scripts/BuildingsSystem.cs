@@ -9,11 +9,15 @@ public class BuildingsSystem : MonoBehaviour
     public List<GameObject> buildings = new();
     public List<Complex> complexes = new();
 
+    public HashSet<GameObject> dontDestroy = new();
+
     public Vector2 anchor;
     public int buildingsInRow;
     public Vector2 spacing;
 
     public BuildingComplex buildingComplexPfb;
+
+    public PackingComplex packingComplex;
 
     public void OnDrawGizmos()
     {
@@ -23,14 +27,24 @@ public class BuildingsSystem : MonoBehaviour
 
     public void Init()
     {
+        dontDestroy.Add(packingComplex.gameObject);
+        complexes.Add(packingComplex);
         Restart();
     }   
 
     public void Restart()
     {
-        buildings.ForEach(b => Destroy(b));
-        buildings.Clear();
-        complexes.Clear();
+        HashSet<GameObject> remove = new();
+        foreach (var b in buildings)
+        {
+            if (!dontDestroy.Contains(b))
+            {
+                Destroy(b.gameObject);
+                remove.Add(b.gameObject);    
+            }
+        }
+        buildings.RemoveAll(b => remove.Contains(b));
+        complexes.RemoveAll(b => remove.Contains(b.gameObject));
 
         AddBuildSpot();
         AddBuildSpot();

@@ -7,16 +7,18 @@ public class ProductionComplex : Complex
     public override void Update()
     {
         var m = Vars.Instance.materialPrices.MaterialPrice;
-        if (nextComplex)
+        foreach (var stack in ProducingComplexType.outputStacks)
         {
-            foreach (var stack in ProducingComplexType.outputStacks)
+            float c = stack.count * effeciencySystem.effeciency * Vars.Instance.time.deltaDay;
+            float e = 0;
+            foreach (var nc in nextComplexes)
             {
-                float c = stack.count * effeciencySystem.effeciency;
-                c = nextComplex.GetReceiveCount(stack);
-                nextComplex.Receive(new(stack.detail, c));
-                float e = c * m;
-                Vars.Instance.income.ExpenseByMaterial(e);
+                float lc = nc.GetReceiveCount(new DetailStack(stack.detail, c));
+                nc.Receive(new(stack.detail, lc));
+                c -= lc;
+                e += lc * m;
             }
+            Vars.Instance.income.ExpenseByMaterial(e);    
         }
         
         base.Update();

@@ -15,8 +15,6 @@ public class DesktopInput : MonoBehaviour
 
     public List<InputAction> speedActions;
 
-    [NonSerialized] public float dragStartTime;
-    [NonSerialized] public bool dragging;
     private Complex m_Complex0;
 
     [NonSerialized] public bool selectingComplexesForChef;
@@ -39,7 +37,6 @@ public class DesktopInput : MonoBehaviour
     [NonSerialized] public Vector2 move0;
     [NonSerialized] public Vector2 move1;
 
-
     public void Init()
     {
         actions = new();
@@ -53,6 +50,12 @@ public class DesktopInput : MonoBehaviour
             actions.Player.Speed3,
             actions.Player.Speed4,
         };
+    }
+
+    public void Restart()
+    {
+        selectingComplexesForChef = false;
+        selectedChef = null;
     }
 
     public void Update()
@@ -104,7 +107,12 @@ public class DesktopInput : MonoBehaviour
             selectedChef = null;
         }
 
-        if (actions.Player.LMB.WasPressedThisFrame())
+        if (m_Complex0 && selectingComplexesForChef)
+        {
+            m_Complex0 = null;
+        }
+
+        if (actions.Player.LMB.WasPerformedThisFrame())
         {
             if (!pointerOverUi)
             {
@@ -122,45 +130,34 @@ public class DesktopInput : MonoBehaviour
                     }
                 }
                 else
-                {    
+                {
                     Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
 
-                    m_Complex0 = null;
                     foreach (var hit in hits)
                     {
                         if (hit.TryGetComponent<Complex>(out var c))
                         {
-                            if (c.type.canHaveNextComplex)
+                            if (m_Complex0 == null)
                             {
-                                m_Complex0 = c;
-                                dragging = true;
-                                dragStartTime = Time.time;
-                                m_Complex0.OnPointerDown();    
+                                if (c.type.canHaveNextComplex)
+                                {
+                                    m_Complex0 = c;
+                                }
+                            }
+                            else
+                            {
+                                if (m_Complex0 == c)
+                                {
+                                    m_Complex0 = null;
+                                }
+                                else if (c.type.canBeNextComplex)
+                                {
+                                    m_Complex0.SwitchConnecting(c);
+                                }
                             }
                         }
                     }
                 }    
-            }
-        }
-        if (actions.Player.LMB.WasReleasedThisFrame())
-        {
-            if (dragging)
-            {
-                Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
-
-                Complex c = null;
-                foreach (var hit in hits)
-                {
-                    if (hit.TryGetComponent<Complex>(out c))
-                    {
-                        break;
-                    }
-                }
-                if (m_Complex0)
-                {
-                    m_Complex0.OnPointerUp(c);
-                }
-                dragging = false;
             }
         }
 
@@ -170,6 +167,10 @@ public class DesktopInput : MonoBehaviour
             {
                 i.selectionFrameRoot.SetActive(false);
             }
+            if (i.circleSelectionRoot)
+            {
+                i.circleSelectionRoot.SetActive(false);
+            }
         }
         if (selectedChef != null && selectingComplexesForChef)
         {
@@ -178,7 +179,21 @@ public class DesktopInput : MonoBehaviour
                 i.selectionFrameRoot.SetActive(true);
             }
         }
-
+        if (m_Complex0)
+        {
+            foreach (var i in m_Complex0.nextComplexes)
+            {
+                if (i.selectionFrameRoot)
+                {
+                    i.selectionFrameRoot.SetActive(true);
+                }
+            }
+            if (m_Complex0.circleSelectionRoot)
+            {
+                m_Complex0.circleSelectionRoot.SetActive(true);
+            }
+        }
+        
         var cam = Vars.Instance.cam;
         if (actions.Player.Move.IsPressed())
         {
@@ -236,7 +251,7 @@ public class DesktopInput : MonoBehaviour
     
         if (actions.Player.PauseMenu.WasPerformedThisFrame())
         {
-            Vars.Instance.ui.controlsSettingsUi.root.SetActive(!Vars.Instance.ui.controlsSettingsUi.root.activeInHierarchy);
+            Vars.Instance.ui.menuUi.root.SetActive(!Vars.Instance.ui.menuUi.root.activeInHierarchy);
         }
     }
 

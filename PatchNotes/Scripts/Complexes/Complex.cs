@@ -25,7 +25,7 @@ public class Complex : MonoBehaviour
     public ComplexType type;   
     public LineRenderer outputLineRenderer;
 
-    public Complex nextComplex;
+    // public Complex nextComplex;
 
     [NonSerialized] public bool pointerStay;
     [NonSerialized] public Vector2 pointerDownPos;
@@ -34,13 +34,22 @@ public class Complex : MonoBehaviour
     public UnityEngine.UI.Image effeciencyFiller;
     
     public GameObject selectionFrameRoot;
+    public GameObject circleSelectionRoot;
     public TooltipInfoCnt tooltipInfoCnt;
+
+    [NonSerialized] public List<Complex> nextComplexes = new();
+
+    [NonSerialized] public bool affectedByChef = false;
 
     public virtual void Init()
     {
         if (selectionFrameRoot)
         {
             selectionFrameRoot.SetActive(false);
+        }
+        if (circleSelectionRoot)
+        {
+            circleSelectionRoot.SetActive(false);
         }
         
         effeciencySystem = new();
@@ -52,6 +61,8 @@ public class Complex : MonoBehaviour
             outputLineRenderer.startColor = col;
             outputLineRenderer.endColor = col;
         }
+
+        affectedByChef = false;
     }
 
     public virtual void Update()
@@ -67,28 +78,41 @@ public class Complex : MonoBehaviour
             effeciencyFiller.fillAmount = effeciencySystem.RelativeEffeciency;   
         }
 
-        if (outputLineRenderer)
+        if (type.canHaveNextComplex && outputLineRenderer != null)
         {
-            if (pointerStay)
-            {
-                outputLineRenderer.positionCount = 2;
-                outputLineRenderer.SetPosition(0, pointerDownPos);
-                outputLineRenderer.SetPosition(1, Vars.Instance.input.mouseWorldPos);
+            nextComplexes.RemoveAll(c => c == null); 
+            List<Vector3> positions = new();
+            foreach (var c in nextComplexes)
+            {   
+                positions.Add(transform.position);
+                positions.Add(c.transform.position);
             }
-            else
-            {
-                if (nextComplex)
-                {
-                    outputLineRenderer.positionCount = 2;
-                    outputLineRenderer.SetPosition(0, transform.position);
-                    outputLineRenderer.SetPosition(1, nextComplex.transform.position);
-                }
-                else
-                {
-                    outputLineRenderer.positionCount = 0;
-                }
-            }
+            outputLineRenderer.positionCount = positions.Count;
+            outputLineRenderer.SetPositions(positions.ToArray());
         }
+        
+        // if (outputLineRenderer)
+        // {
+        //     if (pointerStay)
+        //     {
+        //         outputLineRenderer.positionCount = 2;
+        //         outputLineRenderer.SetPosition(0, pointerDownPos);
+        //         outputLineRenderer.SetPosition(1, Vars.Instance.input.mouseWorldPos);
+        //     }
+        //     else
+        //     {
+        //         if (nextComplex)
+        //         {
+        //             outputLineRenderer.positionCount = 2;
+        //             outputLineRenderer.SetPosition(0, transform.position);
+        //             outputLineRenderer.SetPosition(1, nextComplex.transform.position);
+        //         }
+        //         else
+        //         {
+        //             outputLineRenderer.positionCount = 0;
+        //         }
+        //     }
+        // }
     }
 
     public virtual void SetTooltip()
@@ -105,33 +129,41 @@ public class Complex : MonoBehaviour
     {
         string str = $"{type.GetDesc()}";
         str += $"Effeciency: {(int)(effeciencySystem.Effeciency * 100)}/{(int)(effeciencySystem.MaxEffeciency * 100)}\n";
-        if (nextComplex != null)
+        if (nextComplexes != null && nextComplexes.Count > 0)
         {
-            str += $"Connected With: {nextComplex.type.name}\n";
+            str += "Connected With: ";
+            foreach (var c in nextComplexes)
+            {
+                if (c != null)
+                {
+                    str += $"{c.type.name},";
+                }
+            }    
+            str += "\n";
         }
         return str;
     }
 
-    public void OnPointerDown()
-    {
-        if (type.canHaveNextComplex)
-        {
-            pointerStay = true;
-            pointerDownPos = Vars.Instance.input.mouseWorldPos;    
-        }
-    }
-    public void OnPointerUp(Complex c)
-    {
-        if (type.canHaveNextComplex)
-        {
-            pointerStay = false;
-            nextComplex = null;
-            if (c != null && c != this && c.type != null && c.type.canBeNextComplex)
-            {
-                nextComplex = c;
-            }
-        }
-    }
+    // public void OnPointerDown()
+    // {
+    //     if (type.canHaveNextComplex)
+    //     {
+    //         pointerStay = true;
+    //         pointerDownPos = Vars.Instance.input.mouseWorldPos;    
+    //     }
+    // }
+    // public void OnPointerUp(Complex c)
+    // {
+    //     if (type.canHaveNextComplex)
+    //     {
+    //         pointerStay = false;
+    //         nextComplex = null;
+    //         if (c != null && c != this && c.type != null && c.type.canBeNextComplex)
+    //         {
+    //             nextComplex = c;
+    //         }
+    //     }
+    // }
 
     public virtual void OnPointerClick()
     {
@@ -143,6 +175,25 @@ public class Complex : MonoBehaviour
     }
 
     public virtual void Receive(DetailStack stack) {}
+
+    public virtual void SwitchConnecting(Complex complex)
+    {
+        if (complex == null || complex == this)
+        {
+            return;
+        }
+        if (nextComplexes.Contains(complex))
+        {
+            nextComplexes.Remove(complex);
+        }
+        else
+        {
+            if (nextComplexes.Count + 1 <= type.maxNextConnections)
+            {
+                nextComplexes.Add(complex);
+            }
+        }
+    }
 }
 
 public class ProductionLineColorSystem
@@ -247,6 +298,8 @@ public class ComplexType
     public string desc;
 
     public Sprite sprite;
+
+    public int maxNextConnections;
 
     public Complex AsComplex()
     {

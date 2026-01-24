@@ -105,6 +105,7 @@ public class EmployeeUi : MonoBehaviour
             var m = Vars.Instance.managers.managers[k];
             if (m == null)
             {
+                v.image.sprite = null;
                 v.tooltipInfoCnt.enabled = false;
             }
             else
@@ -338,8 +339,15 @@ public class Chef
         complexes.RemoveAll(i => !i);
         foreach (var i in complexes)
         {
-            i.effeciencySystem.maxEffeciencyMultiplier += type.maxEffeciencyMultiplier;
-            i.effeciencySystem.maxEffeciencyMultiplier += type.effeciencyGrowMultiplier;
+            if (i.affectedByChef)
+            {
+                i.effeciencySystem.maxEffeciencyBonus += type.maxEffeciencyBonus;
+                i.effeciencySystem.maxEffeciencyMultiplier += type.maxEffeciencyMultiplier;
+                i.effeciencySystem.effeciencyGrowBonus += type.effeciencyGrowBonus;
+                i.effeciencySystem.effeciencyGrowMultiplier += type.effeciencyGrowMultiplier;
+            
+                i.affectedByChef = true;
+            }
         }
     }
 

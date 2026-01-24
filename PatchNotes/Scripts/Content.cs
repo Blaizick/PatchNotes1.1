@@ -22,47 +22,47 @@ public static class Details
         ore = new()
         {
             name = "Ore",
-            price = 10.0f
+            price = 0.0f
         };
         ingot = new()
         {
             name = "Ingot",
-            price = 18.0f
+            price = 10.0f
         };
         plate = new()
         {
             name = "Plate",
-            price = 30.0f,
+            price = 22.5f,
         };
         rod = new()
         {
             name = "Rod",
-            price = 25.0f,
+            price = 27.5f,
         };
         screws = new()
         {
             name = "Screws",
-            price = 25.0f,
+            price = 21.66f,
         };
         reinforcedPlate = new()
         {
             name = "Reinforced Plate",
-            price = 50.0f
+            price = 49.16f
         };
         gear = new()
         {
             name = "Gear",
-            price = 20.0f
+            price = 15.0f
         };
         tube = new()
         {
             name = "Tube",
-            price = 25.0f
+            price = 27.5f
         };
         engine = new()
         {
             name = "Engine",
-            price = 200.0f,
+            price = 96.16f,
         };
         
 
@@ -335,11 +335,11 @@ public static class Recipes
             craftTime = 1f,
             inputStacks = new()
             {
-                new(Details.plate, 2.0f)
+                new(Details.plate, 1.0f)
             },
             outputStacks = new()
             {
-                new(Details.rod, 3.0f)
+                new(Details.rod, 1.0f)
             }
         };
         cutScrewsRecipe = new()
@@ -347,11 +347,11 @@ public static class Recipes
             craftTime = 1f,
             inputStacks = new()
             {
-                new(Details.rod, 1.0f)
+                new(Details.rod, 2.0f)
             },
             outputStacks = new()
             {
-                new(Details.screws, 2.0f)
+                new(Details.screws, 3.0f)
             }
         };
         reinforcePlateRecipe = new()
@@ -359,7 +359,7 @@ public static class Recipes
             craftTime = 1f,
             inputStacks = new()
             {
-                new(Details.screws, 2.0f),
+                new(Details.screws, 1.0f),
                 new(Details.plate, 1.0f)
             },
             outputStacks = new()
@@ -376,7 +376,7 @@ public static class Recipes
             },
             outputStacks = new()
             {
-                new(Details.tube, 2.0f)
+                new(Details.tube, 1.0f)
             }
         };
         formGearRecipe = new()
@@ -388,7 +388,7 @@ public static class Recipes
             },
             outputStacks = new()
             {
-                new(Details.gear, 2.0f)
+                new(Details.gear, 1.0f)
             }
         };
         assemblyEngineRecipe = new()
@@ -397,8 +397,8 @@ public static class Recipes
             inputStacks = new()
             {
                 new(Details.reinforcedPlate, 1.0f),
-                new(Details.tube, 2.0f),
-                new(Details.gear, 2.0f),
+                new(Details.tube, 1.0f),
+                new(Details.gear, 1.0f),
             },
             outputStacks = new()
             {
@@ -444,7 +444,8 @@ public static class Complexes
             outputStacks = new()
             {
                 new(Details.ore, 1.0f),
-            }
+            },
+            maxNextConnections = 2,
         };
         packingComplex = new ComplexType()
         {
@@ -495,6 +496,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[0],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         press = new CraftingComplexType()
         {
@@ -504,6 +506,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[1],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         rodBendingComplex = new CraftingComplexType()
         {
@@ -513,6 +516,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[2],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         cuttingComplex = new CraftingComplexType()
         {
@@ -522,6 +526,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[3],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         reinforcingComplex = new CraftingComplexType()
         {
@@ -531,6 +536,7 @@ public static class Complexes
             buildTime = 20.0f,
             sprite = BuildingIcons.all[10],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         tubeBendingComplex = new CraftingComplexType()
         {
@@ -540,6 +546,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[11],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         formingComplex = new CraftingComplexType()
         {
@@ -549,6 +556,7 @@ public static class Complexes
             buildTime = 15.0f,
             sprite = BuildingIcons.all[12],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
         engineAssemblingComplex = new CraftingComplexType()
         {
@@ -558,6 +566,7 @@ public static class Complexes
             buildTime = 25.0f,
             sprite = BuildingIcons.all[4],
             capacity = 10.0f,
+            maxNextConnections = 2,
         };
 
         all = new()
@@ -877,7 +886,7 @@ public static class Suppliers
         baseSupplier = new()
         {
             name = "Elinor Christabella",
-            influencePrice = 100.0f,
+            influencePrice = 150.0f,
             modifiers = new()
             {
                 new MaterialPriceModifier()
@@ -890,7 +899,7 @@ public static class Suppliers
         supplier0 = new()
         {
             name = "Hildegarda Millicent",
-            influencePrice = 100.0f,
+            influencePrice = 150.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()
@@ -907,7 +916,7 @@ public static class Suppliers
         supplier1 = new()
         {
             name = "Stacey Ennis",
-            influencePrice = 100.0f,
+            influencePrice = 150.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()
@@ -924,7 +933,7 @@ public static class Suppliers
         supplier2 = new()
         {
             name = "Jeffer Estone",
-            influencePrice = 100.0f,
+            influencePrice = 150.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()
@@ -1065,12 +1074,12 @@ public class ManagerType
         {
             name = "Jayanti Kantuta",
             category = ManagerCategory.cfo,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new IncomeTaxModifier()
                 {
-                    Bonus = -0.1f,
+                    Bonus = -0.125f,
                 }
             },
             sprite = Portraits.all[2],
@@ -1079,7 +1088,7 @@ public class ManagerType
         {
             name = "Hanne Shulamith",
             category = ManagerCategory.cfo,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new MaterialPriceModifier()
@@ -1093,7 +1102,7 @@ public class ManagerType
         {
             name = "Aamu Pavana",
             category = ManagerCategory.cfo,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()
@@ -1108,7 +1117,7 @@ public class ManagerType
         {
             name = "Cornélio Noʻoroa",
             category = ManagerCategory.coo,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new MaxEffeciencyModifier()
@@ -1122,7 +1131,7 @@ public class ManagerType
         {
             name = "Kyllian Admetos",
             category = ManagerCategory.coo,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new MaxEffeciencyModifier()
@@ -1144,7 +1153,7 @@ public class ManagerType
         {
             name = "Zawar Balbino",
             category = ManagerCategory.coo,
-            influencePrice = 75.0f,
+            influencePrice = 50.0f,
             modifiers = new()
             {
                 new InfluenceGrowModifier()
@@ -1159,7 +1168,7 @@ public class ManagerType
         {
             name = "Upton Joziah",
             category = ManagerCategory.cto,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new IncomeTaxModifier()
@@ -1177,7 +1186,7 @@ public class ManagerType
         {
             name = "Maxi Kornelija",
             category = ManagerCategory.cto,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new ResearchSpeedModifier()
@@ -1195,7 +1204,7 @@ public class ManagerType
         {
             name = "Macey Nokuthula",
             category = ManagerCategory.cto,
-            influencePrice = 75.0f,
+            influencePrice = 100.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()

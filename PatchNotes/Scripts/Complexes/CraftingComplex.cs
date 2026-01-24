@@ -69,20 +69,34 @@ public class CraftingComplex : Complex
 
     public override void Update()
     {
-        if (nextComplex)
+        foreach (var nc in nextComplexes)
         {
             List<DetailStack> changes = new();
             foreach (var (k, v) in outputDic)
             {
-                float c = nextComplex.GetReceiveCount(new(k, v));
+                float c = nc.GetReceiveCount(new(k, v));
                 changes.Add(new(k, c));
-                nextComplex.Receive(new(k, c));
+                nc.Receive(new(k, c));
             }
             foreach (var s in changes)
             {
                 outputDic[s.detail] -= s.count;
             } 
         }
+        // if (nextComplex)
+        // {
+        //     List<DetailStack> changes = new();
+        //     foreach (var (k, v) in outputDic)
+        //     {
+        //         float c = nextComplex.GetReceiveCount(new(k, v));
+        //         changes.Add(new(k, c));
+        //         nextComplex.Receive(new(k, c));
+        //     }
+        //     foreach (var s in changes)
+        //     {
+        //         outputDic[s.detail] -= s.count;
+        //     } 
+        // }
 
         if (crafting)
         {
