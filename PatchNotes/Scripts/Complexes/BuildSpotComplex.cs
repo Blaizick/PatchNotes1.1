@@ -29,9 +29,8 @@ public class BuildSpotComplex : Complex, IPointerClickHandler
         });
     }
 
-    public override void SetTooltip()
+    public override string GetDesc()
     {
-        tooltipInfoCnt.title = type.name;
-        tooltipInfoCnt.desc = type.desc;
+        return type.GetDesc();
     }
 }

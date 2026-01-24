@@ -128,7 +128,6 @@ public class ResearchSpeedModifier : Modifier, IBonus, IFormattable
     }
 }
 
-
 public class IncomeTaxModifier : Modifier, IBonus, IFormattable
 {
     public float Bonus { get; set; }
@@ -139,6 +138,26 @@ public class IncomeTaxModifier : Modifier, IBonus, IFormattable
         if (Bonus != 0)
         {
             str += $"Income Tax: {(Bonus > 0 ? "+" : "-")}{(int)(Mathf.Abs(Bonus) * 100)}\n";
+        }
+        return str;
+    }
+}
+
+public class InfluenceGrowModifier : Modifier, IBonus, IMultiplier, IFormattable
+{
+    public float Bonus { get; set; }
+    public float Multiplier { get; set; }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        string str = string.Empty;
+        if (Bonus != 0)
+        {
+            str += $"Influence: {(Bonus > 0 ? "+" : "-")}{(int)(Mathf.Abs(Bonus) * 100)}\n";
+        }
+        if (Multiplier != 0)
+        {
+            str += $"Influence: {(Multiplier > 0 ? "+" : "-")}{(int)(Mathf.Abs(Multiplier) * 100)}%\n";
         }
         return str;
     }

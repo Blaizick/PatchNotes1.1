@@ -18,11 +18,10 @@ public class BuildingComplex : Complex
         SetTooltip();
     }
 
-    public override void SetTooltip()
+    public override string GetDesc()
     {
         var modifier = 1.0f + Vars.Instance.modifiers.GetBonus<BuildSpeedModifier>();
-        tooltipInfoCnt.title = type.name;
-        tooltipInfoCnt.desc = $"Building: {buildingComplex.name}\n" +
-                              $"Time Left: {(int)((1.0f - progress) * buildingComplex.buildTime / modifier)} days\n";
+        return $"Building: {buildingComplex.name}\n" +
+               $"Time Left: {(int)((1.0f - progress) * buildingComplex.buildTime / modifier)} days\n";
     }
 }

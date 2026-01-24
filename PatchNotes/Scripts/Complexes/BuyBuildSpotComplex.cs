@@ -30,18 +30,17 @@ public class BuyBuildSpotComplex : Complex, IPointerClickHandler
         }, null);
     }
 
-    public override void SetTooltip()
+    public override string GetDesc()
     {
-        tooltipInfoCnt.title = type.name;
-        tooltipInfoCnt.desc = type.desc;
+        return type.GetDesc();
     }
 }
 
 public class BuildSpotPriceSystem
 {
     public int boughtBuildSpots;
-    public const float StartPrice = 200;
-    public const float PriceModifier = 1.2f;
+    public const float StartPrice = 100;
+    public const float PriceModifier = 1.1f;
 
     public void Init()
     {

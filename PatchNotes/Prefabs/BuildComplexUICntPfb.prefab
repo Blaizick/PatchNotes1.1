@@ -418,6 +418,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1091806344545900083}
   - component: {fileID: 4611197438379343461}
+  - component: {fileID: 1354405773029319826}
   m_Layer: 5
   m_Name: BuildComplexUICntPfb
   m_TagString: Untagged
@@ -463,6 +464,21 @@ MonoBehaviour:
   nameText: {fileID: 4030698253713369307}
   buildBtn: {fileID: 5877498974741903432}
   image: {fileID: 2211067929812667706}
+  tooltipInfoCnt: {fileID: 1354405773029319826}
+--- !u!114 &1354405773029319826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6895667991400062559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc68a56fce32f14a991c3c28a60d240, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipInfoCnt
+  title: 
+  desc: 
 --- !u!1 &8645790544247252056
 GameObject:
   m_ObjectHideFlags: 0

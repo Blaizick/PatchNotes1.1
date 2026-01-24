@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.ShaderGraph.Drawing.Inspector.PropertyDrawers;
 using UnityEngine;
 
-public class DetailStack
+public class DetailStack : IFormattable
 {
     public DetailType detail;
     public float count;
@@ -11,6 +12,11 @@ public class DetailStack
     {
         this.detail = detail;
         this.count = count;
+    }
+
+    public string ToString(string format, IFormatProvider formatProvider)
+    {
+        return $"{detail.name}: {count}";
     }
 }
 
@@ -87,12 +93,23 @@ public class Complex : MonoBehaviour
 
     public virtual void SetTooltip()
     {
-        tooltipInfoCnt.title = type.name;
-        tooltipInfoCnt.desc = $"Effeciency: {(int)(effeciencySystem.Effeciency * 100)}/{(int)(effeciencySystem.MaxEffeciency * 100)}\n";
+        tooltipInfoCnt.title = GetName();
+        tooltipInfoCnt.desc = GetDesc();
+    }
+
+    public virtual string GetName()
+    {
+        return type.name;
+    }
+    public virtual string GetDesc()
+    {
+        string str = $"{type.GetDesc()}";
+        str += $"Effeciency: {(int)(effeciencySystem.Effeciency * 100)}/{(int)(effeciencySystem.MaxEffeciency * 100)}\n";
         if (nextComplex != null)
         {
-            tooltipInfoCnt.desc += $"Connected With: {nextComplex.type.name}\n";
+            str += $"Connected With: {nextComplex.type.name}\n";
         }
+        return str;
     }
 
     public void OnPointerDown()
@@ -116,23 +133,16 @@ public class Complex : MonoBehaviour
         }
     }
 
-    public virtual bool CanReceive(DetailStack stack)
+    public virtual void OnPointerClick()
     {
-        return true;
+    }
+
+    public virtual float GetReceiveCount(DetailStack stack)
+    {
+        return 0;
     }
 
     public virtual void Receive(DetailStack stack) {}
-
-    // public void OnPointerClick()
-    // {
-    //     if (type != null)
-    //     {
-    //         Vars.Instance.ui.ShowConfirmDialog($"Destroy {type.name}?", () =>
-    //         {
-    //             Vars.Instance.buildSystem.DestroyBuild(this);
-    //         }, null);    
-    //     }
-    // }
 }
 
 public class ProductionLineColorSystem
@@ -244,9 +254,34 @@ public class ComplexType
         scr.type = this;
         return scr;
     }
+
+    public virtual string GetName()
+    {
+        return name;
+    }
+    public virtual string GetDesc()
+    {
+        string str = desc;
+        if (buildable)
+        {
+            str += $"\nBuild Time: {buildTime} days\n";
+        }
+        return str;
+    }
 }
 
-public class CraftingComplexType : ComplexType
+public class ProducingComplexType : ComplexType
 {
-    public CraftRecipe recipe;
+    public List<DetailStack> outputStacks;
+
+    public override string GetDesc()
+    {
+        string str = $"{base.GetDesc()}";
+        str += $"Output:\n";
+        foreach (var stack in outputStacks)
+        {
+            str += $"{stack}\n";
+        }
+        return str;
+    }
 }

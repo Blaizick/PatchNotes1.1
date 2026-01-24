@@ -2,15 +2,21 @@ using UnityEngine;
 
 public class ProductionComplex : Complex
 {
+    public ProducingComplexType ProducingComplexType => (ProducingComplexType)type;
+
     public override void Update()
     {
-        var matPrice = Vars.Instance.materialPrices.MaterialPrice;
+        var m = Vars.Instance.materialPrices.MaterialPrice;
         if (nextComplex)
         {
-            var count = Vars.Instance.time.deltaDay * effeciencySystem.effeciency;
-            var expense = count * matPrice;
-            nextComplex.Receive(new DetailStack(Details.ore, count));
-            Vars.Instance.income.ExpenseByMaterial(expense);
+            foreach (var stack in ProducingComplexType.outputStacks)
+            {
+                float c = stack.count * effeciencySystem.effeciency;
+                c = nextComplex.GetReceiveCount(stack);
+                nextComplex.Receive(new(stack.detail, c));
+                float e = c * m;
+                Vars.Instance.income.ExpenseByMaterial(e);
+            }
         }
         
         base.Update();

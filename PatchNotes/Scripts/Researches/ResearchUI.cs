@@ -188,7 +188,8 @@ public class ComplexResearchTech : ResearchTech
         string str = base.GetDesc();
         if (unlock != null)
         {
-            str += $"Unlocks: {unlock.name}\n";
+            str += $"Unlocks: {unlock.GetName()}\n";
+            str += $"{unlock.GetDesc()}";
         }
         return str;
     }

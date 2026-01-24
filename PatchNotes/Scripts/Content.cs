@@ -62,7 +62,7 @@ public static class Details
         engine = new()
         {
             name = "Engine",
-            price = 100.0f,
+            price = 200.0f,
         };
         
 
@@ -96,14 +96,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 400
+                    money = 200
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 400
+                    money = 200
                 },
             },
             time = 35,
@@ -115,14 +115,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 400
+                    money = 200
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 400
+                    money = 200
                 },
             },
 
@@ -135,14 +135,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 600
+                    money = 200
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 600
+                    money = 200
                 },
             },
 
@@ -155,14 +155,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 600
+                    money = 300
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 600
+                    money = 300
                 },
             },
 
@@ -175,14 +175,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 600
+                    money = 500
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 1500
+                    money = 500
                 },
             },
             time = 35,
@@ -194,14 +194,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 800
+                    money = 500
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 800
+                    money = 500
                 },
             },
             time = 35,
@@ -213,14 +213,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 800
+                    money = 500
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 800
+                    money = 500
                 },
             },
             time = 35,
@@ -232,14 +232,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 800
+                    money = 600
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 800
+                    money = 600
                 },
             },
             time = 35,
@@ -251,14 +251,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 1000
+                    money = 600
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 1000
+                    money = 600
                 },
             },
             time = 40,
@@ -270,14 +270,14 @@ public static class Orders
             {
                 new MoneyRequirement()
                 {
-                    money = 1000
+                    money = 800
                 }
             },
             punishments = new()
             {
                 new MoneyPunishment()
                 {
-                    money = 1000
+                    money = 800
                 },
             },
             time = 45,
@@ -308,7 +308,7 @@ public static class Recipes
     {
         smeltRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1.0f,
             inputStacks = new()
             {
                 new(Details.ore, 1.0f)
@@ -320,7 +320,7 @@ public static class Recipes
         };
         pressRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
                 new(Details.ingot, 3.0f)
@@ -332,7 +332,7 @@ public static class Recipes
         };
         bendRodRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
                 new(Details.plate, 2.0f)
@@ -344,7 +344,7 @@ public static class Recipes
         };
         cutScrewsRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
                 new(Details.rod, 1.0f)
@@ -356,20 +356,20 @@ public static class Recipes
         };
         reinforcePlateRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
-                new(Details.screws, 1.0f),
+                new(Details.screws, 2.0f),
                 new(Details.plate, 1.0f)
             },
             outputStacks = new()
             {
-                new(Details.reinforcedPlate, 2.0f)
+                new(Details.reinforcedPlate, 1.0f)
             }
         };
         bendTubeRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
                 new(Details.plate, 1.0f),
@@ -381,7 +381,7 @@ public static class Recipes
         };
         formGearRecipe = new()
         {
-            craftTime = 0.5f,
+            craftTime = 1f,
             inputStacks = new()
             {
                 new(Details.ingot, 1.0f),
@@ -393,12 +393,12 @@ public static class Recipes
         };
         assemblyEngineRecipe = new()
         {
-            craftTime = 3.0f,
+            craftTime = 2.0f,
             inputStacks = new()
             {
                 new(Details.reinforcedPlate, 1.0f),
-                new(Details.tube, 1.0f),
-                new(Details.gear, 1.0f),
+                new(Details.tube, 2.0f),
+                new(Details.gear, 2.0f),
             },
             outputStacks = new()
             {
@@ -408,8 +408,7 @@ public static class Recipes
     
         all = new()
         {
-            smeltRecipe,
-            pressRecipe
+            smeltRecipe, pressRecipe, bendRodRecipe, cutScrewsRecipe, reinforcePlateRecipe, bendTubeRecipe, formGearRecipe, assemblyEngineRecipe,
         };
     }
 }
@@ -434,7 +433,7 @@ public static class Complexes
 
     public static void Init()
     {
-        supplier = new()
+        supplier = new ProducingComplexType()
         {
             name = "Supplier",
             prefab = Resources.Load<Complex>("Prefabs/Supplier"),
@@ -442,6 +441,10 @@ public static class Complexes
             canBeNextComplex = false,
             desc = "Delivers base resource from your supplier person, it is basically the foundament of each production line.",
             sprite = BuildingIcons.all[6],
+            outputStacks = new()
+            {
+                new(Details.ore, 1.0f),
+            }
         };
         packingComplex = new ComplexType()
         {
@@ -489,64 +492,72 @@ public static class Complexes
             name = "Smelter",
             prefab = Resources.Load<Complex>("Prefabs/Smelter"),
             recipe = Recipes.smeltRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[0],
+            capacity = 10.0f,
         };
         press = new CraftingComplexType()
         {
             name = "Press",
             prefab = Resources.Load<Complex>("Prefabs/Press"),
             recipe = Recipes.pressRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[1],
+            capacity = 10.0f,
         };
         rodBendingComplex = new CraftingComplexType()
         {
             name = "Rod Bender",
             prefab = Resources.Load<Complex>("Prefabs/RodBender"),
             recipe = Recipes.bendRodRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[2],
+            capacity = 10.0f,
         };
         cuttingComplex = new CraftingComplexType()
         {
             name = "Cutter",
             prefab = Resources.Load<Complex>("Prefabs/Cutter"),
             recipe = Recipes.cutScrewsRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[3],
+            capacity = 10.0f,
         };
         reinforcingComplex = new CraftingComplexType()
         {
             name = "Reinforcer",
             prefab = Resources.Load<Complex>("Prefabs/ReinforcingComplex"),
             recipe = Recipes.reinforcePlateRecipe,
-            buildTime = 10.0f,
+            buildTime = 20.0f,
             sprite = BuildingIcons.all[10],
+            capacity = 10.0f,
         };
         tubeBendingComplex = new CraftingComplexType()
         {
             name = "Tube Bender",
             prefab = Resources.Load<Complex>("Prefabs/TubeBender"),
             recipe = Recipes.bendTubeRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[11],
+            capacity = 10.0f,
         };
         formingComplex = new CraftingComplexType()
         {
             name = "Former",
             prefab = Resources.Load<Complex>("Prefabs/Former"),
             recipe = Recipes.formGearRecipe,
-            buildTime = 10.0f,
+            buildTime = 15.0f,
             sprite = BuildingIcons.all[12],
+            capacity = 10.0f,
         };
         engineAssemblingComplex = new CraftingComplexType()
         {
             name = "Engine Assembler",
             prefab = Resources.Load<Complex>("Prefabs/EngineAssembler"),
             recipe = Recipes.assemblyEngineRecipe,
-            buildTime = 10.0f,
+            buildTime = 25.0f,
             sprite = BuildingIcons.all[4],
+            capacity = 10.0f,
         };
 
         all = new()
@@ -764,11 +775,11 @@ public static class Researches
             {
                 new MaxEffeciencyModifier()
                 {
-                    Bonus = 0.05f,
+                    Bonus = 0.1f,
                 },
                 new EffeciencyGrowModifier()
                 {
-                    Bonus = 0.2f,
+                    Bonus = 0.1f,
                 },
             },
         };
@@ -784,11 +795,11 @@ public static class Researches
             {
                 new MaxEffeciencyModifier()
                 {
-                    Bonus = 0.05f,
+                    Bonus = 0.1f,
                 },
                 new EffeciencyGrowModifier()
                 {
-                    Bonus = 0.2f,
+                    Bonus = 0.1f,
                 },
             },
         };
@@ -804,11 +815,11 @@ public static class Researches
             {
                 new MaxEffeciencyModifier()
                 {
-                    Bonus = 0.05f,
+                    Bonus = 0.1f,
                 },
                 new EffeciencyGrowModifier()
                 {
-                    Bonus = 0.3f,
+                    Bonus = 0.1f,
                 },
             },
         };
@@ -872,7 +883,7 @@ public static class Suppliers
                 new MaterialPriceModifier()
                 {
                     Bonus = 2.0f,
-                }
+                },
             },
             sprite = Portraits.all[0],
         };
@@ -884,7 +895,11 @@ public static class Suppliers
             {
                 new DetailQualityModifier()
                 {
-                    Bonus = -0.05f
+                    Bonus = -0.05f,
+                },
+                new MaterialPriceModifier()
+                {
+                    Bonus = -4.0f,
                 },
             },
             sprite = Portraits.all[4],
@@ -897,28 +912,28 @@ public static class Suppliers
             {
                 new DetailQualityModifier()
                 {
-                    Bonus = 0.05f
+                    Bonus = 0.3f
                 },
                 new MaterialPriceModifier()
                 {
-                    Bonus = 4.0f,
+                    Bonus = 4f,
                 },
             },
             sprite = Portraits.all[5],
         };
         supplier2 = new()
         {
-            name = "Jeffrey Epstein",
+            name = "Jeffer Estone",
             influencePrice = 100.0f,
             modifiers = new()
             {
                 new DetailQualityModifier()
                 {
-                    Bonus = -0.4f
+                    Bonus = -0.15f
                 },
                 new MaterialPriceModifier()
                 {
-                    Bonus = -5.0f,
+                    Bonus = -6.0f,
                 },
             },
             sprite = Portraits.all[1],
@@ -1110,9 +1125,13 @@ public class ManagerType
             influencePrice = 75.0f,
             modifiers = new()
             {
+                new MaxEffeciencyModifier()
+                {
+                    Bonus = 0.1f,
+                },
                 new EffeciencyGrowModifier()
                 {
-                    Bonus = 0.15f,
+                    Bonus = 0.1f,
                 },
                 new BuildSpeedModifier()
                 {
@@ -1128,18 +1147,10 @@ public class ManagerType
             influencePrice = 75.0f,
             modifiers = new()
             {
-                new BuildSpeedModifier()
+                new InfluenceGrowModifier()
                 {
-                    Bonus = 0.05f,
-                },
-                new EffeciencyGrowModifier()
-                {
-                    Bonus = 0.03f,
-                },
-                new MaxEffeciencyModifier()
-                {
-                    Bonus = 0.05f,
-                },
+                    Multiplier = 0.2f
+                }
             },
             sprite = Portraits.all[8],
         }.Init();
@@ -1151,6 +1162,10 @@ public class ManagerType
             influencePrice = 75.0f,
             modifiers = new()
             {
+                new IncomeTaxModifier()
+                {
+                    Bonus = -0.05f,
+                },
                 new BuildSpeedModifier()
                 {
                     Bonus = 0.25f,
@@ -1259,7 +1274,7 @@ event0 = new()
                 {
                     name = "Get Extra Info",
                     tooltipName = "Get Extra Info",
-                    tooltipDesc = "Consequence: the tutorial will begin",
+                    tooltipDesc = "Consequence: the \"tutorial\" will begin",
                     onChoose = () =>
                     {
                         Vars.Instance.ui.popups.ShowPopup(

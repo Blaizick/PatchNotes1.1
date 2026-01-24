@@ -9,4 +9,5 @@ public class DetailUIContainerPrefab : MonoBehaviour
     public TMP_Text countText;
     public Button sellAllBtn;    
     public Toggle autoSellToggle;
+    public TooltipInfoCnt tooltipInfoCnt;
 }

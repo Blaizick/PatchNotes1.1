@@ -788,7 +788,10 @@ public class InfluenceSystem
 {
     public float influence;
     public const float MaxInfluence = 300.0f;
-    public const float InfluenceGrow = 1.2f; 
+    public const float BaseInfluenceGrow = 1.2f; 
+
+    public float InfluenceGrow => (BaseInfluenceGrow + Vars.Instance.modifiers.GetBonus<InfluenceGrowModifier>()) * 
+        Vars.Instance.modifiers.GetMultiplier<InfluenceGrowModifier>();
 
     public void Init()
     {

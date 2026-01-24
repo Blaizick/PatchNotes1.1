@@ -10,4 +10,9 @@ public class PackingComplex : Complex
     {
         Vars.Instance.details.Add(stack.detail, stack.count);
     }
+
+    public override float GetReceiveCount(DetailStack stack)
+    {
+        return stack.count;
+    }
 }

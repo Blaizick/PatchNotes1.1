@@ -1050,6 +1050,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2977174122269047337}
   - component: {fileID: 8669520699125217935}
+  - component: {fileID: 7431056358927666993}
   m_Layer: 5
   m_Name: DetailUIContainerPrefab
   m_TagString: Untagged
@@ -1094,3 +1095,18 @@ MonoBehaviour:
   countText: {fileID: 1981303449315576034}
   sellAllBtn: {fileID: 3856942367970573791}
   autoSellToggle: {fileID: 4124845643359066007}
+  tooltipInfoCnt: {fileID: 7431056358927666993}
+--- !u!114 &7431056358927666993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7417275707971865613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc68a56fce32f14a991c3c28a60d240, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipInfoCnt
+  title: 
+  desc: 

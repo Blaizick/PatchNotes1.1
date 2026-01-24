@@ -50,7 +50,7 @@ public class UIMAin : MonoBehaviour
     public Button confirmDialogConfirmButton;
     public Button confirmDialogBackButton;
 
-    public Button chefsMenuBtn;
+    public Button employeeMenuBtn;
 
     public Button resourcesCloseBtn;
 
@@ -110,7 +110,10 @@ public class UIMAin : MonoBehaviour
             SetMenuActive(cooperationUi.root, !cooperationUi.root.activeInHierarchy));
         researchUI.openResearchMenuBtn.onClick.AddListener(() => 
             SetMenuActive(researchUI.researchMenuRoot, !researchUI.researchMenuRoot.activeInHierarchy));
-        chefsMenuBtn.onClick.AddListener(() => SetMenuActive(employeeUi.root, !employeeUi.root.activeInHierarchy));
+        employeeMenuBtn.onClick.AddListener(() => 
+        {
+            SetMenuActive(employeeUi.root, !employeeUi.root.activeInHierarchy);
+        });
         reportsBtn.onClick.AddListener(() => SetMenuActive(reportsUi.root, !reportsUi.root.activeInHierarchy));
 
         cooperationUi.Init();
@@ -137,6 +140,11 @@ public class UIMAin : MonoBehaviour
 
     public void Update()
     {
+        if (!employeeUi.root.activeInHierarchy)
+        {
+            Vars.Instance.input.SetSelectingComlexesForChefState(null, false);
+        }
+
         buildingsText.text = Vars.Instance.buildSystem.complexes.Count.ToString();
         detailQualityText.text = $"Q: {Vars.Instance.detailQualitySystem.Quality * 100.0f}%";
 
@@ -162,6 +170,9 @@ public class UIMAin : MonoBehaviour
         {
             v.autoSellToggle.isOn = Vars.Instance.details.IsAutoSelling(k);
             v.countText.text = ((int)Vars.Instance.details.GetCount(k)).ToString();
+        
+            v.tooltipInfoCnt.title = k.name;
+            v.tooltipInfoCnt.desc = $"Price: {k.price}/one\n";
         }
 
         influenceText.text = $"{(int)Vars.Instance.influence.influence}";
@@ -178,16 +189,19 @@ public class UIMAin : MonoBehaviour
         }
         complexInstances.Clear();
 
-        foreach (var i in complexes)
+        foreach (var c in complexes)
         {
             var script = Instantiate(buildComplexPfb, buildComplexDialogContentRootTransform);
         
-            script.nameText.text = i.name;
+            script.nameText.text = c.name;
             script.buildBtn.onClick.AddListener(() =>
             {
-                onSuccess(i);
+                onSuccess(c);
             });
-            script.image.sprite = i.sprite;
+            script.image.sprite = c.sprite;
+            script.tooltipInfoCnt.title = c.name;
+            script.tooltipInfoCnt.name = c.name;
+            script.tooltipInfoCnt.desc = $"{c.GetDesc()}";
 
             complexInstances.Add(script);
         }

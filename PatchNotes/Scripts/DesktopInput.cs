@@ -148,18 +148,19 @@ public class DesktopInput : MonoBehaviour
             {
                 Collider2D[] hits = Physics2D.OverlapPointAll(mouseWorldPos);
 
+                Complex c = null;
                 foreach (var hit in hits)
                 {
-                    if (hit.TryGetComponent<Complex>(out var c))
+                    if (hit.TryGetComponent<Complex>(out c))
                     {
-                        dragging = false;
-                        if (m_Complex0)
-                        {
-                            m_Complex0.OnPointerUp(c);
-                        }
                         break;
                     }
                 }
+                if (m_Complex0)
+                {
+                    m_Complex0.OnPointerUp(c);
+                }
+                dragging = false;
             }
         }
 
@@ -237,6 +238,12 @@ public class DesktopInput : MonoBehaviour
         {
             Vars.Instance.ui.controlsSettingsUi.root.SetActive(!Vars.Instance.ui.controlsSettingsUi.root.activeInHierarchy);
         }
+    }
+
+    public void SetSelectingComlexesForChefState(Chef chef, bool v)
+    {
+        selectedChef = v ?  chef : null;
+        selectingComplexesForChef = v;
     }
 
     public void SwitchSelectingComplexesForChefState(Chef chef)
