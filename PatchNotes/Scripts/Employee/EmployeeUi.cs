@@ -60,10 +60,21 @@ public class EmployeeUi : MonoBehaviour
         managersMenuRoot.SetActive(false);
 
         awailableTableRoot.SetActive(false);
-        hireBtn.onClick.AddListener(() => awailableTableRoot.SetActive(!awailableTableRoot.activeInHierarchy));
-        awailableTableCloseBtn.onClick.AddListener(() => awailableTableRoot.SetActive(false));
+        hireBtn.onClick.AddListener(() => 
+        {
+            awailableTableRoot.SetActive(!awailableTableRoot.activeInHierarchy);
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+        });
+        awailableTableCloseBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            awailableTableRoot.SetActive(false);
+        });
 
-        Vars.Instance.chefs.onChange.AddListener(() => RebuildChefsUi());
+        Vars.Instance.chefs.onChange.AddListener(() => 
+        {
+            RebuildChefsUi();
+        });
         RebuildChefsUi();
 
         chefsMenuBtn.onClick.AddListener(() =>
@@ -71,15 +82,21 @@ public class EmployeeUi : MonoBehaviour
             chefsMenuRoot.SetActive(true);
             managersMenuRoot.SetActive(false);
             awailableTableRoot.SetActive(false);
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
         });
         managersMenuBtn.onClick.AddListener(() =>
         {
             chefsMenuRoot.SetActive(false);
             managersMenuRoot.SetActive(true);
             awailableTableRoot.SetActive(false);
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
         });
 
-        closeBtn.onClick.AddListener(() => root.SetActive(false));
+        closeBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            root.SetActive(false);
+        });
     
         foreach (var s in slots)
         {
@@ -87,6 +104,7 @@ public class EmployeeUi : MonoBehaviour
             slotsDic[category] = s.slot;
             s.slot.btn.onClick.AddListener(() =>
             {
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
                 ShowAwailableManagers(ManagerType.allDic[category], $"Choose {category.name} manager", m =>
                 {
                     Vars.Instance.managers.SetManager(category, m.AsManager());
@@ -164,6 +182,7 @@ public class EmployeeUi : MonoBehaviour
         awailableManagersCloseBtn.onClick.RemoveAllListeners();
         awailableManagersCloseBtn.onClick.AddListener(() =>
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             awailableManagersRoot.SetActive(false);
             onQuit?.Invoke();
         });
@@ -177,6 +196,7 @@ public class EmployeeUi : MonoBehaviour
             {
                 state.btn.onClick.AddListener(() =>
                 {
+                    Vars.Instance.audioManager.Play(Sounds.uiClick);
                     awailableManagersRoot.SetActive(false);
                     onSelected?.Invoke(m);
                 });
@@ -222,6 +242,7 @@ public class EmployeeUi : MonoBehaviour
             {
                 state.btn.onClick.AddListener(() =>
                 {
+                    Vars.Instance.audioManager.Play(Sounds.uiClick);
                     Vars.Instance.input.SwitchSelectingComplexesForChefState(chef);
                 });
                 state.image.sprite = chef.type.sprite;
@@ -240,6 +261,7 @@ public class EmployeeUi : MonoBehaviour
             {
                 state.btn.onClick.AddListener(() =>
                 {
+                    Vars.Instance.audioManager.Play(Sounds.uiClick);
                     Vars.Instance.chefs.HireChef(chef);
                 });
                 state.text.text = ((int)chef.influencePrice).ToString();

@@ -27,8 +27,16 @@ public class ReportsUi : MonoBehaviour
         Vars.Instance.reports.onGlobalChange.AddListener(Rebuild);
         Rebuild();
     
-        curReportCloseBtn.onClick.AddListener(() => curReportRoot.SetActive(false));
-        closeBtn.onClick.AddListener(() => root.SetActive(false));
+        curReportCloseBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            curReportRoot.SetActive(false);
+        });
+        closeBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            root.SetActive(false);
+        });
 
         root.SetActive(false);
         curReportRoot.SetActive(false);
@@ -49,6 +57,7 @@ public class ReportsUi : MonoBehaviour
             scr.nameText.text = report.name;
             scr.btn.onClick.AddListener(() =>
             {
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
                 blockInstances.ForEach(b => Destroy(b.gameObject));
                 blockInstances.Clear();
                 SpawnIncomeBlock($"Orders: {report.orders}");

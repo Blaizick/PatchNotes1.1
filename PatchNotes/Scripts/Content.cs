@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public static class Details
 {
@@ -439,7 +440,7 @@ public static class Complexes
             prefab = Resources.Load<Complex>("Prefabs/Supplier"),
             buildTime = 10.0f,
             canBeNextComplex = false,
-            desc = "Delivers base resource from your supplier person, it is basically the foundament of each production line.",
+            desc = "Delivers base resource from your supplier person, please note that this is not free of charge.",
             sprite = BuildingIcons.all[6],
             outputStacks = new()
             {
@@ -450,6 +451,7 @@ public static class Complexes
         packingComplex = new ComplexType()
         {
             name = "Packing Complex",
+            desc = "Packs all received parts.",
             prefab = Resources.Load<Complex>("Prefabs/PackingComplex"),
             chefAllowed = false,
             breakable = false,
@@ -460,16 +462,18 @@ public static class Complexes
         buildingComplex = new ComplexType()
         {
             name = "Building Complex",
+            desc = "After a while, another complex will appear in this place.",
             prefab = Resources.Load<Complex>("Prefabs/BuildingComplex"),
             chefAllowed = false,
             buildable = false,
             canHaveNextComplex = false,
             canBeNextComplex = false,
+            idleClip = Sounds.buildingComplexIdle,
         };
         buildSpotComplex = new ComplexType()
         {
             name = "Build Spot",
-            desc = "You can build any complex here by clicking on it",
+            desc = "You can build any complex here by clicking on it.",
             prefab = Resources.Load<Complex>("Prefabs/BuildSpotComplex"),
             chefAllowed = false,
             breakable = false,
@@ -480,13 +484,13 @@ public static class Complexes
         buyBuildSpotComplex = new ComplexType()
         {
             name = "Buy Build Spot",
+            desc = "You can buy a build spot here for money.",
             prefab = Resources.Load<Complex>("Prefabs/BuyBuildSpotComplex"),
             chefAllowed = false,
             breakable = false,
             buildable = false,
             canHaveNextComplex = false,
             canBeNextComplex = false,
-            desc = "You can buy a build spot on place of this building for your money",
         };
         smelter = new CraftingComplexType()
         {
@@ -497,6 +501,7 @@ public static class Complexes
             sprite = BuildingIcons.all[0],
             capacity = 10.0f,
             maxNextConnections = 2,
+            idleClip = Sounds.complex,
         };
         press = new CraftingComplexType()
         {
@@ -550,7 +555,7 @@ public static class Complexes
         };
         formingComplex = new CraftingComplexType()
         {
-            name = "Former",
+            name = "Shaping Complex",
             prefab = Resources.Load<Complex>("Prefabs/Former"),
             recipe = Recipes.formGearRecipe,
             buildTime = 15.0f,
@@ -585,7 +590,7 @@ public static class Complexes
         cuttingComplex.research = Researches.cutting;
         reinforcingComplex.research = Researches.reinforcing;
         tubeBendingComplex.research = Researches.bending1;
-        formingComplex.research = Researches.forming;
+        formingComplex.research = Researches.shaping;
         engineAssemblingComplex.research = Researches.assembling;
     }
 }
@@ -599,7 +604,7 @@ public static class Researches
     public static ComplexResearchTech cutting;
     public static ComplexResearchTech reinforcing;
     public static ComplexResearchTech bending1;
-    public static ComplexResearchTech forming;
+    [FormerlySerializedAs("forming")] public static ComplexResearchTech shaping;
     public static ComplexResearchTech assembling;
 
     public static ModifiersResearchTech production;
@@ -683,10 +688,10 @@ public static class Researches
             },
             unlock = Complexes.tubeBendingComplex,
         };
-        forming = new()
+        shaping = new()
         {
             researchTime = 35.0f,
-            name = "Forming",
+            name = "Shaping",
             requiredTechs = new()
             {
                 smelting
@@ -701,14 +706,14 @@ public static class Researches
             {
                 reinforcing,
                 bending1,
-                forming
+                shaping
             },
             unlock = Complexes.engineAssemblingComplex,
         };
 
         production = new()
         {
-            researchTime = 35.0f,
+            researchTime = 15.0f,
             name = "Production",
             modifiers = new()
             {
@@ -844,24 +849,24 @@ public static class Researches
 
         researching0 = new()
         {
-            researchTime = 40.0f,
+            researchTime = 15.0f,
             name = "Researching",
             modifiers = new()
             {
                 new ResearchSpeedModifier()
                 {
-                    Bonus = 0.05f,
+                    Bonus = 0.1f,
                 },
             }
         };
 
         complexTechs = new()
         {
-            supply, smelting, pressing, bending0, cutting, reinforcing, bending1, forming, assembling, 
+            supply, smelting, pressing, bending0, cutting, reinforcing, bending1, shaping, assembling, 
         };
         all = new()
         {
-            supply, smelting, pressing, bending0, cutting, reinforcing, bending1, forming, assembling,
+            supply, smelting, pressing, bending0, cutting, reinforcing, bending1, shaping, assembling,
             
             production, 
             standardizedComplexes0, standardizedComplexes1, standardizedComplexes2, 
@@ -911,11 +916,11 @@ public static class Suppliers
                     Bonus = -4.0f,
                 },
             },
-            sprite = Portraits.all[4],
+            sprite = Portraits.all[11],
         };
         supplier1 = new()
         {
-            name = "Stacey Ennis",
+            name = "Ângelo Pradip",
             influencePrice = 150.0f,
             modifiers = new()
             {
@@ -928,11 +933,11 @@ public static class Suppliers
                     Bonus = 4f,
                 },
             },
-            sprite = Portraits.all[5],
+            sprite = Portraits.all[2],
         };
         supplier2 = new()
         {
-            name = "Jeffer Estone",
+            name = "Jeremy Epstone",
             influencePrice = 150.0f,
             modifiers = new()
             {
@@ -972,7 +977,7 @@ public static class Chefs
         chef0 = new()
         {
             name = "Dayton Tommy",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -982,7 +987,7 @@ public static class Chefs
         chef1 = new()
         {
             name = "Elina Sabryna",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -992,7 +997,7 @@ public static class Chefs
         chef2 = new()
         {
             name = "Tyron Villem",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -1002,7 +1007,7 @@ public static class Chefs
         chef3 = new()
         {
             name = "Jamison Al",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -1012,7 +1017,7 @@ public static class Chefs
         chef4 = new()
         {
             name = "Adrienne Cor",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -1022,7 +1027,7 @@ public static class Chefs
         chef5 = new()
         {
             name = "Norbert Kimbra",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -1032,7 +1037,7 @@ public static class Chefs
         chef6 = new()
         {
             name = "Rowley Kaarel",
-            maxEffeciencyBonus = 0.1f,
+            maxEffeciencyBonus = 0.2f,
             maxEffeciencyMultiplier = 0.0f,
             effeciencyGrowBonus = 0.05f,
             effeciencyGrowMultiplier = 0.0f,
@@ -1125,7 +1130,7 @@ public class ManagerType
                     Bonus = 0.15f,
                 },
             },
-            sprite = Portraits.all[6],
+            sprite = Portraits.all[14],
         }.Init();
         new ManagerType()
         {
@@ -1265,57 +1270,33 @@ public static class Events
 
     public static void Init()
     {
-event0 = new()
-{
-    action = () =>
-    {
-        Vars.Instance.ui.popups.ShowPopup(
-            "Welcome",
-            "You have inherited a factory. By the way, the civil war in your country, Wrazkoslavia, has recently ended. Who knows what the new regime will bring...",
-            null,
-            new()
+        event0 = new()
+        {
+            action = () =>
             {
+                Vars.Instance.ui.popups.ShowPopup(
+                    "Welcome",
+                    "You have inherited a factory. By the way, the civil war in your country, Wrazkoslavia, has recently ended. Who knows what the new regime will bring...",
+                null,
                 new()
                 {
-                    name = "OK",
-                },
-                new()
-                {
-                    name = "Get Extra Info",
-                    tooltipName = "Get Extra Info",
-                    tooltipDesc = "Consequence: the \"tutorial\" will begin",
-                    onChoose = () =>
+                    new()
                     {
-                        Vars.Instance.ui.popups.ShowPopup(
-                            "Money",
-                            "You can earn money by selling details (see the \"Resources\" menu).",
-                            null,
-                            new()
-                            {
-                                new()
-                                {
-                                    name = "OK",
-                                    onChoose = () =>
-                                    {
-                                        Vars.Instance.ui.popups.ShowPopup(
-                                            "Getting details",
-                                            "You can obtain details from production complexes. You can build production complexes on build spots by simply clicking on them. You can also connect two complexes so they can transfer resources between each other. To receive details, you must connect one of your complexes to a packing complex in order for the details to appear in the Resources menu. The starting resource is supplied by a supplier.",
-                                            null,
-                                            new()
-                                            {
-                                                new()
-                                                {
-                                                    name = "OK",
-                                                }
-                                            });
-                                    }
-                                }
-                            });
+                        name = "OK",
+                    },
+                    new()
+                    {
+                        name = "Get Extra Info",
+                        tooltipName = "Get Extra Info",
+                        tooltipDesc = "Consequence: the \"tutorial\" will begin",
+                        onChoose = () =>
+                        {
+                            Vars.Instance.events.StartTutorial();
+                        }
                     }
-                }
-            });
-    }
-};
+                });
+            }
+        };
         event1 = new()
         {
             requirements = new()
@@ -1461,5 +1442,25 @@ event0 = new()
         {
             event0, event1, event2, event3, event4, event5, event6, event7
         };
+    }
+}
+
+public static class Sounds
+{
+    public static AudioClip uiClick;
+    public static AudioClip uiPopUp;
+    public static AudioClip uiComplete;
+    public static AudioClip complex;
+    public static AudioClip buildingComplexIdle;
+    public static AudioClip buildingComplexComplete;
+
+    public static void Init()
+    {
+        uiClick = Resources.Load<AudioClip>("Sounds/UiClick");
+        uiPopUp = Resources.Load<AudioClip>("Sounds/UiPopUp");
+        uiComplete = Resources.Load<AudioClip>("Sounds/UiComplete");
+        complex = Resources.Load<AudioClip>("Sounds/Complex_Idle");
+        buildingComplexIdle = Resources.Load<AudioClip>("Sounds/BuildingComplex_Idle");
+        buildingComplexComplete = Resources.Load<AudioClip>("Sounds/BuildingComplex_Complete");
     }
 }

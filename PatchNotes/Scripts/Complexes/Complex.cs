@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Drawing.Inspector.PropertyDrawers;
 using UnityEngine;
 
 public class DetailStack : IFormattable
@@ -37,6 +36,8 @@ public class Complex : MonoBehaviour
     public GameObject circleSelectionRoot;
     public TooltipInfoCnt tooltipInfoCnt;
 
+    public AudioSource audioSource;
+
     [NonSerialized] public List<Complex> nextComplexes = new();
 
     [NonSerialized] public bool affectedByChef = false;
@@ -63,6 +64,19 @@ public class Complex : MonoBehaviour
         }
 
         affectedByChef = false;
+
+        StartPlayingSound();
+    }
+
+    public virtual void StartPlayingSound()
+    {
+        // if (audioSource && type.idleClip)
+        // {
+        //     audioSource.minDistance = 1.0f;
+        //     audioSource.minDistance = 500.0f;
+        //     audioSource.clip = type.idleClip;
+        //     audioSource.Play();
+        // }
     }
 
     public virtual void Update()
@@ -300,6 +314,8 @@ public class ComplexType
     public Sprite sprite;
 
     public int maxNextConnections;
+
+    public AudioClip idleClip;
 
     public Complex AsComplex()
     {

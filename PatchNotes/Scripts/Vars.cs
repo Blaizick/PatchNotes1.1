@@ -38,6 +38,7 @@ public class Vars : MonoBehaviour
     public CinemachineCamera cam;
     public RebindSystem rebinds;
     public EventsSystem events;
+    public AudioManager audioManager;
 
     private void Start()
     {
@@ -45,6 +46,7 @@ public class Vars : MonoBehaviour
 
         Instance = this;
 
+        Sounds.Init();
         Portraits.Init();
         BuildingIcons.Init();
         Details.Init();
@@ -58,7 +60,9 @@ public class Vars : MonoBehaviour
         Suppliers.Init();
         Chefs.Init();
         Events.Init();
-        
+
+        audioManager.Init();
+
         productionLineColor = new();
         productionLineColor.Init();
 
@@ -145,6 +149,7 @@ public class Vars : MonoBehaviour
 
     public void Restart()
     {
+        audioManager.StopAll();
         time.Restart();
         timeSpanUpdate.Restart();
         unlockedDetails.Restart();
@@ -990,11 +995,127 @@ public class EventsSystem
 
     public HashSet<Event> invokedEvents = new();
 
+    public List<Event> tutorialEvents;
+    public int tutorialEventId;
+
     public void Init()
     {
         events = new(Events.all);
         
         Restart();
+    }
+
+    public void StartTutorial()
+    {
+        tutorialEventId = 0;
+
+        List<PopupOption> options = new()
+        {
+            new()
+            {
+                name = "OK",
+                onChoose = () =>
+                {
+                    if (++tutorialEventId < tutorialEvents.Count)
+                    {
+                        tutorialEvents[tutorialEventId].action?.Invoke();
+                    }
+                }
+            },
+            new()
+            {
+                name = "Back"
+            },         
+        };
+        tutorialEvents = new()
+        {
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Money",
+                        desc = "You can earn money by selling parts. This can be done in the “Resources” menu.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Parts",
+                        desc = "Parts are manufactured in complexes.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Building Complexes",
+                        desc = "You can build complexes on build spots by simply clicking on them.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Connecting Complexes",
+                        desc = "You can transfer details from one complex to another by connecting them. To connect them, click on one complex and then on the other.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Packing Complex & Supplier",
+                        desc = "To start production, build a supplier. This complex automatically purchases all resources and delivers them. The packaging complex then packages them.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "Researching New Complexes",
+                        desc = "You can research new complexes in the researches menu.",
+                        options = options,
+                    });
+                }
+            },
+            new()
+            {
+                action = () =>
+                {
+                    Vars.Instance.ui.popups.ShowPopup(new()
+                    {
+                        title = "I have no time anymore, good luck",
+                        desc = "",
+                        options = options,
+                    });
+                }
+            },
+        };
+
+        tutorialEvents[tutorialEventId].action?.Invoke();
     }
 
     public void Restart()

@@ -57,6 +57,7 @@ public class ResearchUI : MonoBehaviour
 
         researchSlot0Btn.onClick.AddListener(() =>
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             researchesScreenRoot.SetActive(!researchesScreenRoot.activeInHierarchy);
         });
 
@@ -67,7 +68,7 @@ public class ResearchUI : MonoBehaviour
         InitTechCnt(cuttingTech, Researches.cutting);
         InitTechCnt(reinforcingTech, Researches.reinforcing);
         InitTechCnt(bending1Tech, Researches.bending1);
-        InitTechCnt(formingTech, Researches.forming);
+        InitTechCnt(formingTech, Researches.shaping);
         InitTechCnt(assemblingTech, Researches.assembling);
         
         InitTechCnt(productionTech, Researches.production);
@@ -82,9 +83,14 @@ public class ResearchUI : MonoBehaviour
 
         InitTechCnt(researching0Tech, Researches.researching0);
 
-        backButton.onClick.AddListener(() => researchesScreenRoot.SetActive(false));
+        backButton.onClick.AddListener(() => 
+        {
+            researchesScreenRoot.SetActive(false);
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+        });
         menuCloseBtn.onClick.AddListener(() => 
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             researchMenuRoot.SetActive(false);
             researchesScreenRoot.SetActive(false);
         });
@@ -151,6 +157,7 @@ public class ResearchUI : MonoBehaviour
             state.nameText.text = tech.name;
             state.btn.onClick.AddListener(() =>
             {
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
                 if (Vars.Instance.researches.research != tech)
                 {
                     Vars.Instance.researches.StartResearch(tech);

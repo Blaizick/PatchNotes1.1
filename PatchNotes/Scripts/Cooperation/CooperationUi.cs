@@ -37,14 +37,23 @@ public class CooperationUi : MonoBehaviour
         Vars.Instance.orders.onChange.AddListener(() => RebuildOrderMenu());
         RebuildOrderMenu();
         
-        closeBtn.onClick.AddListener(() => root.SetActive(false));
+        closeBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            root.SetActive(false);
+        });
     
         curSupplier.btn.onClick.AddListener(() =>
         {
             awailableSuppliersRoot.SetActive(!awailableSuppliersRoot.activeInHierarchy);
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
         });
 
-        closeAwailableSuppliersBtn.onClick.AddListener(() => awailableSuppliersRoot.SetActive(false));
+        closeAwailableSuppliersBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            awailableSuppliersRoot.SetActive(false);
+        });
         Vars.Instance.suppliers.onChange.AddListener(() => RebuildSuppliersMenu());
         awailableSuppliersRoot.SetActive(false);
 
@@ -185,6 +194,7 @@ public class CooperationUi : MonoBehaviour
             script.takenStateRoot.SetActive(false);
             script.btn.onClick.AddListener(() =>
             {
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
                 Vars.Instance.orders.TakeOptionalOrder(i);
             });
             instances.Add(script);
@@ -216,6 +226,7 @@ public class CooperationUi : MonoBehaviour
             {
                 state.btn.onClick.AddListener(() =>
                 {
+                    Vars.Instance.audioManager.Play(Sounds.uiClick);
                     if (Vars.Instance.influence.HasEnought(supplier.influencePrice))
                     {
                         Vars.Instance.suppliers.Take(supplier);

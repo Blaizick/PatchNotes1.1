@@ -76,7 +76,13 @@ public class UIMAin : MonoBehaviour
 
     public void Init()
     {
-        pauseMenuBtn.onClick.AddListener(() => menuUi.root.SetActive(!menuUi.root.activeInHierarchy));
+        pauseMenuBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            menuUi.root.SetActive(!menuUi.root.activeInHierarchy);
+            menuUi.controlsSettingsUi.root.SetActive(false);
+            menuUi.soundRoot.SetActive(false);
+        });
 
         foreach (var d in Details.all)
         {
@@ -85,25 +91,32 @@ public class UIMAin : MonoBehaviour
             script.sellAllBtn.onClick.AddListener(() =>
             {
                 Vars.Instance.details.SellAll(d);
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
             });
             script.autoSellToggle.onValueChanged.AddListener(v =>
             {
                 Vars.Instance.details.SetAutoSell(d, v);
+                Vars.Instance.audioManager.Play(Sounds.uiClick);
             });
             detailInstances[d] = script;
         }
 
         winScreenRestartButton.onClick.AddListener(() => Vars.Instance.Restart());
+        winScreenRestartButton.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
         loseScreenRestartButton.onClick.AddListener(() => Vars.Instance.Restart());
+        loseScreenRestartButton.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
 
         buildComplexDialogRoot.SetActive(false);
 
         researchUI.Init();
 
         nextSpeedBtn.onClick.AddListener(() => Vars.Instance.speedSystem.NextSpeed());
+        nextSpeedBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
         prevSpeedBtn.onClick.AddListener(() => Vars.Instance.speedSystem.PrevSpeed());
+        prevSpeedBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
 
         pauseBtn.onClick.AddListener(() => Vars.Instance.speedSystem.ChangePauseState());
+        pauseBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
 
         resourcesBtn.onClick.AddListener(() => SetMenuActive(resourcesRoot, !resourcesRoot.activeInHierarchy));
         cooperationUi.ordersBtn.onClick.AddListener(() => 
@@ -116,13 +129,21 @@ public class UIMAin : MonoBehaviour
         });
         reportsBtn.onClick.AddListener(() => SetMenuActive(reportsUi.root, !reportsUi.root.activeInHierarchy));
 
+        resourcesBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
+        cooperationUi.ordersBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
+        researchUI.openResearchMenuBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
+        employeeMenuBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
+        reportsBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
+
         cooperationUi.Init();
 
         buildComplexDialogBackButton.onClick.AddListener(() => buildComplexDialogRoot.SetActive(false));
+        buildComplexDialogBackButton.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
 
         employeeUi.Init();
 
         resourcesCloseBtn.onClick.AddListener(() => resourcesRoot.SetActive(false));
+        resourcesCloseBtn.onClick.AddListener(() => Vars.Instance.audioManager.Play(Sounds.uiClick));
     
         reportsUi.Init();
 

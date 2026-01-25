@@ -17,7 +17,11 @@ public class ControlsSettingsUi : MonoBehaviour
         rebindScreenRoot.SetActive(false);
         root.SetActive(false);
 
-        closeBtn.onClick.AddListener(() => root.SetActive(false));
+        closeBtn.onClick.AddListener(() => 
+        {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
+            root.SetActive(false);
+        });
         
         var p = Vars.Instance.input.actions.Player;
 
@@ -49,6 +53,7 @@ public class ControlsSettingsUi : MonoBehaviour
         scr.curRebindText.text = InputControlPath.ToHumanReadableString(bind.effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
         scr.rebindBtn.onClick.AddListener(() =>
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             rebindScreenRoot.SetActive(true);
             Vars.Instance.rebinds.StartRebind(action, 0, () =>
             {
@@ -62,11 +67,13 @@ public class ControlsSettingsUi : MonoBehaviour
         });
         scr.unbindBtn.onClick.AddListener(() =>
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             Vars.Instance.rebinds.Unbind(action, 0);
             scr.curRebindText.text = "None";
         });
         scr.resetBtn.onClick.AddListener(() =>
         {
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
             Vars.Instance.rebinds.Reset(action);
             bind = action.bindings[0];
             scr.curRebindText.text = InputControlPath.ToHumanReadableString(bind.effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);

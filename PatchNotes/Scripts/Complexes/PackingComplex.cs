@@ -15,4 +15,9 @@ public class PackingComplex : Complex
     {
         return stack.count;
     }
+
+    public override string GetDesc()
+    {
+        return type.GetDesc();
+    }
 }

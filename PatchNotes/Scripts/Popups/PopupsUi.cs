@@ -26,18 +26,32 @@ public class PopupsUi : MonoBehaviour
 
     public void ShowPopup(string title, string desc, UnityAction onClose, List<PopupOption> options)
     {
+        ShowPopup(new()
+        {
+            title = title,
+            desc = desc,
+            onClose = onClose,
+            options = options,
+        });
+    }
+    public void ShowPopup(PopupInfo popupInfo)
+    {
+        if (popupInfo == null) return;
+
         var scr = Instantiate(popupUiCntPfb, root);
-        scr.titleText.text = title;
-        scr.descText.text = desc;
+        scr.titleText.text = popupInfo.title;
+        scr.descText.text = popupInfo.desc;
         scr.closeBtn.onClick.AddListener(() =>
         {
             instances.Remove(scr);
             Destroy(scr.gameObject);
-            onClose?.Invoke();
+            popupInfo.onClose?.Invoke();
+            Vars.Instance.audioManager.Play(Sounds.uiClick);
         });
-        if (options != null)
+
+        if (popupInfo.options != null)
         {
-            foreach (var o in options)
+            foreach (var o in popupInfo.options)
             {
                 var s = Instantiate(popupOptionUiCntPfb, scr.optionsRootTransform);
                 s.btn.onClick.AddListener(() =>
@@ -45,14 +59,17 @@ public class PopupsUi : MonoBehaviour
                     instances.Remove(scr);
                     Destroy(scr.gameObject);
                     o.onChoose?.Invoke();
+                    Vars.Instance.audioManager.Play(Sounds.uiClick);
                 });
                 s.text.text = o.name;
                 s.tooltipInfoCnt.title = o.tooltipName;
                 s.tooltipInfoCnt.desc = o.tooltipDesc;
             }
         }
-        instances.Add(scr);
         scr.Init();
+        
+        instances.Add(scr);
+        Vars.Instance.audioManager.Play(Sounds.uiPopUp);
     }
 }
 
@@ -62,4 +79,12 @@ public class PopupOption
     public string tooltipName;
     public string tooltipDesc;
     public UnityAction onChoose;
+}
+
+public class PopupInfo
+{
+    public string title;
+    public string desc;
+    public UnityAction onClose;
+    public List<PopupOption> options;
 }

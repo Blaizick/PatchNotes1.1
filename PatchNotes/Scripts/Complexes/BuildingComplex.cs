@@ -13,6 +13,7 @@ public class BuildingComplex : Complex
         effeciencyFiller.fillAmount = progress;
         if (progress > 1)
         {
+            Vars.Instance.audioManager.Play(Sounds.buildingComplexComplete);
             Vars.Instance.buildSystem.FinishBuilding(this);
         }
         SetTooltip();
@@ -21,7 +22,8 @@ public class BuildingComplex : Complex
     public override string GetDesc()
     {
         var modifier = 1.0f + Vars.Instance.modifiers.GetBonus<BuildSpeedModifier>();
-        return $"Building: {buildingComplex.name}\n" +
+        return $"{type.GetDesc()}\n" +
+               $"Building: {buildingComplex.name}\n" +
                $"Time Left: {(int)((1.0f - progress) * buildingComplex.buildTime / modifier)} days\n";
     }
 }

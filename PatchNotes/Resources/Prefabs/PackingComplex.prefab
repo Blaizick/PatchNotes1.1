@@ -462,6 +462,7 @@ MonoBehaviour:
   selectionFrameRoot: {fileID: 2026379274311724580}
   circleSelectionRoot: {fileID: 6422671786390273462}
   tooltipInfoCnt: {fileID: 4756403172210205504}
+  audioSource: {fileID: 0}
 --- !u!114 &-1274491796220271436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474,8 +475,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc68a56fce32f14a991c3c28a60d240, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipInfoCnt
-  title: Packing Complex
-  desc: Packing complex packages all received resources
+  title: 
+  desc: 
 --- !u!114 &4756403172210205504
 MonoBehaviour:
   m_ObjectHideFlags: 0
